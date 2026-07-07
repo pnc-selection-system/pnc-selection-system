@@ -49,7 +49,7 @@
           <p class="text-[10px] tracking-[3px] text-gray-500 uppercase mb-3">
             Outreach
           </p>
-          <MenuItem title="Information Sessions"/>
+          <MenuItem title="Information Sessions" to="/outreach/information-sessions" />
           <MenuItem title="NGOs & Partners"/>
         </div>
         <!-- CANDIDATES -->
@@ -185,7 +185,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineComponent, h } from "vue";
+import { defineComponent, h, resolveComponent } from "vue";
 
 const MenuItem = defineComponent({
   props: {
@@ -194,13 +194,20 @@ const MenuItem = defineComponent({
       required: true
     },
     badge: String,
+    to: {
+      type: String,
+      default: '#'
+    }
   },
   setup(props) {
-    return () =>
-      h(
-        "a",
+    return () => {
+      const isLink = props.to !== '#';
+      const component = isLink ? resolveComponent('router-link') : 'a';
+      
+      return h(
+        component,
         {
-          href: "#",
+          [isLink ? 'to' : 'href']: props.to,
           class:
             "flex items-center justify-between px-3 py-2 rounded-lg hover:bg-gray-700 transition mb-1",
         },
@@ -222,6 +229,7 @@ const MenuItem = defineComponent({
             : null,
         ]
       );
+    }
   },
 });
 </script>

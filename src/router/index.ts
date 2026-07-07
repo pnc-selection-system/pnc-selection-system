@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import dashboardRoutes from '@/features/dashboard/view/routes'
+import informationSessionRoutes from '@/features/InformationSession/view/routes'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -8,7 +9,8 @@ const router = createRouter({
       path: '/',
       redirect: '/dashboard',
     },
-    ...dashboardRoutes
+    ...dashboardRoutes,
+    ...informationSessionRoutes
   ],
 })
 
