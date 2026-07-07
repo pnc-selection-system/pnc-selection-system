@@ -17,6 +17,7 @@ declare module 'vue' {
     BaseInput: typeof import('./src/components/base/BaseInput.vue')['default']
     ConfirmDialog: typeof import('./src/components/ui/ConfirmDialog.vue')['default']
     ElButton: typeof import('element-plus/es')['ElButton']
+    ElDialog: typeof import('element-plus/es')['ElDialog']
     ElInput: typeof import('element-plus/es')['ElInput']
     EmptyState: typeof import('./src/components/ui/EmptyState.vue')['default']
     ErrorAlert: typeof import('./src/components/ui/ErrorAlert.vue')['default']

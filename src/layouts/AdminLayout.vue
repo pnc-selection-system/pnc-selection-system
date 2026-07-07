@@ -11,7 +11,7 @@ import AppSidebar from "@/components/layouts/AppSidebar.vue"
       <!-- Top Header -->
       <AppHeader />
       <!-- Page Content -->
-      <main class="flex-1 overflow-y-auto overflow-x-hidden relative focus:outline-none custom-scrollbar">
+      <main class="flex-1 overflow-y-auto overflow-x-hidden relative focus:outline-none hide-scrollbar">
         <div class="p-6 md:p-8">
           <router-view />
         </div>

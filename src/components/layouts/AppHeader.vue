@@ -1,14 +1,28 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth } from '@/features/auth/composables/useAuth'
+import ConfirmDialog from '@/components/ui/ConfirmDialog.vue'
+import BaseButton from '@/components/base/BaseButton.vue'
 
-// Main Header component for Admin layout
 const router = useRouter()
-const { logout } = useAuth()
+const { logout, initials } = useAuth()
+const showLogoutConfirm = ref(false)
+const isLoggingOut = ref(false)
 
-async function handleLogout() {
-  await logout()
-  router.push({ name: 'login' })
+function openSignOut() {
+  showLogoutConfirm.value = true
+}
+
+async function doSignOut() {
+  isLoggingOut.value = true
+  try {
+    await logout()
+    router.push({ name: 'login' })
+  } finally {
+    isLoggingOut.value = false
+    showLogoutConfirm.value = false
+  }
 }
 </script>
 <template>
@@ -46,30 +60,34 @@ async function handleLogout() {
         <span class="text-gray-500 font-medium">Campaign:</span>
         <span class="text-gray-900">2026</span>
       </button>
-      <!-- Lock Action -->
-      <button
+      <!-- Sign out and Profile Avatar -->
+      <BaseButton
         type="button"
-        class="inline-flex items-center gap-2 border border-gray-200 rounded-lg px-5 py-2 hover:bg-gray-50 text-sm font-semibold text-gray-700 transition-colors">
-        <span>Lock</span>
-      </button>
-      <!-- Logout and Profile Avatar -->
-      <button
-        type="button"
-        class="inline-flex items-center gap-2 border border-gray-200 rounded-lg px-4 py-2 hover:bg-gray-50 text-gray-700 text-sm font-semibold transition-all hover:border-gray-300"
-        @click="handleLogout">
-        Logout
-      </button>
-      <div class="h-8 w-px bg-gray-200 mx-1"></div>
+        variant="secondary"
+        class="inline-flex items-center gap-2 border border-gray-200 rounded-lg px-4 py-2 hover:bg-gray-50 text-gray-700 text-sm font-semibold transition-all hover:border-gray-300 w-auto"
+        @click="openSignOut"
+      >
+        Sign out
+      </BaseButton>
+      <div class="h-8 w-px bg-gray-400 mx-1"></div>
       <button
         type="button"
         class="group relative flex items-center gap-3 focus:outline-none">
-        <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center font-bold text-white shadow-lg shadow-blue-500/20 transform transition-transform group-hover:scale-105 active:scale-95">
-          SM
+        <div class="w-10 h-10 rounded-full border border-gray-400 flex items-center justify-center font-bold text-gray-600 shadow-sm transform transition-transform active:scale-95">
+          {{ initials || 'SM' }}
         </div>
       </button>
     </div>
   </header>
+  <ConfirmDialog
+    v-model="showLogoutConfirm"
+    title="Sign out"
+    message="Are you sure you want to sign out?"
+    confirmText="Sign out"
+    :loading="isLoggingOut"
+    @confirm="doSignOut"
+  />
 </template>
 <style scoped>
-/* Standard header styles */
 </style>
+

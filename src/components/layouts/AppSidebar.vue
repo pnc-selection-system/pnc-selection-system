@@ -18,7 +18,7 @@ const MenuItem = defineComponent({
         [
           h("div", { class: "flex items-center gap-3" }, [
             h("div", { class: "w-2 h-2 rounded-sm bg-gray-500" }),
-            h("span", props.title),
+            h("span", { class: "text-xs text-gray-200" }, props.title),
           ]),
           props.badge
             ? h("span", { class: "text-[10px] text-gray-400" }, props.badge)
@@ -29,13 +29,13 @@ const MenuItem = defineComponent({
 })
 </script>
 <template>
-  <aside class="w-64 bg-[#1F2937] text-gray-300 flex flex-col h-full border-r border-gray-700">
+  <aside class="w-[225px] bg-[#1F2937] text-gray-300 flex flex-col h-full border-r border-gray-700">
     <!-- Logo Section -->
-    <div class="h-16 border-b border-gray-700 flex items-center px-5 shrink-0">
-      <div class="w-10 h-10 rounded-lg border border-gray-600 flex items-center justify-center text-xs font-bold text-white bg-gray-800">
-        PNC
+    <div class="h-16 border-b border-gray-700 flex items-center px-3 shrink-0">
+      <div class="w-10 h-10 rounded-lg border border-gray-600 flex items-center justify-center bg-white">
+        <img src="@/assets/images/pncLogo.png" alt="PNC Logo" class="h-8 w-8 object-contain" />
       </div>
-      <div class="ml-3">
+      <div class="ml-2">
         <h1 class="text-white font-semibold leading-none text-sm tracking-tight">
           Student Selection
         </h1>
@@ -45,49 +45,49 @@ const MenuItem = defineComponent({
       </div>
     </div>
     <!-- Scrollable Menu -->
-    <div class="flex-1 overflow-y-auto custom-scrollbar-dark">
+    <div class="flex-1 overflow-y-auto hide-scrollbar">
       <!-- HOME -->
-      <nav class="px-5 mt-6">
-        <p class="text-[10px] tracking-[3px] text-gray-500 uppercase mb-3 font-medium">
+      <nav class="px-4 mt-4">
+        <p class="text-[8px] tracking-[3px] text-gray-500 uppercase mb-2 font-medium">
           Home
         </p>
         <router-link
           to="/dashboard"
-          class="flex items-center justify-between rounded-lg bg-blue-600/20 text-white px-3 py-2 mt-1 border border-blue-500/20">
-          <div class="flex items-center gap-3">
+          class="flex items-center justify-between rounded-lg bg-blue-600/20 text-white px-3 py-1 mt-1 border border-blue-500/20">
+          <div class="flex items-center gap-2">
             <div class="w-2 h-2 rounded-sm bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]"></div>
-            <span class="font-medium">Dashboard</span>
+            <span class="text-xs font-medium">Dashboard</span>
           </div>
-          <span class="text-[10px] font-bold text-blue-300 bg-blue-500/10 px-1.5 py-0.5 rounded">ALL</span>
+          <span class="text-[8px] font-bold text-blue-300 bg-blue-500/10 px-1.5 py-0.5 rounded">ALL</span>
         </router-link>
       </nav>
       <!-- SETUP -->
-      <div class="px-5 mt-8">
-        <p class="text-[10px] tracking-[3px] text-gray-500 uppercase mb-3 font-medium">
+      <div class="px-3 mt-2">
+        <p class="text-[8px] tracking-[3px] text-gray-500 uppercase mb-1 font-medium">
           Setup
         </p>
         <MenuItem title="Campaigns" badge="MGR" />
         <MenuItem title="Users & Roles" badge="ADM" />
       </div>
       <!-- OUTREACH -->
-      <div class="px-5 mt-8">
-        <p class="text-[10px] tracking-[3px] text-gray-500 uppercase mb-3 font-medium">
+      <div class="px-3 mt-2">
+        <p class="text-[8px] tracking-[3px] text-gray-500 uppercase mb-1 font-medium">
           Outreach
         </p>
         <MenuItem title="Information Sessions" />
         <MenuItem title="NGOs & Partners" />
       </div>
       <!-- CANDIDATES -->
-      <div class="px-5 mt-8">
-        <p class="text-[10px] tracking-[3px] text-gray-500 uppercase mb-3 font-medium">
+      <div class="px-3 mt-2">
+        <p class="text-[8px] tracking-[3px] text-gray-500 uppercase mb-1 font-medium">
           Candidates
         </p>
         <MenuItem title="Candidate List" />
         <MenuItem title="Candidate Profile" />
       </div>
       <!-- EXAM -->
-      <div class="px-5 mt-8">
-        <p class="text-[10px] tracking-[3px] text-gray-500 uppercase mb-3 font-medium">
+      <div class="px-3 mt-2">
+        <p class="text-[8px] tracking-[3px] text-gray-500 uppercase mb-1 font-medium">
           Exam
         </p>
         <MenuItem title="Exam Configuration" badge="MGR" />
@@ -95,16 +95,16 @@ const MenuItem = defineComponent({
         <MenuItem title="Results & Analytics" />
       </div>
       <!-- EVALUATION -->
-      <div class="px-5 mt-8">
-        <p class="text-[10px] tracking-[3px] text-gray-500 uppercase mb-3 font-medium">
+      <div class="px-3 mt-2">
+        <p class="text-[8px] tracking-[3px] text-gray-500 uppercase mb-1 font-medium">
           Evaluation
         </p>
         <MenuItem title="Interest Assessment" />
         <MenuItem title="Home Investigation" badge="INV" />
       </div>
       <!-- DECISION -->
-      <div class="px-5 mt-8 pb-8">
-        <p class="text-[10px] tracking-[3px] text-gray-500 uppercase mb-3 font-medium">
+      <div class="px-3 mt-3 pb-4">
+        <p class="text-[8px] tracking-[3px] text-gray-500 uppercase mb-1.5 font-medium">
           Decision
         </p>
         <MenuItem title="Voting & Selection" badge="CMT" />
@@ -115,7 +115,7 @@ const MenuItem = defineComponent({
     <div class="border-t border-gray-700 p-5 text-[11px] text-gray-500 leading-relaxed shrink-0 bg-[#1F2937]">
       <div class="font-medium text-gray-400">LO-FI WIREFRAMES • v0.9</div>
       <div>Sprint 0 • S0-13 / S0-14</div>
-      <div class="mt-3 text-[10px] text-gray-600 uppercase tracking-tighter">
+      <div class="mt-3 text-[8px] text-gray-600 uppercase tracking-tighter">
         Role legend: ADM admin • MGR manager • INV officer • CMT committee
       </div>
     </div>
