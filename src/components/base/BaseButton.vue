@@ -4,25 +4,25 @@ withDefaults(
     type?: 'button' | 'submit' | 'reset'
     variant?: 'primary' | 'secondary'
     disabled?: boolean
+    loading?: boolean
   }>(),
   {
     type: 'button',
     variant: 'primary',
     disabled: false,
+    loading: false,
   },
 )
 </script>
 
 <template>
-  <button
-    :type="type"
+  <el-button
+    :type="variant === 'secondary' ? 'default' : 'primary'"
     :disabled="disabled"
-    :class="[
-      'w-full rounded-lg px-4 py-2.5 font-semibold transition-colors',
-      variant === 'secondary' ? 'bg-slate-200 text-slate-800 hover:bg-slate-300' : 'bg-blue-600 text-white hover:bg-blue-700',
-      disabled ? 'cursor-not-allowed opacity-70' : 'cursor-pointer',
-    ]"
+    :loading="loading"
+    :native-type="type"
+    class="w-full"
   >
     <slot />
-  </button>
+  </el-button>
 </template>

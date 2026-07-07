@@ -14,8 +14,6 @@ export function validateLoginForm(email: string, password: string): LoginFormErr
 
   if (!password.trim()) {
     errors.password = 'Password is required'
-  } else if (password.length < 6) {
-    errors.password = 'Password must be at least 6 characters'
   }
 
   return errors

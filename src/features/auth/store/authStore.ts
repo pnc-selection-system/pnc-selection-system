@@ -1,13 +1,20 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-import { authService } from '../servers/authService'
+import { login as loginRequest, logout as logoutRequest } from '../servers/authService'
 import type { AuthUser, LoginPayload } from '../types/auth'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<AuthUser | null>(null)
-  const token = ref<string | null>(null)
+  const token = ref<string | null>(localStorage.getItem('auth_token'))
   const loading = ref(false)
   const error = ref<string | null>(null)
+
+  if (token.value) {
+    const savedUser = localStorage.getItem('auth_user')
+    if (savedUser) {
+      user.value = JSON.parse(savedUser) as AuthUser
+    }
+  }
 
   const isAuthenticated = computed(() => Boolean(token.value && user.value))
 
@@ -16,12 +23,16 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null
 
     try {
-      const response = await authService.login(payload)
+      const response = await loginRequest(payload)
       user.value = response.user
       token.value = response.token
+
+      localStorage.setItem('auth_token', response.token)
+      localStorage.setItem('auth_user', JSON.stringify(response.user))
+
       return response
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Login failed'
+      const message = err instanceof Error ? err.message : 'Invalid email or password'
       error.value = message
       throw err
     } finally {
@@ -29,11 +40,21 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  function logout() {
-    authService.logout()
+  async function logout(sendRequest = true) {
+    if (sendRequest) {
+      try {
+        await logoutRequest()
+      } catch {
+        // Ignore logout failures, token may already be invalid or expired.
+      }
+    }
+
     user.value = null
     token.value = null
     error.value = null
+
+    localStorage.removeItem('auth_token')
+    localStorage.removeItem('auth_user')
   }
 
   return {

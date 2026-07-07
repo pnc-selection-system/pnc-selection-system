@@ -4,15 +4,28 @@ export interface LoginPayload {
 }
 
 export interface AuthUser {
-  id: string
+  id: number
   email: string
   name: string
-  role: 'admin' | 'user'
+  role: string
+}
+
+export interface AuthApiResponse {
+  success: boolean
+  message: string
+  data: {
+    expires_in: number
+    user: AuthUser
+    token_type: string
+    access_token: string
+  }
 }
 
 export interface AuthResponse {
   user: AuthUser
   token: string
+  tokenType: string
+  expiresIn: number
 }
 
 

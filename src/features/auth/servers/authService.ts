@@ -1,46 +1,42 @@
-import type { AuthResponse, LoginPayload } from '../types/auth'
+import api from '@/plugins/axios'
+import type { AxiosError } from 'axios'
+import type { AuthApiResponse, AuthResponse, LoginPayload } from '../types/auth'
 
-class AuthService {
-  async login(payload: LoginPayload): Promise<AuthResponse> {
-    await new Promise((resolve) => setTimeout(resolve, 500))
+export async function login(data: LoginPayload): Promise<AuthResponse> {
+  try {
+    const response = await api.post<AuthApiResponse>('/login', data)
 
-    const email = payload.email.trim().toLowerCase()
-    const password = payload.password
-
-    if (!email || !password) {
-      throw new Error('Email and password are required')
+    if (!response.data?.success) {
+      throw new Error(response.data?.message || 'Invalid email or password')
     }
 
-    if (email === 'admin@example.com' && password === '123456') {
-      return {
-        user: {
-          id: '1',
-          email,
-          name: 'Admin User',
-          role: 'admin',
-        },
-        token: 'mock-admin-token',
-      }
+    return {
+      user: response.data.data.user,
+      token: response.data.data.access_token,
+      tokenType: response.data.data.token_type,
+      expiresIn: response.data.data.expires_in,
+    }
+  } catch (error) {
+    const axiosError = error as AxiosError<{ message?: string }>
+    let message = 'Invalid email or password'
+
+    if (axiosError.response?.data?.message) {
+      message = axiosError.response.data.message
+    } else if (axiosError.response?.status === 401) {
+      message = 'Invalid email or password'
+    } else if (axiosError.message) {
+      message = axiosError.message
     }
 
-    if (email === 'user@example.com' && password === '123456') {
-      return {
-        user: {
-          id: '2',
-          email,
-          name: 'Regular User',
-          role: 'user',
-        },
-        token: 'mock-user-token',
-      }
-    }
-
-    throw new Error('Invalid email or password')
-  }
-
-  logout(): void {
-    // no-op placeholder for future backend integration
+    throw new Error(message)
   }
 }
 
-export const authService = new AuthService()
+export async function logout(): Promise<void> {
+  await api.post('/logout')
+}
+
+export async function me() {
+  const response = await api.get('/profile')
+  return response.data
+}

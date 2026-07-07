@@ -1,24 +1,46 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import BaseButton from '@/components/base/BaseButton.vue'
 import BaseInput from '@/components/base/BaseInput.vue'
+import { useAuth } from '../composables/useAuth'
 import { validateLoginForm, type LoginFormErrors } from '../validation/loginValidation'
 
 const email = ref('')
 const password = ref('')
 const errors = ref<LoginFormErrors>({})
+const { login, loading, error: authError } = useAuth()
+const successMessage = ref('')
 
-const formValid = computed(() => Object.keys(errors.value).length === 0)
+async function handleSubmit() {
+  if (loading.value) {
+    return
+  }
 
-function handleSubmit() {
   const validationErrors = validateLoginForm(email.value, password.value)
   errors.value = validationErrors
+  successMessage.value = ''
 
   if (Object.keys(validationErrors).length > 0) {
     return
   }
 
-  alert('Login form is valid')
+  try {
+    const response = await login({
+      email: email.value,
+      password: password.value,
+    })
+
+    console.log('Login success:', response)
+    successMessage.value = 'Login successful'
+  } catch {
+    successMessage.value = ''
+    if (authError.value) {
+      errors.value = {
+        ...errors.value,
+        password: authError.value,
+      }
+    }
+  }
 }
 </script>
 
@@ -43,10 +65,15 @@ function handleSubmit() {
 
       <a href="#" class="text-right text-sm font-medium text-blue-400 hover:text-blue-500">Forgot password?</a>
 
-      <BaseButton type="submit" class="mt-2">Login</BaseButton>
-      <p v-if="formValid && email && password" class="text-center text-sm text-green-600">Looks good!</p>
+      <p v-if="successMessage" class="text-center text-sm text-green-600">{{ successMessage }}</p>
+
+      <BaseButton type="submit" class="mt-2" :loading="loading">Login</BaseButton>
     </form>
   </div>
 </template>
+
+
+
+
 
 
