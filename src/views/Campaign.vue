@@ -612,32 +612,31 @@ function handleDeleteKeydown(e: KeyboardEvent) {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 6px 12px;
+  padding: 5px 14px;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.15s, color 0.15s;
-  background: transparent;
+  transition: background-color 0.15s, opacity 0.15s;
 }
 
 .campaign-edit-btn {
-  color: #6b7280;
+  color: #2563eb;
+  background-color: #eff6ff;
 }
 
 .campaign-edit-btn:hover {
-  color: #2f6fed;
-  background-color: #eff4ff;
+  background-color: #dbeafe;
 }
 
 .campaign-delete-btn {
-  color: #6b7280;
+  color: #dc2626;
+  background-color: #fef2f2;
 }
 
 .campaign-delete-btn:hover {
-  color: #dc2626;
-  background-color: #fef2f2;
+  background-color: #fee2e2;
 }
 
 /* --- Filter Input & Select --- */
