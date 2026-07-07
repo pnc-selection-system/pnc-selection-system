@@ -2,13 +2,12 @@ import axios from 'axios'
 import { useAuthStore } from '@/features/auth/store/authStore'
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api/auth',
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api',
   headers: {
     'Content-Type': 'application/json',
   },
 })
 
-// Attach the JWT (if we have one) to every outgoing request, but skip it for login.
 api.interceptors.request.use((config) => {
   const authStore = useAuthStore()
   if (config.url?.endsWith('/login')) {
@@ -21,8 +20,6 @@ api.interceptors.request.use((config) => {
   return config
 })
 
-// If the API ever responds with 401 (expired/invalid token), log the
-// user out and stop further auth retries.
 api.interceptors.response.use(
   (response) => response,
   async (error) => {

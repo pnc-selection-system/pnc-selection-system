@@ -4,7 +4,7 @@ import type { AuthApiResponse, AuthResponse, LoginPayload } from '../types/auth'
 
 export async function login(data: LoginPayload): Promise<AuthResponse> {
   try {
-    const response = await api.post<AuthApiResponse>('/login', data)
+    const response = await api.post<AuthApiResponse>('auth/login', data)
 
     if (!response.data?.success) {
       throw new Error(response.data?.message || 'Invalid email or password')
@@ -33,10 +33,10 @@ export async function login(data: LoginPayload): Promise<AuthResponse> {
 }
 
 export async function logout(): Promise<void> {
-  await api.post('/logout')
+  await api.post('auth/logout')
 }
 
 export async function me() {
-  const response = await api.get('/profile')
+  const response = await api.get('auth/profile')
   return response.data
 }
