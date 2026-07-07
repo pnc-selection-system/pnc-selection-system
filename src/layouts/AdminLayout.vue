@@ -1,16 +1,13 @@
 <template>
   <div class="flex h-screen bg-gray-100 overflow-hidden">
-
     <!-- Sidebar -->
     <aside class="w-64 bg-[#1F2937] text-gray-300 flex flex-col">
-
       <!-- Logo -->
       <div class="h-16 border-b border-gray-700 flex items-center px-5">
         <div
           class="w-10 h-10 rounded-lg border border-gray-600 flex items-center justify-center text-xs font-bold">
           PNC
         </div>
-
         <div class="ml-3">
           <h1 class="text-white font-semibold leading-none">
             Student Selection
@@ -20,107 +17,76 @@
           </p>
         </div>
       </div>
-
       <!-- Menu -->
       <div class="flex-1 overflow-y-auto">
-
         <!-- HOME -->
         <div class="px-5 mt-6">
           <p class="text-[10px] tracking-[3px] text-gray-500 uppercase mb-3">
             Home
           </p>
-
-          <a
-            href="#"
+          <router-link
+            to="/dashboard"
             class="flex items-center justify-between rounded-lg bg-blue-600/20 text-white px-3 py-2 mt-1">
-
             <div class="flex items-center gap-3">
               <div class="w-2 h-2 rounded-sm bg-blue-500"></div>
               <span>Dashboard</span>
             </div>
-
             <span class="text-xs text-blue-300">
               ALL
             </span>
-
-          </a>
+          </router-link>
         </div>
-
         <!-- SETUP -->
         <div class="px-5 mt-8">
-
           <p class="text-[10px] tracking-[3px] text-gray-500 uppercase mb-3">
             Setup
           </p>
-
           <MenuItem title="Campaigns" badge="MGR"/>
           <MenuItem title="Users & Roles" badge="ADM"/>
-
         </div>
-
         <!-- OUTREACH -->
         <div class="px-5 mt-8">
-
           <p class="text-[10px] tracking-[3px] text-gray-500 uppercase mb-3">
             Outreach
           </p>
-
           <MenuItem title="Information Sessions"/>
           <MenuItem title="NGOs & Partners"/>
-
         </div>
-
         <!-- CANDIDATES -->
         <div class="px-5 mt-8">
-
           <p class="text-[10px] tracking-[3px] text-gray-500 uppercase mb-3">
             Candidates
           </p>
-
           <MenuItem title="Candidate List"/>
           <MenuItem title="Candidate Profile"/>
-
         </div>
-
         <!-- EXAM -->
         <div class="px-5 mt-8">
-
           <p class="text-[10px] tracking-[3px] text-gray-500 uppercase mb-3">
             Exam
           </p>
-
           <MenuItem title="Exam Configuration" badge="MGR"/>
           <MenuItem title="Import Wizard"/>
           <MenuItem title="Results & Analytics"/>
-
         </div>
-
         <!-- EVALUATION -->
         <div class="px-5 mt-8">
-
           <p class="text-[10px] tracking-[3px] text-gray-500 uppercase mb-3">
             Evaluation
           </p>
-
           <MenuItem title="Interest Assessment"/>
           <MenuItem title="Home Investigation" badge="INV"/>
-
         </div>
-
         <!-- DECISION -->
         <div class="px-5 mt-8">
 
           <p class="text-[10px] tracking-[3px] text-gray-500 uppercase mb-3">
             Decision
           </p>
-
           <MenuItem title="Voting & Selection" badge="CMT"/>
           <MenuItem title="Reports & Exports"/>
-
         </div>
-
       </div>
-
       <!-- Footer -->
       <div class="border-t border-gray-700 p-5 text-[11px] text-gray-500 leading-5">
 
@@ -210,14 +176,7 @@
 
       <!-- Page -->
       <main class="flex-1 overflow-auto p-8">
-
-        <div
-          class="rounded-xl border bg-white h-full flex items-center justify-center text-gray-400 text-xl">
-
-          Dashboard Content
-
-        </div>
-
+        <router-view />
       </main>
 
     </div>
@@ -225,12 +184,15 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { defineComponent, h } from "vue";
 
 const MenuItem = defineComponent({
   props: {
-    title: String,
+    title: {
+      type: String,
+      required: true
+    },
     badge: String,
   },
   setup(props) {
@@ -263,17 +225,14 @@ const MenuItem = defineComponent({
   },
 });
 </script>
-
 <style scoped>
 ::-webkit-scrollbar {
     width: 6px;
 }
-
 ::-webkit-scrollbar-thumb {
     background: #4b5563;
     border-radius: 20px;
 }
-
 ::-webkit-scrollbar-track {
     background: transparent;
 }
