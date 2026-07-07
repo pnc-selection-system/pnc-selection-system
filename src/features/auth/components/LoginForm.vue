@@ -3,12 +3,14 @@ import { ref } from 'vue'
 import BaseButton from '@/components/base/BaseButton.vue'
 import BaseInput from '@/components/base/BaseInput.vue'
 import { useAuth } from '../composables/useAuth'
+import { useRouter } from 'vue-router'
 import { validateLoginForm, type LoginFormErrors } from '../validation/loginValidation'
 
 const email = ref('')
 const password = ref('')
 const errors = ref<LoginFormErrors>({})
 const { login, loading, error: authError } = useAuth()
+const router = useRouter()
 const successMessage = ref('')
 
 async function handleSubmit() {
@@ -32,6 +34,7 @@ async function handleSubmit() {
 
     console.log('Login success:', response)
     successMessage.value = 'Login successful'
+    await router.push({ name: 'dashboard' })
   } catch {
     successMessage.value = ''
     if (authError.value) {

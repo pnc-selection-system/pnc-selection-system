@@ -11,6 +11,8 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AppHeader: typeof import('./src/components/layouts/AppHeader.vue')['default']
+    AppSidebar: typeof import('./src/components/layouts/AppSidebar.vue')['default']
     BaseButton: typeof import('./src/components/base/BaseButton.vue')['default']
     BaseInput: typeof import('./src/components/base/BaseInput.vue')['default']
     ConfirmDialog: typeof import('./src/components/ui/ConfirmDialog.vue')['default']
