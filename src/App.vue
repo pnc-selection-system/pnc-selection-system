@@ -7,5 +7,4 @@
 </script>
 
 <style scoped>
-/* App-level styles can be added here if needed */
 </style>

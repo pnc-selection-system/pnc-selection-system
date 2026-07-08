@@ -1,18 +1,7 @@
 import { authRoutes } from '@/features/auth/routes'
-import AdminLayout from '@/layouts/AdminLayout.vue'
-import DashboardView from '@/views/DashboardView.vue'
+import dashboardRoutes from '@/features/dashboard/routes'
 
 export const routes = [
-	...authRoutes,
-	{
-		path: '/dashboard',
-		component: AdminLayout,
-		children: [
-			{
-				path: '',
-				name: 'dashboard',
-				component: DashboardView,
-			},
-		],
-	},
+  ...authRoutes,
+  ...dashboardRoutes,
 ]
