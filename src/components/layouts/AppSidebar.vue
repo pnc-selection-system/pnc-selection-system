@@ -89,7 +89,17 @@ const MenuItem = defineComponent({
           Outreach
         </p>
         <MenuItem title="Information Sessions" />
-        <MenuItem title="NGOs & Partners" />
+        <router-link
+          to="/ngos-partners"
+          class="flex items-center justify-between px-3 py-2 rounded-lg text-gray-200 transition mb-1"
+          active-class="bg-slate-700 text-white border border-slate-600"
+          exact-active-class="bg-slate-700 text-white border border-slate-600"
+        >
+          <div class="flex items-center gap-3">
+            <div class="w-2 h-2 rounded-sm bg-gray-500"></div>
+            <span class="text-xs text-gray-200">NGOs & Partners</span>
+          </div>
+        </router-link>
       </div>
       <!-- CANDIDATES -->
       <div class="px-3 mt-2">
