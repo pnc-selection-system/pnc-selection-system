@@ -1,10 +1,8 @@
 import type { DashboardData } from '../types/dashboard'
 import type { DashboardFilters, FilterOptions } from '../types/filter'
 
-const DELAY = 500
-
-function wait<T>(value: T, ms = DELAY): Promise<T> {
-  return new Promise((resolve) => setTimeout(() => resolve(value), ms))
+function wait<T>(value: T): Promise<T> {
+  return Promise.resolve(value)
 }
 
 /**

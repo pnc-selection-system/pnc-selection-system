@@ -53,7 +53,10 @@ const MenuItem = defineComponent({
         </p>
         <router-link
           to="/dashboard"
-          class="flex items-center justify-between rounded-lg bg-blue-600/20 text-white px-3 py-1 mt-1 border border-blue-500/20">
+          class="flex items-center justify-between px-3 py-2 rounded-lg text-gray-200 transition mb-1"
+          active-class="bg-slate-700 text-white border border-slate-600"
+          exact-active-class="bg-slate-700 text-white border border-slate-600"
+        >
           <div class="flex items-center gap-2">
             <div class="w-2 h-2 rounded-sm bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]"></div>
             <span class="text-xs font-medium">Dashboard</span>
@@ -66,7 +69,18 @@ const MenuItem = defineComponent({
         <p class="text-[8px] tracking-[3px] text-gray-500 uppercase mb-1 font-medium">
           Setup
         </p>
-        <MenuItem title="Campaigns" badge="MGR" />
+        <router-link
+          to="/campaigns"
+          class="flex items-center justify-between px-3 py-2 rounded-lg text-gray-200 transition mb-1"
+          active-class="bg-slate-700 text-white border border-slate-600"
+          exact-active-class="bg-slate-700 text-white border border-slate-600"
+        >
+          <div class="flex items-center gap-3">
+            <div class="w-2 h-2 rounded-sm bg-gray-500"></div>
+            <span class="text-xs text-gray-200">Campaigns</span>
+          </div>
+          <span class="text-[10px] text-gray-400">MGR</span>
+        </router-link>
         <MenuItem title="Users & Roles" badge="ADM" />
       </div>
       <!-- OUTREACH -->

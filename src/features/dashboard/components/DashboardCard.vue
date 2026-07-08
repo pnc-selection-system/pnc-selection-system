@@ -14,7 +14,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const cardClasses = computed(() => {
   if (props.variant === 'blue') {
-    return 'border-blue-200 bg-blue-50/50 hover:bg-blue-50 hover:shadow-md active:scale-[0.98]'
+    return 'border-blue-200 bg-blue-50/75 hover:bg-blue-50 hover:shadow-md active:scale-[0.98]'
   }
   return 'border-slate-200 bg-white hover:shadow-md active:scale-[0.98]'
 })
@@ -35,7 +35,7 @@ const iconClasses = computed(() => {
 <template>
   <button
     type="button"
-    class="group relative flex w-full flex-col items-start overflow-hidden rounded-xl border p-6 shadow-sm transition-all duration-200 text-left focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+    class="group relative flex w-full flex-col items-start overflow-hidden rounded-[1.75rem] border bg-white p-6 shadow-sm transition-all duration-200 text-left focus:outline-none focus:ring-2 focus:ring-slate-300 focus:ring-offset-2"
     :class="cardClasses"
     :aria-label="`${label}: ${value}`"
   >
@@ -65,7 +65,7 @@ const iconClasses = computed(() => {
     <!-- Decorative Accent for Blue Variant -->
     <div 
       v-if="variant === 'blue'"
-      class="absolute right-0 top-0 h-1 w-full bg-blue-500"
+      class="absolute right-0 top-0 h-1.5 w-full bg-blue-500"
     />
   </button>
 </template>

@@ -26,3 +26,4 @@ withDefaults(
     <slot />
   </el-button>
 </template>
+

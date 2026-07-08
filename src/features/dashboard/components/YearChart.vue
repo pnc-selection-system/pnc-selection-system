@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { YearComparisonPoint } from '../types/dashboard'
+import BaseBadge from '@/components/base/BaseBadge.vue'
 
 const props = defineProps<{
   data: YearComparisonPoint[]
@@ -18,12 +19,12 @@ const maxValue = computed(() =>
       <p class="font-mono text-[11px] font-medium uppercase tracking-wider text-slate-400">
         Year-over-year
       </p>
-      <span
+      <BaseBadge
         v-if="tag"
-        class="rounded-md bg-blue-50 px-2 py-0.5 font-mono text-[11px] text-blue-600"
+        size="small"
       >
         {{ tag }}
-      </span>
+      </BaseBadge>
     </div>
 
     <div class="mt-6 flex h-40 items-end gap-4">
