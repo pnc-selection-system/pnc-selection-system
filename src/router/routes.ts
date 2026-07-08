@@ -8,6 +8,6 @@ export const routes: RouteRecordRaw[] = [
   {
     path: '/campaign',
     name: 'campaign',
-    component: () => import('@/views/Campaign.vue'),
+    component: () => import('@/features/campaign/pages/CampaignListPage.vue'),
   },
 ]
