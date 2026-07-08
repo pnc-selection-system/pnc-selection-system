@@ -4,6 +4,7 @@ import type { Campaign } from '../types'
 import { emptyForm } from '../types'
 import { useCampaigns } from '../composables/useCampaigns'
 import BaseModal from '@/components/base/BaseModal.vue'
+import BaseButton from '@/components/base/BaseButton.vue'
 
 const props = defineProps<{
   visible: boolean
@@ -75,19 +76,6 @@ function closeModal() {
           />
         </div>
 
-        <div>
-          <label for="description" class="mb-1.5 block text-sm font-medium text-slate-700">
-            Description
-          </label>
-          <textarea
-            id="description"
-            v-model="form.description"
-            rows="3"
-            class="w-full resize-y rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100 min-h-[80px]"
-            placeholder="Enter campaign description"
-          ></textarea>
-        </div>
-
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label for="startDate" class="mb-1.5 block text-sm font-medium text-slate-700">
@@ -124,7 +112,6 @@ function closeModal() {
             v-model="form.status"
             class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
           >
-            <option value="draft">Draft</option>
             <option value="active">Active</option>
             <option value="closed">Closed</option>
           </select>
@@ -134,20 +121,22 @@ function closeModal() {
 
     <template #footer>
       <div class="flex items-center justify-end gap-3">
-        <button
+        <BaseButton
           type="button"
+          variant="secondary"
+          class="!w-auto !rounded !px-4 !py-2 text-sm font-medium"
           @click="closeModal"
-          class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
         >
           Cancel
-        </button>
-        <button
+        </BaseButton>
+        <BaseButton
           type="submit"
+          variant="primary"
+          class="!w-auto !rounded !px-4 !py-2 text-sm font-medium"
           @click="saveCampaign"
-          class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
         >
           {{ isEditing ? 'Save Changes' : 'Create Campaign' }}
-        </button>
+        </BaseButton>
       </div>
     </template>
   </BaseModal>

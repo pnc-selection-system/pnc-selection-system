@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import type { FunnelStage } from '../types/dashboard'
+import BaseButton from '@/components/base/BaseButton.vue'
 
 const props = defineProps<{
   stages: FunnelStage[]
@@ -28,18 +29,19 @@ function toggle() {
 </script>
 
 <template>
-  <div class="rounded-lg border border-slate-200 bg-white p-5">
+  <div class="rounded border border-slate-200 bg-white p-5">
     <div class="flex items-center justify-between">
-      <p class="font-mono text-[11px] font-medium uppercase tracking-wider text-slate-400">
+      <p class="text-[11px] font-medium uppercase tracking-wider text-slate-400">
         Selection funnel
       </p>
-      <button
+      <BaseButton
         type="button"
-        class="rounded-md border border-slate-200 bg-white px-2.5 py-1 font-mono text-[11px] text-slate-500 hover:border-slate-300 hover:bg-slate-50"
+        variant="secondary"
+        class="!w-auto !rounded !px-2.5 !py-1 text-[11px]"
         @click="toggle"
       >
         {{ mode === 'stage' ? 'stage' : 'drop-off' }}
-      </button>
+      </BaseButton>
     </div>
 
     <div class="mt-6 flex h-40 items-end gap-3">

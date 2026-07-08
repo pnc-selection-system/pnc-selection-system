@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import type { Campaign } from '../types'
 import { useCampaigns } from '../composables/useCampaigns'
 import BaseModal from '@/components/base/BaseModal.vue'
+import BaseButton from '@/components/base/BaseButton.vue'
 
 const props = defineProps<{
   campaign: Campaign | null
@@ -49,23 +50,25 @@ function closeModal() {
 
     <template #footer>
       <div class="flex items-center justify-center gap-3">
-        <button
+        <BaseButton
+          variant="secondary"
+          class="!w-auto !rounded !px-4 !py-2 text-sm font-medium"
           @click="closeModal"
-          class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
         >
           Cancel
-        </button>
-        <button
+        </BaseButton>
+        <BaseButton
           v-if="campaign"
+          variant="secondary"
+          class="!w-auto !rounded !px-4 !py-2 text-sm font-medium !border-red-300 !bg-red-50 !text-red-700 hover:!bg-red-100"
           @click="handleDelete(campaign.id)"
-          class="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700"
           autofocus
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2" />
           </svg>
           Delete
-        </button>
+        </BaseButton>
       </div>
     </template>
   </BaseModal>

@@ -16,7 +16,7 @@ const campaigns = ref<Campaign[]>([
     description: 'Election for the department student association chairman',
     startDate: '2025-09-01',
     endDate: '2025-09-10',
-    status: 'draft',
+    status: 'active',
   },
   {
     id: '3',
@@ -32,20 +32,28 @@ const campaigns = ref<Campaign[]>([
     description: 'Election for the student activity unit chairman',
     startDate: '2025-10-01',
     endDate: '2025-10-10',
-    status: 'draft',
+    status: 'active',
   },
 ])
 
 const searchQuery = ref('')
 const statusFilter = ref<string>('all')
+const yearFilter = ref<string>('all')
 const showInfoBox = ref(true)
+
+const yearOptions = computed(() => {
+  const years = new Set(campaigns.value.map((c) => new Date(c.startDate).getFullYear().toString()))
+  return Array.from(years).sort().reverse()
+})
 
 const filteredCampaigns = computed(() => {
   return campaigns.value.filter((c) => {
     const q = searchQuery.value.toLowerCase()
     const matchesSearch = !q || c.name.toLowerCase().includes(q) || c.description.toLowerCase().includes(q)
     const matchesStatus = statusFilter.value === 'all' || c.status === statusFilter.value
-    return matchesSearch && matchesStatus
+    const campaignYear = new Date(c.startDate).getFullYear().toString()
+    const matchesYear = yearFilter.value === 'all' || campaignYear === yearFilter.value
+    return matchesSearch && matchesStatus && matchesYear
   })
 })
 
@@ -78,6 +86,8 @@ export function useCampaigns() {
     campaigns,
     searchQuery,
     statusFilter,
+    yearFilter,
+    yearOptions,
     showInfoBox,
     filteredCampaigns,
     deleteCampaign,
