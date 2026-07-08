@@ -22,7 +22,7 @@ export default defineConfig({
     }),
 
     Components({
-      resolvers: [ElementPlusResolver()],
+      resolvers: [ElementPlusResolver({ importStyle: 'css' })],
     }),
   ],
   resolve: {

@@ -12,9 +12,11 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AppHeader: typeof import('./src/components/layouts/AppHeader.vue')['default']
+    AppLogo: typeof import('./src/components/AppLogo.vue')['default']
     AppSidebar: typeof import('./src/components/layouts/AppSidebar.vue')['default']
     BaseBadge: typeof import('./src/components/base/BaseBadge.vue')['default']
     BaseButton: typeof import('./src/components/base/BaseButton.vue')['default']
+    BaseIcon: typeof import('./src/components/base/BaseIcon.vue')['default']
     BaseInput: typeof import('./src/components/base/BaseInput.vue')['default']
     BaseModal: typeof import('./src/components/base/BaseModal.vue')['default']
     BaseSelect: typeof import('./src/components/base/BaseSelect.vue')['default']
@@ -31,5 +33,6 @@ declare module 'vue' {
     LoadingSpinner: typeof import('./src/components/ui/LoadingSpinner.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    SidebarMenuItem: typeof import('./src/components/layouts/SidebarMenuItem.vue')['default']
   }
 }

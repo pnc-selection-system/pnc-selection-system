@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import BaseButton from '@/components/base/BaseButton.vue'
 import BaseInput from '@/components/base/BaseInput.vue'
+import AppLogo from '@/components/AppLogo.vue'
 import { useAuth } from '../composables/useAuth'
 import { useRouter } from 'vue-router'
 import { validateLoginForm, type LoginFormErrors } from '../validation/loginValidation'
@@ -50,7 +51,7 @@ async function handleSubmit() {
 <template>
   <div class="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl shadow-slate-100">
     <div class="mb-6 flex flex-col items-center">
-      <img src="@/assets/images/pncLogo.png" alt="PNC Logo" class="mb-4 h-16 w-auto" />
+      <AppLogo class="mb-4 h-16 w-auto" />
       <h1 class="text-2xl font-semibold text-slate-900">Student Selection</h1>
       <p class="mt-2 text-sm text-slate-500">Management System</p>
     </div>

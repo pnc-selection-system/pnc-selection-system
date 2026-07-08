@@ -5,6 +5,7 @@ import { emptyForm } from '../types'
 import { useCampaigns } from '../composables/useCampaigns'
 import BaseModal from '@/components/base/BaseModal.vue'
 import BaseButton from '@/components/base/BaseButton.vue'
+import BaseInput from '@/components/base/BaseInput.vue'
 
 const props = defineProps<{
   visible: boolean
@@ -62,45 +63,27 @@ function closeModal() {
   >
     <form @submit.prevent="saveCampaign">
       <div class="space-y-5">
-        <div>
-          <label for="name" class="mb-1.5 block text-sm font-medium text-slate-700">
-            Campaign Name <span class="text-red-500">*</span>
-          </label>
-          <input
-            id="name"
-            v-model="form.name"
-            type="text"
-            required
-            class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
-            placeholder="Enter campaign name"
-          />
-        </div>
+        <BaseInput
+          v-model="form.name"
+          label="Campaign Name *"
+          type="text"
+          placeholder="Enter campaign name"
+          name="name"
+        />
 
         <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label for="startDate" class="mb-1.5 block text-sm font-medium text-slate-700">
-              Start Date <span class="text-red-500">*</span>
-            </label>
-            <input
-              id="startDate"
-              v-model="form.startDate"
-              type="date"
-              required
-              class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
-            />
-          </div>
-          <div>
-            <label for="endDate" class="mb-1.5 block text-sm font-medium text-slate-700">
-              End Date <span class="text-red-500">*</span>
-            </label>
-            <input
-              id="endDate"
-              v-model="form.endDate"
-              type="date"
-              required
-              class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
-            />
-          </div>
+          <BaseInput
+            v-model="form.startDate"
+            label="Start Date *"
+            type="date"
+            name="startDate"
+          />
+          <BaseInput
+            v-model="form.endDate"
+            label="End Date *"
+            type="date"
+            name="endDate"
+          />
         </div>
 
         <div>

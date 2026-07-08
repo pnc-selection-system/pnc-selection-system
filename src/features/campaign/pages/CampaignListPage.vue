@@ -1,14 +1,16 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, defineAsyncComponent } from 'vue'
 import type { Campaign } from '../types'
 import { statusLabels, formatDateShort } from '../types'
 import { useCampaigns } from '../composables/useCampaigns'
-import CampaignFormModal from '../components/CampaignFormModal.vue'
-import CampaignDeleteModal from '../components/CampaignDeleteModal.vue'
+
+const CampaignFormModal = defineAsyncComponent(() => import('../components/CampaignFormModal.vue'))
+const CampaignDeleteModal = defineAsyncComponent(() => import('../components/CampaignDeleteModal.vue'))
 import BaseSelect from '@/components/base/BaseSelect.vue'
 import BaseBadge from '@/components/base/BaseBadge.vue'
 import BaseButton from '@/components/base/BaseButton.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
+import BaseIcon from '@/components/base/BaseIcon.vue'
 
 const {
   statusFilter,
@@ -80,9 +82,7 @@ function closeFormModal() {
             variant="primary"
             class="!w-auto !rounded-[4px] !px-4 !py-2 text-sm font-semibold"
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 5v14M5 12h14" />
-            </svg>
+            <BaseIcon name="plus" :size="14" :stroke-width="2.5" />
             New campaign
           </BaseButton>
         </div>
@@ -131,9 +131,7 @@ function closeFormModal() {
                     class="!w-auto !rounded !px-2 !py-1 gap-1 text-[0.6rem] font-semibold"
                     @click="openEditModal(campaign)"
                   >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M17 3a2.85 2.85 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
-                    </svg>
+                    <BaseIcon name="edit" :size="14" />
                     Edit
                   </BaseButton>
                   <BaseButton
@@ -141,9 +139,7 @@ function closeFormModal() {
                     class="!w-auto !rounded !px-2 !py-1 gap-1 text-[0.6rem] font-semibold !border-rose-200 !bg-rose-50 !text-rose-700"
                     @click="confirmDelete = campaign"
                   >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2" />
-                    </svg>
+                    <BaseIcon name="delete" :size="14" />
                     Delete
                   </BaseButton>
                 </div>
