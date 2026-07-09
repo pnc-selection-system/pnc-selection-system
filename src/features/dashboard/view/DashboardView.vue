@@ -40,12 +40,12 @@ onMounted(async () => {
   filterOptions.value = opts;
 });
 
-watch(filters, loadData, { deep: true });
+watch(filters, loadData, { deep: true, immediate: false });
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-100 px-4 py-6 sm:px-6 lg:px-8">
-    <div class="mx-auto max-w-6xl space-y-4">
+  <div class="px-6 py-6">
+    <div class="mx-auto max-w-[1200px] space-y-4">
       <div class="rounded-3xl p-6​">
         <div class="flex flex-col gap-0">
           <p class="text-[10px] font-semibold uppercase text-slate-500">Home / Dashboard</p>

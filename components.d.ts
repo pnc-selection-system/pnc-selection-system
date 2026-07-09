@@ -21,6 +21,7 @@ declare module 'vue' {
     BaseModal: typeof import('./src/components/base/BaseModal.vue')['default']
     BaseSelect: typeof import('./src/components/base/BaseSelect.vue')['default']
     ConfirmDialog: typeof import('./src/components/ui/ConfirmDialog.vue')['default']
+    ElAlert: typeof import('element-plus/es')['ElAlert']
     ElButton: typeof import('element-plus/es')['ElButton']
     ElDialog: typeof import('element-plus/es')['ElDialog']
     ElEmpty: typeof import('element-plus/es')['ElEmpty']

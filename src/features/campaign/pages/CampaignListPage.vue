@@ -1,23 +1,31 @@
 <script setup lang="ts">
-import { ref, defineAsyncComponent } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import type { Campaign } from '../types'
-import { statusLabels, formatDateShort } from '../types'
 import { useCampaigns } from '../composables/useCampaigns'
-
-const CampaignFormModal = defineAsyncComponent(() => import('../components/CampaignFormModal.vue'))
-const CampaignDeleteModal = defineAsyncComponent(() => import('../components/CampaignDeleteModal.vue'))
-import BaseSelect from '@/components/base/BaseSelect.vue'
-import BaseBadge from '@/components/base/BaseBadge.vue'
+import CampaignPageHeader from '../components/CampaignPageHeader.vue'
+import CampaignToolbar from '../components/CampaignToolbar.vue'
+import CampaignTableRow from '../components/CampaignTableRow.vue'
+import CampaignFormModal from '../components/CampaignFormModal.vue'
+import CampaignDeleteModal from '../components/CampaignDeleteModal.vue'
 import BaseButton from '@/components/base/BaseButton.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
-import BaseIcon from '@/components/base/BaseIcon.vue'
+import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
+import ErrorAlert from '@/components/ui/ErrorAlert.vue'
+
+const router = useRouter()
 
 const {
+  loading,
   statusFilter,
   yearFilter,
   yearOptions,
   filteredCampaigns,
+  error,
+  loadCampaigns,
 } = useCampaigns()
+
+onMounted(() => loadCampaigns())
 
 const showFormModal = ref(false)
 const editingCampaign = ref<Campaign | null>(null)
@@ -40,129 +48,67 @@ function closeFormModal() {
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-100 px-4 py-6 sm:px-6 lg:px-8">
-    <div class="mx-auto max-w-[1200px] px-0 py-8 sm:px-0">
-      <div class="rounded-3xl p-6​">
-        <div class="flex flex-col gap-0">
-          <p class="text-[10px] font-semibold uppercase text-slate-500">SETUP / CAMPAIGNS</p>
-          <h1 class="text-[24px] font-semibold tracking-tight text-slate-900">Campaigns</h1>
-        </div>
-      </div>
-      <!-- Header / Filter Row -->
-      <div class="mb-6 flex flex-col gap-3 rounded-3xl p-4 sm:flex-row sm:items-center sm:justify-between">
-        <div class="flex flex-wrap items-center gap-3">
-          <div class="min-w-[160px] max-w-[240px]">
-            <BaseSelect
-              v-model="yearFilter"
-              :options="[
-                { value: 'all', label: 'Year: All' },
-                ...yearOptions.map(y => ({ value: y, label: `Year: ${y}` })),
-              ]"
-              clearable
-              placeholder="Year"
-            />
-          </div>
-          <div class="min-w-[160px] max-w-[240px]">
-            <BaseSelect
-              v-model="statusFilter"
-              :options="[
-                { value: 'all', label: 'Status: All' },
-                { value: 'active', label: 'Status: Active' },
-                { value: 'closed', label: 'Status: Closed' },
-              ]"
-              clearable
-              placeholder="Status"
-            />
-          </div>
-        </div>
+  <div class="px-6 py-6">
+    <div class="mx-auto max-w-[1200px] space-y-4">
 
-        <div class="flex flex-wrap items-center gap-3">
-          <BaseButton
-            @click="openCreateModal"
-            variant="primary"
-            class="!w-auto !rounded-[4px] !px-4 !py-2 text-sm font-semibold"
-          >
-            <BaseIcon name="plus" :size="14" :stroke-width="2.5" />
-            New campaign
+      <CampaignPageHeader breadcrumb="SETUP / CAMPAIGNS" title="Campaigns" />
+
+      <div v-if="loading && filteredCampaigns.length === 0" class="flex justify-center py-12">
+        <LoadingSpinner />
+      </div>
+
+      <div v-else-if="error">
+        <ErrorAlert :message="error" />
+        <div class="mt-3 flex justify-end">
+          <BaseButton @click="loadCampaigns" variant="secondary" class="!w-auto !rounded !px-3 !py-1 text-sm">
+            Retry
           </BaseButton>
         </div>
       </div>
 
-      <div class="overflow-hidden rounded border border-slate-200 bg-white">
-        <table class="min-w-full text-left text-sm">
-          <thead>
-            <tr class="border-b border-slate-200 bg-slate-50 text-slate-500">
-              <th class="px-4 py-2.5 text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400">Campaign</th>
-              <th class="px-4 py-2.5 text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400">Start Date</th>
-              <th class="px-4 py-2.5 text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400">End Date</th>
-              <th class="px-4 py-2.5 text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400">Candidates</th>
-              <th class="px-4 py-2.5 text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400">Status</th>
-              <th class="px-4 py-2.5 text-center text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400">Action</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-200">
-            <tr v-if="filteredCampaigns.length === 0">
-              <td colspan="6" class="px-4 py-8 text-center text-xs text-slate-500">
-                <EmptyState
-                  title="No campaign found"
-                  description="Try adjusting your search or filter criteria"
-                />
-              </td>
-            </tr>
-            <tr v-for="campaign in filteredCampaigns" :key="campaign.id">
-              <td class="px-4 py-3">
-                <p class="text-slate-900 text-xs">{{ campaign.name }}</p>
-              </td>
-              <td class="px-4 py-3 text-xs text-slate-700">{{ formatDateShort(campaign.startDate) }}</td>
-              <td class="px-4 py-3 text-xs text-slate-700">{{ formatDateShort(campaign.endDate) }}</td>
-              <td class="px-4 py-3 text-xs text-slate-700">{{ campaign.candidates ?? '-' }}</td>
-              <td class="px-4 py-3">
-                <BaseBadge
-                  :type="campaign.status === 'active' ? 'success' : 'info'"
-                  size="small"
-                >
-                  {{ statusLabels[campaign.status] }}
-                </BaseBadge>
-              </td>
-              <td class="px-4 py-3 text-center">
-                <div class="inline-flex items-center gap-2">
-                  <BaseButton
-                    variant="secondary"
-                    class="!w-auto !rounded !px-2 !py-1 gap-1 text-[0.6rem] font-semibold"
-                    @click="openEditModal(campaign)"
-                  >
-                    <BaseIcon name="edit" :size="14" />
-                    Edit
-                  </BaseButton>
-                  <BaseButton
-                    variant="secondary"
-                    class="!w-auto !rounded !px-2 !py-1 gap-1 text-[0.6rem] font-semibold !border-rose-200 !bg-rose-50 !text-rose-700"
-                    @click="confirmDelete = campaign"
-                  >
-                    <BaseIcon name="delete" :size="14" />
-                    Delete
-                  </BaseButton>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <template v-else>
+        <CampaignToolbar
+          v-model:year-filter="yearFilter"
+          v-model:status-filter="statusFilter"
+          :year-options="yearOptions"
+          @create="openCreateModal"
+        />
+
+        <div class="overflow-hidden rounded border border-slate-200 bg-white">
+          <table class="min-w-full text-left text-sm">
+            <thead>
+              <tr class="border-b border-slate-200 bg-slate-50">
+                <th class="px-4 py-2.5 text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400">Campaign</th>
+                <th class="px-4 py-2.5 text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400">Year</th>
+                <th class="px-4 py-2.5 text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400">Start Date</th>
+                <th class="px-4 py-2.5 text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400">End Date</th>
+                <th class="px-4 py-2.5 text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400">Candidates</th>
+                <th class="px-4 py-2.5 text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400">Status</th>
+                <th class="px-4 py-2.5 text-center text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400">Action</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200">
+              <tr v-if="filteredCampaigns.length === 0">
+                <td colspan="7" class="px-4 py-8 text-center">
+                  <EmptyState title="No campaign found" description="Try adjusting your search or filter criteria" />
+                </td>
+              </tr>
+              <CampaignTableRow
+                v-for="campaign in filteredCampaigns"
+                :key="campaign.id"
+                :campaign="campaign"
+                @view="router.push({ name: 'campaign-detail', params: { id: $event.id } })"
+                @edit="openEditModal"
+                @delete="confirmDelete = $event"
+              />
+            </tbody>
+          </table>
+        </div>
+      </template>
+
     </div>
 
-    <CampaignFormModal
-      :visible="showFormModal"
-      :campaign="editingCampaign"
-      @close="closeFormModal"
-    />
-
-    <CampaignDeleteModal
-      :campaign="confirmDelete"
-      @close="confirmDelete = null"
-    />
+    <CampaignFormModal :visible="showFormModal" :campaign="editingCampaign" @close="closeFormModal" />
+    <CampaignDeleteModal :campaign="confirmDelete" @close="confirmDelete = null" />
   </div>
 </template>
-
-
-
-

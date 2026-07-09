@@ -1,7 +1,7 @@
 <script setup lang="ts">
 withDefaults(
   defineProps<{
-    name: 'warning' | 'delete' | 'plus' | 'edit' | 'search'
+    name: 'warning' | 'delete' | 'plus' | 'edit' | 'search' | 'view'
     size?: number
     color?: string
     strokeWidth?: number
@@ -48,6 +48,12 @@ withDefaults(
     <!-- Search / Magnifying glass -->
     <template v-if="name === 'search'">
       <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+    </template>
+
+    <!-- View / Eye -->
+    <template v-if="name === 'view'">
+      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z" />
+      <circle cx="12" cy="12" r="3" />
     </template>
   </svg>
 </template>

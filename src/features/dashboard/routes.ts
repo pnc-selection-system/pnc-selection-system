@@ -1,14 +1,14 @@
 import type { RouteRecordRaw } from 'vue-router'
-import AppLayout from '@/layouts/AppLayout.vue'
 
 const routes: RouteRecordRaw[] = [
   {
     path: '/dashboard',
-    component: AppLayout,
+    component: () => import('@/layouts/AppLayout.vue'),
     children: [
       {
         path: '',
         name: 'dashboard',
+        meta: { requiresAuth: true },
         component: () => import('./view/DashboardView.vue'),
       },
     ],

@@ -27,15 +27,14 @@ import SidebarMenuItem from "@/components/layouts/SidebarMenuItem.vue"
         </p>
         <router-link
           to="/dashboard"
-          class="flex items-center justify-between px-3 py-2 rounded-lg text-gray-200 transition mb-1"
-          active-class="bg-slate-700 text-white border border-slate-600"
-          exact-active-class="bg-slate-700 text-white border border-slate-600"
+          class="flex items-center justify-between px-3 py-2 rounded-lg text-gray-400 transition mb-1 hover:bg-slate-700/50"
+          exact-active-class="!text-white bg-slate-700 border border-slate-600 active-link"
         >
           <div class="flex items-center gap-2">
-            <div class="w-2 h-2 rounded-sm bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]"></div>
+            <div class="dot w-2 h-2 rounded-sm bg-gray-500 transition"></div>
             <span class="text-xs font-medium">Dashboard</span>
           </div>
-          <span class="text-[8px] font-bold text-blue-300 bg-blue-500/10 px-1.5 py-0.5 rounded">ALL</span>
+          <span class="badge text-[8px] font-bold text-gray-500 bg-gray-500/10 px-1.5 py-0.5 rounded transition">ALL</span>
         </router-link>
       </nav>
       <!-- SETUP -->
@@ -45,15 +44,14 @@ import SidebarMenuItem from "@/components/layouts/SidebarMenuItem.vue"
         </p>
         <router-link
           to="/campaigns"
-          class="flex items-center justify-between px-3 py-2 rounded-lg text-gray-200 transition mb-1"
-          active-class="bg-slate-700 text-white border border-slate-600"
-          exact-active-class="bg-slate-700 text-white border border-slate-600"
+          class="flex items-center justify-between px-3 py-2 rounded-lg text-gray-400 transition mb-1 hover:bg-slate-700/50"
+          active-class="!text-white bg-slate-700 border border-slate-600 active-link"
         >
           <div class="flex items-center gap-3">
-            <div class="w-2 h-2 rounded-sm bg-gray-500"></div>
-            <span class="text-xs text-gray-200">Campaigns</span>
+            <div class="dot w-2 h-2 rounded-sm bg-gray-500 transition"></div>
+            <span class="text-xs">Campaigns</span>
           </div>
-          <span class="text-[10px] text-gray-400">MGR</span>
+          <span class="badge text-[10px] text-gray-500 bg-gray-500/10 px-1.5 py-0.5 rounded transition">MGR</span>
         </router-link>
         <SidebarMenuItem title="Users & Roles" badge="ADM" />
       </div>
@@ -111,4 +109,12 @@ import SidebarMenuItem from "@/components/layouts/SidebarMenuItem.vue"
 </template>
 
 <style scoped>
+.active-link .dot {
+  background-color: #3b82f6;
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
+}
+.active-link .badge {
+  color: #93c5fd;
+  background-color: rgba(59, 130, 246, 0.1);
+}
 </style>
