@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { Exam } from '../types'
-import { useExams } from '../composables/useExams'
+import { useExams } from '../service/useExams'
 import BaseModal from '@/components/base/BaseModal.vue'
 
 const props = defineProps<{

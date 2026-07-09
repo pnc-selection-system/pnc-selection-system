@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import type { Subject } from '../composables/useSubjects'
-import { useSubjects } from '../composables/useSubjects'
+import type { Subject } from '../service/useSubjects'
+import { useSubjects } from '../service/useSubjects'
 import BaseButton from '@/components/base/BaseButton.vue'
 
 const { subjects, totalWeight, isValidWeight, addSubject, updateSubject, removeSubject } = useSubjects()

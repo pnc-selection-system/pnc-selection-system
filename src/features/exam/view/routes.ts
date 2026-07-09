@@ -9,7 +9,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: '',
         name: 'exam-configuration',
-        component: () => import('./view/ExamConfigurationPage.vue'),
+        component: () => import('./ExamConfigurationPage.vue'),
       },
     ],
   },
