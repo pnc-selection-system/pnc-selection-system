@@ -14,7 +14,7 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <BaseModal :open="open" title="Publish & lock results" @update:open="emit('update:open', $event)">
+  <BaseModal :model-value="open" title="Publish & lock results" @update:model-value="emit('update:open', $event)">
     <p class="text-sm text-slate-600">
       You're about to publish and lock <strong>{{ roundLabel }}</strong>. This action is
       <strong>irreversible</strong> — results become read-only and will feed downstream ranking,

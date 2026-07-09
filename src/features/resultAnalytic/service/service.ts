@@ -60,9 +60,46 @@ export async function fetchResultsTable(roundId: string): Promise<CandidateResul
   ])
 }
 
-export async function exportResults(roundId: string): Promise<void> {
+export async function exportResults(roundId: string, rows: CandidateResultRow[]): Promise<void> {
   await wait(undefined)
-  // Hook up to a real export endpoint, e.g. window.open(`/api/results/${roundId}/export`)
+  // Generate CSV content from results
+  const csvContent = generateCSV(rows)
+  
+  // Create blob and download
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+  const link = document.createElement('a')
+  const url = URL.createObjectURL(blob)
+  
+  link.setAttribute('href', url)
+  link.setAttribute('download', `results-round-${roundId}-${new Date().toISOString().split('T')[0]}.csv`)
+  link.style.visibility = 'hidden'
+  
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+}
+
+function generateCSV(data: CandidateResultRow[]): string {
+  // CSV Header
+  const headers = ['Rank', 'Candidate', 'Mathematics', 'Khmer', 'English', 'Logic', 'Total', 'Result']
+  
+  const csvRows = [headers.join(',')]
+  
+  data.forEach(row => {
+    const values = [
+      row.rank,
+      `"${row.candidate}"`,
+      row.scores.math,
+      row.scores.khmer,
+      row.scores.eng,
+      row.scores.logic,
+      row.total,
+      row.result
+    ]
+    csvRows.push(values.join(','))
+  })
+
+  return csvRows.join('\n')
 }
 
 export async function publishAndLockRound(roundId: string): Promise<void> {

@@ -51,7 +51,7 @@ async function loadRoundData() {
 }
 
 async function handleExport() {
-  await exportResults(store.currentRoundId)
+  await exportResults(store.currentRoundId, rows.value)
 }
 
 async function handleConfirmPublish() {
@@ -70,7 +70,7 @@ watch([() => store.currentRoundId, selectedProvince], loadRoundData)
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-50 p-6">
+  <div class="min-h-screen bg-slate-50">
     <div class="mx-auto max-w-6xl space-y-4">
       <ResultsAnalyticsSkeleton v-if="loading" />
 
@@ -84,7 +84,7 @@ watch([() => store.currentRoundId, selectedProvince], loadRoundData)
           @publish-lock="isPublishDialogOpen = true"
         />
 
-        <div class="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_320px]">
+        <div class="grid grid-cols-1 gap-3 lg:grid-cols-[1fr_320px]">
           <ScoreDistributionChart
             v-if="distribution"
             :distribution="distribution"

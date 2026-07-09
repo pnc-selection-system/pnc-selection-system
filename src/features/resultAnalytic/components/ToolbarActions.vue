@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import BaseButton from '@/components/base/BaseButton.vue'
 import type { ExamRound, PublishStatus } from '../types/results'
 
 const props = defineProps<{
@@ -44,30 +45,21 @@ const statusClasses = computed(() =>
     </div>
 
     <div class="flex items-center gap-2">
-      <button
-        type="button"
-        class="flex items-center gap-1.5 rounded-md border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
-        @click="emit('export')"
-      >
+      <BaseButton variant="secondary" @click="emit('export')">
         <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none">
           <path d="M10 3v10m0 0-3.5-3.5M10 13l3.5-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
           <path d="M4 15.5h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
         </svg>
         Export
-      </button>
+      </BaseButton>
 
-      <button
-        type="button"
-        class="flex items-center gap-1.5 rounded-md bg-blue-600 px-3.5 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-        :disabled="status === 'published'"
-        @click="emit('publishLock')"
-      >
+      <BaseButton :disabled="status === 'published'" @click="emit('publishLock')">
         <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none">
           <rect x="4.5" y="9" width="11" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5" />
           <path d="M7 9V6.5a3 3 0 0 1 6 0V9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
         </svg>
         {{ status === 'published' ? 'Published & locked' : 'Publish & lock results' }}
-      </button>
+      </BaseButton>
     </div>
   </div>
 </template>
