@@ -54,30 +54,6 @@ function handlePhotoUpdate(photoUrl: string) {
         </div>
       </div>
 
-      <!-- Info Banner -->
-      <div
-        v-if="candidate"
-        class="mb-5 flex flex-wrap items-center gap-4 rounded-lg border border-amber-200 bg-amber-50 px-5 py-2.5"
-      >
-        <div class="flex items-center gap-2">
-          <span class="text-xs font-semibold uppercase text-amber-600">ROLES</span>
-          <span class="text-sm text-slate-700">{{ candidate.roles.join(' · ') }}</span>
-          <span class="text-xs text-slate-400">(scoped read for others)</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <span class="text-xs font-semibold uppercase text-amber-600">REQS</span>
-          <div class="flex gap-1">
-            <span
-              v-for="req in candidate.requirements"
-              :key="req"
-              class="rounded border border-slate-300 bg-white px-2 py-0.5 text-xs text-slate-600"
-            >
-              {{ req }}
-            </span>
-          </div>
-        </div>
-      </div>
-
       <!-- Main Content -->
       <div v-if="candidate" class="flex justify-center gap-6">
         <!-- Sidebar -->

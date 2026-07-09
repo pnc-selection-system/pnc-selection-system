@@ -173,7 +173,56 @@ export function useCandidateList() {
     examResultFilter.value = 'all'
     showDuplicatesOnly.value = false
     currentPage.value = 1
-  }    return {
+  }
+
+  function saveSegment(name: string) {
+    const segment = {
+      name,
+      filters: {
+        searchQuery: searchQuery.value,
+        provinceFilter: provinceFilter.value,
+        ngoFilter: ngoFilter.value,
+        statusFilter: statusFilter.value,
+        examResultFilter: examResultFilter.value,
+        showDuplicatesOnly: showDuplicatesOnly.value,
+      },
+      candidateCount: filteredCandidates.value.length,
+      savedAt: new Date().toISOString(),
+    }
+    const segments = JSON.parse(localStorage.getItem('candidateSegments') || '[]')
+    segments.push(segment)
+    localStorage.setItem('candidateSegments', JSON.stringify(segments))
+    return segment
+  }
+
+  function exportCandidates(format: 'csv' | 'json' = 'csv') {
+    const data = filteredCandidates.value
+    if (format === 'json') {
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+      downloadBlob(blob, 'candidates.json')
+    } else {
+      const headers = ['ID', 'Code', 'Full Name', 'Gender', 'DOB', 'Age', 'Phone', 'Province', 'Address', 'Status', 'Organization', 'Exam Result', 'Exam Score']
+      const rows = data.map(c => [
+        c.id, c.candidateCode, c.fullName, c.gender, c.dateOfBirth, c.age, c.phone, c.province, c.address, c.status, c.organization || '', c.examResult || '', c.examScore ?? '',
+      ])
+      const csv = [headers.join(','), ...rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(','))].join('\n')
+      const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' })
+      downloadBlob(blob, 'candidates.csv')
+    }
+  }
+
+  function downloadBlob(blob: Blob, filename: string) {
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = filename
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+
+  return {
     candidates,
     filteredCandidates,
     paginatedCandidates,
@@ -196,5 +245,7 @@ export function useCandidateList() {
     applyFilters,
     goToPage,
     resetFilters,
+    saveSegment,
+    exportCandidates,
   }
 }

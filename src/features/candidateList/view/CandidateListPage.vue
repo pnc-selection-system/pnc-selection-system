@@ -33,13 +33,25 @@ const {
   toggleSelect,
   applyFilters,
   goToPage,
+  saveSegment,
+  exportCandidates,
 } = useCandidateList()
 
 const showFormModal = ref(false)
 const showImportModal = ref(false)
+const showSaveSegmentModal = ref(false)
+const segmentName = ref('')
 
 function handleSaveCandidate(candidate: Parameters<typeof addCandidate>[0]) {
   addCandidate(candidate)
+}
+
+function handleSaveSegment() {
+  if (segmentName.value.trim()) {
+    saveSegment(segmentName.value.trim())
+    segmentName.value = ''
+    showSaveSegmentModal.value = false
+  }
 }
 
 function viewProfile(id: string) {
@@ -75,28 +87,6 @@ function getStatusBadgeType(status: CandidateStatus) {
         <div class="flex flex-col gap-0">
           <p class="text-[10px] font-semibold uppercase text-slate-500">CANDIDATES / LIST</p>
           <h1 class="text-[22px] font-semibold tracking-tight text-slate-900">Candidate list</h1>
-        </div>
-      </div>
-
-      <!-- Info Banner -->
-      <div
-        class="mb-5 flex flex-wrap items-center gap-4 rounded-lg border border-amber-200 bg-amber-50 px-5 py-2.5"
-      >
-        <div class="flex items-center gap-2">
-          <span class="text-xs font-semibold uppercase text-amber-600">ROLES</span>
-          <span class="text-sm text-slate-700">Officer · Manager (read: Committee)</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <span class="text-xs font-semibold uppercase text-amber-600">REQS</span>
-          <div class="flex gap-1">
-            <span
-              v-for="req in ['FR-CP-6', 'FR-CP-7', 'FR-CP-8']"
-              :key="req"
-              class="rounded border border-slate-300 bg-white px-2 py-0.5 text-xs text-slate-600"
-            >
-              {{ req }}
-            </span>
-          </div>
         </div>
       </div>
 
@@ -154,10 +144,16 @@ function getStatusBadgeType(status: CandidateStatus) {
               · {{ pageSize }} / page
             </p>
             <div class="flex items-center gap-2">
-              <button class="rounded border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-50">
+              <button
+                class="rounded border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-50"
+                @click="showSaveSegmentModal = true"
+              >
                 Save segment
               </button>
-              <button class="rounded border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-50">
+              <button
+                class="rounded border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-50"
+                @click="exportCandidates('csv')"
+              >
                 Export
               </button>
             </div>
@@ -283,19 +279,6 @@ function getStatusBadgeType(status: CandidateStatus) {
             </div>
           </div>
 
-          <!-- Info Box -->
-          <div
-            class="mt-6 flex items-start gap-3 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3"
-          >
-            <div class="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-blue-500">
-              <svg class="h-3 w-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
-              </svg>
-            </div>
-            <p class="text-xs text-slate-600">
-              Bulk import (CSV/XLSX) opens the same wizard pattern as exam import. Duplicate detection flags name + DOB + province matches for manual merge.
-            </p>
-          </div>
         </div>
       </div>
     </div>
@@ -311,5 +294,58 @@ function getStatusBadgeType(status: CandidateStatus) {
       @close="showImportModal = false"
       @import="importCandidates"
     />
+
+    <!-- Save Segment Modal -->
+    <teleport to="body">
+      <div
+        v-if="showSaveSegmentModal"
+        class="fixed inset-0 z-50 flex items-center justify-center"
+      >
+        <div class="absolute inset-0 bg-black/50" @click="showSaveSegmentModal = false" />
+        <div class="relative w-full max-w-[480px] rounded-xl bg-white shadow-2xl">
+          <div class="flex items-center justify-between border-b border-slate-200 px-6 py-4">
+            <h2 class="text-lg font-semibold text-slate-900">Save segment</h2>
+            <button
+              class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+              @click="showSaveSegmentModal = false"
+            >
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <div class="space-y-4 px-6 py-5">
+            <div>
+              <label class="mb-1 block text-sm font-medium text-slate-700">Segment name</label>
+              <input
+                v-model="segmentName"
+                type="text"
+                class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                placeholder="e.g. Battambang officers"
+                @keyup.enter="handleSaveSegment"
+              />
+            </div>
+            <p class="text-xs text-slate-500">
+              Saves current filters and {{ filteredCandidates.length }} matching candidates as a reusable segment.
+            </p>
+          </div>
+          <div class="flex items-center justify-end gap-3 border-t border-slate-200 px-6 py-4">
+            <button
+              class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+              @click="showSaveSegmentModal = false"
+            >
+              Cancel
+            </button>
+            <button
+              class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:opacity-50"
+              :disabled="!segmentName.trim()"
+              @click="handleSaveSegment"
+            >
+              Save
+            </button>
+          </div>
+        </div>
+      </div>
+    </teleport>
   </div>
 </template>
