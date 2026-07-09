@@ -1,19 +1,35 @@
 <script setup lang="ts">
 import { defineComponent, h } from "vue"
+import { useRouter } from "vue-router"
+
+const router = useRouter()
 
 // MenuItem is a small internal component for Sidebar items
 const MenuItem = defineComponent({
   props: {
     title: { type: String, required: true },
     badge: String,
+    to: String,
   },
   setup(props) {
+    const handleClick = () => {
+      if (props.to) {
+        router.push(props.to)
+      }
+    }
+
     return () =>
       h(
         "a",
         {
-          href: "#",
+          href: props.to || "#",
           class: "flex items-center justify-between px-3 py-2 rounded-lg hover:bg-gray-700 transition mb-1",
+          onClick: (e: Event) => {
+            if (props.to) {
+              e.preventDefault()
+              handleClick()
+            }
+          },
         },
         [
           h("div", { class: "flex items-center gap-3" }, [
@@ -81,14 +97,14 @@ const MenuItem = defineComponent({
           </div>
           <span class="text-[10px] text-gray-400">MGR</span>
         </router-link>
-        <MenuItem title="Users & Roles" badge="ADM" />
+        <MenuItem title="Users & Roles" badge="ADM" to="/users-roles" />
       </div>
       <!-- OUTREACH -->
       <div class="px-3 mt-2">
         <p class="text-[8px] tracking-[3px] text-gray-500 uppercase mb-1 font-medium">
           Outreach
         </p>
-        <MenuItem title="Information Sessions" />
+        <MenuItem title="Information Sessions" to="/information-sessions" />
         <router-link
           to="/ngos-partners"
           class="flex items-center justify-between px-3 py-2 rounded-lg text-gray-200 transition mb-1"
@@ -106,33 +122,43 @@ const MenuItem = defineComponent({
         <p class="text-[8px] tracking-[3px] text-gray-500 uppercase mb-1 font-medium">
           Candidates
         </p>
-        <MenuItem title="Candidate List" />
-        <MenuItem title="Candidate Profile" />
+        <MenuItem title="Candidate List" to="/candidates" />
+        <MenuItem title="Candidate Profile" to="/candidates/profile" />
       </div>
       <!-- EXAM -->
       <div class="px-3 mt-2">
         <p class="text-[8px] tracking-[3px] text-gray-500 uppercase mb-1 font-medium">
           Exam
         </p>
-        <MenuItem title="Exam Configuration" badge="MGR" />
-        <MenuItem title="Import Wizard" />
-        <MenuItem title="Results & Analytics" />
+        <MenuItem title="Exam Configuration" badge="MGR" to="/exam/configuration" />
+        <router-link
+          to="/exam/import-wizard"
+          class="flex items-center justify-between px-3 py-2 rounded-lg text-gray-200 transition mb-1"
+          active-class="bg-slate-700 text-white border border-slate-600"
+          exact-active-class="bg-slate-700 text-white border border-slate-600"
+        >
+          <div class="flex items-center gap-3">
+            <div class="w-2 h-2 rounded-sm bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]"></div>
+            <span class="text-xs font-medium">Import Wizard</span>
+          </div>
+        </router-link>
+        <MenuItem title="Results & Analytics" to="/exam/results" />
       </div>
       <!-- EVALUATION -->
       <div class="px-3 mt-2">
         <p class="text-[8px] tracking-[3px] text-gray-500 uppercase mb-1 font-medium">
           Evaluation
         </p>
-        <MenuItem title="Interest Assessment" />
-        <MenuItem title="Home Investigation" badge="INV" />
+        <MenuItem title="Interest Assessment" to="/evaluation/interest" />
+        <MenuItem title="Home Investigation" badge="INV" to="/evaluation/home-investigation" />
       </div>
       <!-- DECISION -->
       <div class="px-3 mt-3 pb-4">
         <p class="text-[8px] tracking-[3px] text-gray-500 uppercase mb-1.5 font-medium">
           Decision
         </p>
-        <MenuItem title="Voting & Selection" badge="CMT" />
-        <MenuItem title="Reports & Exports" />
+        <MenuItem title="Voting & Selection" badge="CMT" to="/decision/voting" />
+        <MenuItem title="Reports & Exports" to="/decision/reports" />
       </div>
     </div>
     <!-- Footer -->
