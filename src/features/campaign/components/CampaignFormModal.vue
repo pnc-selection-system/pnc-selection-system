@@ -4,6 +4,7 @@ import type { Campaign } from '../types'
 import { emptyForm } from '../types'
 import { useCampaigns } from '../composables/useCampaigns'
 import BaseModal from '@/components/base/BaseModal.vue'
+import BaseButton from '@/components/base/BaseButton.vue'
 
 const props = defineProps<{
   visible: boolean
@@ -134,22 +135,21 @@ function closeModal() {
 
     <template #footer>
       <div class="flex items-center justify-end gap-3">
-        <button
-          type="button"
+        <BaseButton
+          variant="secondary"
+          class="!w-auto !rounded-lg !px-4 !py-2"
           @click="closeModal"
-          class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
         >
           Cancel
-        </button>
-        <button
-          type="submit"
+        </BaseButton>
+        <BaseButton
+          variant="primary"
+          class="!w-auto !rounded-lg !px-4 !py-2"
           @click="saveCampaign"
-          class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
         >
           {{ isEditing ? 'Save Changes' : 'Create Campaign' }}
-        </button>
+        </BaseButton>
       </div>
     </template>
   </BaseModal>
 </template>
-

@@ -4,6 +4,7 @@ import type { Exam } from '../types'
 import { emptyForm } from '../types'
 import { useExams } from '../service/useExams'
 import BaseModal from '@/components/base/BaseModal.vue'
+import BaseButton from '@/components/base/BaseButton.vue'
 
 const props = defineProps<{
   visible: boolean
@@ -156,20 +157,20 @@ function closeModal() {
 
     <template #footer>
       <div class="flex items-center justify-end gap-2">
-        <button
-          type="button"
+        <BaseButton
+          variant="secondary"
+          class="!w-auto !rounded-md !px-4 !py-2"
           @click="closeModal"
-          class="rounded-md border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
         >
           Cancel
-        </button>
-        <button
-          type="submit"
+        </BaseButton>
+        <BaseButton
+          variant="primary"
+          class="!w-auto !rounded-md !px-4 !py-2"
           @click="saveExam"
-          class="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
         >
           {{ isEditing ? 'Save Changes' : 'Create Exam' }}
-        </button>
+        </BaseButton>
       </div>
     </template>
   </BaseModal>

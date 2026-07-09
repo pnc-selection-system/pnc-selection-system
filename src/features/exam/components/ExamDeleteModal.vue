@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import type { Exam } from '../types'
 import { useExams } from '../service/useExams'
 import BaseModal from '@/components/base/BaseModal.vue'
+import BaseButton from '@/components/base/BaseButton.vue'
 
 const props = defineProps<{
   exam: Exam | null
@@ -49,23 +50,25 @@ function closeModal() {
 
     <template #footer>
       <div class="flex items-center justify-center gap-2">
-        <button
+        <BaseButton
+          variant="secondary"
+          class="!w-auto !rounded-md !px-4 !py-2"
           @click="closeModal"
-          class="rounded-md border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
         >
           Cancel
-        </button>
-        <button
+        </BaseButton>
+        <BaseButton
           v-if="exam"
-          @click="handleDelete(exam.id)"
-          class="inline-flex items-center gap-1.5 rounded-md bg-rose-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-rose-600"
+          variant="primary"
+          class="!w-auto !rounded-md !bg-rose-500 !border-rose-500 hover:!bg-rose-600 !px-4 !py-2"
           autofocus
+          @click="handleDelete(exam.id)"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2" />
           </svg>
           Delete
-        </button>
+        </BaseButton>
       </div>
     </template>
   </BaseModal>
