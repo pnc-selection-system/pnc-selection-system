@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent } from 'vue'
-import type { Campaign } from '../types'
-import { statusLabels, formatDateShort } from '../types'
-import { useCampaigns } from '../composables/useCampaigns'
+import type { Campaign } from '../types.ts'
+import { statusLabels, formatDateShort } from '../types.ts'
+import { useCampaigns } from '../composables/useCampaigns.ts'
 
 const CampaignFormModal = defineAsyncComponent(() => import('../components/CampaignFormModal.vue'))
 const CampaignDeleteModal = defineAsyncComponent(() => import('../components/CampaignDeleteModal.vue'))

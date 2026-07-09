@@ -3,13 +3,13 @@ import AppLayout from '@/layouts/AppLayout.vue'
 
 const routes: RouteRecordRaw[] = [
   {
-    path: '/campaigns',
+    path: '/candidates',
     component: AppLayout,
     children: [
       {
         path: '',
-        name: 'campaigns',
-        component: () => import('./view/CampaignListPage.vue'),
+        name: 'candidates',
+        component: () => import('./CandidateListPage.vue'),
       },
     ],
   },

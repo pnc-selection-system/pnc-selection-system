@@ -70,8 +70,8 @@ import SidebarMenuItem from "@/components/layouts/SidebarMenuItem.vue"
         <p class="text-[8px] tracking-[3px] text-gray-500 uppercase mb-1 font-medium">
           Candidates
         </p>
-        <SidebarMenuItem title="Candidate List" />
-        <SidebarMenuItem title="Candidate Profile" />
+        <SidebarMenuItem title="Candidate List" to="/candidates" />
+        <SidebarMenuItem title="Candidate Profile" to="/candidates/1" />
       </div>
       <!-- EXAM -->
       <div class="px-3 mt-2">
