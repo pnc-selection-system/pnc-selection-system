@@ -104,9 +104,20 @@ const MenuItem = defineComponent({
         <p class="text-[8px] tracking-[3px] text-gray-500 uppercase mb-1 font-medium">
           Exam
         </p>
-        <MenuItem title="Exam Configuration" badge="MGR" />
-        <MenuItem title="Import Wizard" />
-        <MenuItem title="Results & Analytics" />
+        <router-link
+          to="/exams"
+          class="flex items-center justify-between px-3 py-2 rounded-lg text-gray-200 transition mb-1"
+          active-class="bg-slate-700 text-white border border-slate-600"
+          exact-active-class="bg-slate-700 text-white border border-slate-600"
+        >
+          <div class="flex items-center gap-3">
+            <div class="w-2 h-2 rounded-sm bg-gray-500"></div>
+            <span class="text-xs text-gray-200">Exam configuration</span>
+          </div>
+          <span class="text-[10px] text-gray-400">MGR</span>
+        </router-link>
+        <MenuItem title="Import wizard" />
+        <MenuItem title="Results & analytics" />
       </div>
       <!-- EVALUATION -->
       <div class="px-3 mt-2">
