@@ -27,7 +27,6 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 defineProps<{ page: number; totalPages: number }>()
 defineEmits<{ change: [page: number] }>()

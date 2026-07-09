@@ -1,31 +1,28 @@
-import { ref, watch } from 'vue'
-import { useCandidateStore } from '../stores/candidateStore'
+import { watch } from 'vue'
 import { storeToRefs } from 'pinia'
+import { useCandidateStore } from '../stores/candidateStore'
 
 export function useCandidates() {
   const store = useCandidateStore()
-  const { candidates, loading, page, total, totalPages } = storeToRefs(store)
-
-  const search = ref('')
-  const province = ref('')
-  const ngo = ref('')
-  const status = ref('')
-  const examResult = ref('')
-
-  const fetch = () => {
-    store.fetchCandidates({
-      search: search.value || undefined,
-      province: province.value || undefined,
-      ngo: ngo.value || undefined,
-      status: status.value || undefined,
-      exam_result: examResult.value || undefined,
-    })
-  }
+  const { candidates, loading, page, total, totalPages, search, province, ngo, status, examResult } = storeToRefs(store)
 
   watch([search, province, ngo, status, examResult], () => {
     store.page = 1
-    fetch()
+    store.fetchCandidates()
   })
 
-  return { candidates, loading, page, total, totalPages, search, province, ngo, status, examResult, fetch, setPage: store.setPage }
+  return {
+    candidates,
+    loading,
+    page,
+    total,
+    totalPages,
+    search,
+    province,
+    ngo,
+    status,
+    examResult,
+    fetch: store.fetchCandidates,
+    setPage: store.setPage,
+  }
 }

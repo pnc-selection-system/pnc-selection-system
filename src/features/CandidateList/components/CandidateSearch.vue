@@ -10,7 +10,6 @@
     />
   </div>
 </template>
-
 <script setup lang="ts">
 defineProps<{ modelValue: string }>()
 defineEmits<{ 'update:modelValue': [value: string] }>()
