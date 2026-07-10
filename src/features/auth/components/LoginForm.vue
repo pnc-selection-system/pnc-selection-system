@@ -25,7 +25,7 @@ async function handleSubmit() {
   try {
     await login({ email: email.value, password: password.value })
     const redirect = (route.query.redirect as string) || '/dashboard'
-    await router.push(redirect)
+    router.replace(redirect)
   } catch {
     if (authError.value) {
       errors.value = { ...errors.value, password: authError.value }
@@ -35,7 +35,7 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <div class="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl shadow-slate-100">
+  <div class="w-full max-w-md rounded bg-white p-8 shadow-xl shadow-slate-100">
     <div class="mb-6 flex flex-col items-center">
       <AppLogo class="mb-4 h-16 w-auto" />
       <h1 class="text-2xl font-semibold text-slate-900">Student Selection</h1>

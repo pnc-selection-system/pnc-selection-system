@@ -1,7 +1,7 @@
 <script setup lang="ts">
 withDefaults(
   defineProps<{
-    name: 'warning' | 'delete' | 'plus' | 'edit' | 'search' | 'view'
+    name: 'warning' | 'delete' | 'plus' | 'edit' | 'search' | 'view' | 'arrow-right'
     size?: number
     color?: string
     strokeWidth?: number
@@ -54,6 +54,11 @@ withDefaults(
     <template v-if="name === 'view'">
       <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z" />
       <circle cx="12" cy="12" r="3" />
+    </template>
+
+    <!-- Arrow Right -->
+    <template v-if="name === 'arrow-right'">
+      <path d="M13 7l5 5m0 0l-5 5m5-5H6" />
     </template>
   </svg>
 </template>

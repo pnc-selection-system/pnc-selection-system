@@ -8,7 +8,7 @@ defineProps<{
 <template>
   <a
     href="#"
-    class="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-gray-700 transition mb-1"
+    class="flex items-center justify-between px-3 py-2 rounded hover:bg-gray-700 transition mb-1"
   >
     <div class="flex items-center gap-3">
       <div class="h-2 w-2 rounded-sm bg-gray-500" />

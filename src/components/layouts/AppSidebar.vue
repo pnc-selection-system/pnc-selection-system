@@ -27,7 +27,7 @@ import SidebarMenuItem from "@/components/layouts/SidebarMenuItem.vue"
         </p>
         <router-link
           to="/dashboard"
-          class="flex items-center justify-between px-3 py-2 rounded-lg text-gray-400 transition mb-1 hover:bg-slate-700/50"
+          class="flex items-center justify-between px-3 py-2 rounded text-gray-400 transition mb-1 hover:bg-slate-700/50"
           exact-active-class="!text-white bg-slate-700 border border-slate-600 active-link"
         >
           <div class="flex items-center gap-2">
@@ -44,7 +44,7 @@ import SidebarMenuItem from "@/components/layouts/SidebarMenuItem.vue"
         </p>
         <router-link
           to="/campaigns"
-          class="flex items-center justify-between px-3 py-2 rounded-lg text-gray-400 transition mb-1 hover:bg-slate-700/50"
+          class="flex items-center justify-between px-3 py-2 rounded text-gray-400 transition mb-1 hover:bg-slate-700/50"
           active-class="!text-white bg-slate-700 border border-slate-600 active-link"
         >
           <div class="flex items-center gap-3">
@@ -60,7 +60,17 @@ import SidebarMenuItem from "@/components/layouts/SidebarMenuItem.vue"
         <p class="text-[8px] tracking-[3px] text-gray-500 uppercase mb-1 font-medium">
           Outreach
         </p>
-        <SidebarMenuItem title="Information Sessions" />
+        <router-link
+          to="/outreach/information-sessions"
+          class="flex items-center justify-between px-3 py-2 rounded text-gray-400 transition mb-1 hover:bg-slate-700/50"
+          active-class="!text-white bg-slate-700 border border-slate-600 active-link"
+        >
+          <div class="flex items-center gap-3">
+            <div class="dot w-2 h-2 rounded-sm bg-gray-500 transition"></div>
+            <span class="text-xs">Information Sessions</span>
+          </div>
+          <span class="badge text-[10px] text-gray-500 bg-gray-500/10 px-1.5 py-0.5 rounded transition">OFF</span>
+        </router-link>
         <SidebarMenuItem title="NGOs & Partners" />
       </div>
       <!-- CANDIDATES -->
@@ -97,14 +107,7 @@ import SidebarMenuItem from "@/components/layouts/SidebarMenuItem.vue"
         <SidebarMenuItem title="Reports & Exports" />
       </div>
     </div>
-    <!-- Footer -->
-    <div class="border-t border-gray-700 p-5 text-[11px] text-gray-500 leading-relaxed shrink-0 bg-[#1F2937]">
-      <div class="font-medium text-gray-400">LO-FI WIREFRAMES • v0.9</div>
-      <div>Sprint 0 • S0-13 / S0-14</div>
-      <div class="mt-3 text-[8px] text-gray-600 uppercase tracking-tighter">
-        Role legend: ADM admin • MGR manager • INV officer • CMT committee
-      </div>
-    </div>
+
   </aside>
 </template>
 

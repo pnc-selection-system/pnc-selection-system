@@ -7,7 +7,7 @@ import CampaignPageHeader from '../components/CampaignPageHeader.vue'
 import CampaignToolbar from '../components/CampaignToolbar.vue'
 import CampaignTableRow from '../components/CampaignTableRow.vue'
 import CampaignFormModal from '../components/CampaignFormModal.vue'
-import CampaignDeleteModal from '../components/CampaignDeleteModal.vue'
+
 import BaseButton from '@/components/base/BaseButton.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
@@ -29,8 +29,6 @@ onMounted(() => loadCampaigns())
 
 const showFormModal = ref(false)
 const editingCampaign = ref<Campaign | null>(null)
-const confirmDelete = ref<Campaign | null>(null)
-
 function openCreateModal() {
   editingCampaign.value = null
   showFormModal.value = true
@@ -99,7 +97,6 @@ function closeFormModal() {
                 :campaign="campaign"
                 @view="router.push({ name: 'campaign-detail', params: { id: $event.id } })"
                 @edit="openEditModal"
-                @delete="confirmDelete = $event"
               />
             </tbody>
           </table>
@@ -109,6 +106,6 @@ function closeFormModal() {
     </div>
 
     <CampaignFormModal :visible="showFormModal" :campaign="editingCampaign" @close="closeFormModal" />
-    <CampaignDeleteModal :campaign="confirmDelete" @close="confirmDelete = null" />
+
   </div>
 </template>

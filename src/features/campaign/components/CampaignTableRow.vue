@@ -14,52 +14,44 @@ defineProps<{
 const emit = defineEmits<{
   view: [campaign: Campaign]
   edit: [campaign: Campaign]
-  delete: [campaign: Campaign]
 }>()
 </script>
 
 <template>
-  <tr>
-    <td class="px-4 py-3">
+  <tr class="hover:bg-blue-50/60 transition-colors">
+    <td class="px-4 py-1">
       <p class="text-xs text-slate-900" :class="{ 'font-bold': campaign.status === CampaignStatus.Active }">
         {{ campaign.name }}
       </p>
     </td>
-    <td class="px-4 py-3 text-xs text-slate-700">{{ campaign.year }}</td>
-    <td class="px-4 py-3 text-xs text-slate-700">{{ formatDateShort(campaign.start_date) }}</td>
-    <td class="px-4 py-3 text-xs text-slate-700">{{ formatDateShort(campaign.end_date) }}</td>
-    <td class="px-4 py-3 text-xs text-slate-700">{{ campaign.condidate_total }}</td>
-    <td class="px-4 py-3">
-      <BaseBadge :type="campaign.status === CampaignStatus.Active ? 'success' : 'info'" size="small">
+    <td class="px-4 py-1 text-xs text-slate-700">{{ campaign.year }}</td>
+    <td class="px-4 py-1 text-xs text-slate-700">{{ formatDateShort(campaign.start_date) }}</td>
+    <td class="px-4 py-1 text-xs text-slate-700">{{ formatDateShort(campaign.end_date) }}</td>
+    <td class="px-4 py-1 text-xs text-slate-700">{{ campaign.condidate_total }}</td>
+    <td class="px-4 py-1">
+      <BaseBadge :type="campaign.status === CampaignStatus.Active ? 'primary' : 'info'" size="small">
         {{ statusLabels[campaign.status] }}
       </BaseBadge>
     </td>
-    <td class="px-4 py-3 text-center">
+    <td class="px-4 py-1 text-center">
       <div class="inline-flex items-center gap-0.5">
         <BaseButton
           variant="secondary"
-          class="!w-auto !rounded !px-1 !py-0 gap-0.5 text-[0.5rem] font-semibold !border-blue-200 !bg-blue-50 !text-blue-700"
+          class="!w-auto !rounded-md !px-1.5 !py-1 !border-blue-200 !bg-blue-50 !text-blue-600 hover:!bg-blue-100 hover:!text-blue-800 active:!scale-95"
+          title="View campaign"
           @click="emit('view', campaign)"
         >
-          <BaseIcon name="view" :size="9" />
-          View
+          <BaseIcon name="view" :size="12" />
         </BaseButton>
         <BaseButton
           variant="secondary"
-          class="!w-auto !rounded !px-1 !py-0 gap-0.5 text-[0.5rem] font-semibold"
+          class="!w-auto !rounded-md !px-1.5 !py-1 hover:!bg-slate-100 active:!scale-95"
+          title="Edit campaign"
           @click="emit('edit', campaign)"
         >
-          <BaseIcon name="edit" :size="9" />
-          Edit
+          <BaseIcon name="edit" :size="12" />
         </BaseButton>
-        <BaseButton
-          variant="secondary"
-          class="!w-auto !rounded !px-1 !py-0 gap-0.5 text-[0.5rem] font-semibold !border-rose-200 !bg-rose-50 !text-rose-700"
-          @click="emit('delete', campaign)"
-        >
-          <BaseIcon name="delete" :size="9" />
-          Delete
-        </BaseButton>
+
       </div>
     </td>
   </tr>
