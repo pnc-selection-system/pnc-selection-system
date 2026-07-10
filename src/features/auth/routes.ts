@@ -1,4 +1,3 @@
-import AuthLayout from '@/layouts/AuthLayout.vue'
 import LoginView from './views/LoginView.vue'
 
 export const authRoutes = [

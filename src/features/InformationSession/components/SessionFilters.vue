@@ -66,7 +66,9 @@ function mapOptions(items: string[], prefix: string): SelectOption[] {
       class="!w-auto !rounded-[4px] !px-4 !py-2 text-sm font-semibold"
       @click="emit('new')"
     >
-      <BaseIcon name="plus" :size="14" :stroke-width="2.5" />
+      <BaseIcon :size="14" :stroke-width="2.5">
+        <path d="M12 5v14M5 12h14" />
+      </BaseIcon>
       New session
     </BaseButton>
   </div>

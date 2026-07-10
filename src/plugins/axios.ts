@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { useAuthStore } from '@/features/auth/store/authStore'
+import { getCookie, TOKEN_COOKIE } from '@/utils/cookie'
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api',
@@ -10,13 +10,13 @@ const api = axios.create({
 })
 
 api.interceptors.request.use((config) => {
-  const authStore = useAuthStore()
   if (config.url?.endsWith('/login')) {
     return config
   }
 
-  if (authStore.token) {
-    config.headers.Authorization = `Bearer ${authStore.token}`
+  const token = getCookie(TOKEN_COOKIE)
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
   }
   return config
 })
@@ -25,13 +25,14 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     if (error.response?.status === 401) {
+      const { useAuthStore } = await import('@/features/auth/store/authStore')
       const authStore = useAuthStore()
       if (authStore.isAuthenticated) {
         await authStore.logout(false)
       }
     }
-    return Promise.reject(error)
-  }
+    throw error
+  },
 )
 
 export default api

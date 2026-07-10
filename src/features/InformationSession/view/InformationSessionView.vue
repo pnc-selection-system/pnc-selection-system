@@ -14,9 +14,17 @@ const meta = ref<PageMeta>(fetchPageMeta())
 const filters = ref<Filters>({ ...DEFAULT_SESSION_FILTERS })
 const filterOptions = ref<SessionFilterOptions>(fetchFilterOptions())
 const sessions = ref<Session[]>(fetchSessions(filters.value))
-const form = ref<SessionFormData>({ ...EMPTY_SESSION_FORM })
 const isFormOpen = ref(false)
 const activeCampaignYear = ref('')
+
+function emptyForm(): SessionFormData {
+  return {
+    ...EMPTY_SESSION_FORM,
+    campaign: activeCampaignYear.value || String(new Date().getFullYear()),
+  }
+}
+
+const form = ref<SessionFormData>(emptyForm())
 
 // Fetch the active campaign year and all campaign years on mount
 async function loadCampaignData() {
@@ -57,34 +65,26 @@ function selectSession(session: Session) {
 }
 
 function startNewSession() {
-  form.value = {
-    ...EMPTY_SESSION_FORM,
-    campaign: activeCampaignYear.value || String(new Date().getFullYear()),
-  }
+  form.value = emptyForm()
   isFormOpen.value = true
 }
 
-function viewCandidates(session: Session) {
+function viewCandidates(_session: Session) {
+  void _session
   // Hook this up to router navigation, e.g.:
   // router.push({ name: 'candidates', query: { sessionId: session.id } })
-  console.log('view candidates for', session.id)
+  
 }
 
 async function handleSave() {
   await saveSession(form.value)
-  form.value = {
-    ...EMPTY_SESSION_FORM,
-    campaign: activeCampaignYear.value || String(new Date().getFullYear()),
-  }
+  form.value = emptyForm()
   isFormOpen.value = false
   loadSessions()
 }
 
 function handleCancel() {
-  form.value = {
-    ...EMPTY_SESSION_FORM,
-    campaign: activeCampaignYear.value || String(new Date().getFullYear()),
-  }
+  form.value = emptyForm()
   isFormOpen.value = false
 }
 

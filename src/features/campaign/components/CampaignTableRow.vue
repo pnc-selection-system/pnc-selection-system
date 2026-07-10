@@ -41,7 +41,10 @@ const emit = defineEmits<{
           title="View campaign"
           @click="emit('view', campaign)"
         >
-          <BaseIcon name="view" :size="12" />
+          <BaseIcon :size="12">
+            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z" />
+            <circle cx="12" cy="12" r="3" />
+          </BaseIcon>
         </BaseButton>
         <BaseButton
           variant="secondary"
@@ -49,7 +52,9 @@ const emit = defineEmits<{
           title="Edit campaign"
           @click="emit('edit', campaign)"
         >
-          <BaseIcon name="edit" :size="12" />
+          <BaseIcon :size="12">
+            <path d="M17 3a2.85 2.85 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
+          </BaseIcon>
         </BaseButton>
 
       </div>

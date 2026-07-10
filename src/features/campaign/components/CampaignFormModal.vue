@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue'
+import { ref, watch} from 'vue'
 import type { Campaign } from '../types'
 import { useCampaigns } from '../composables/useCampaigns'
 import { CampaignStatus } from '@/enums'
 import BaseModal from '@/components/base/BaseModal.vue'
 import BaseButton from '@/components/base/BaseButton.vue'
 import BaseInput from '@/components/base/BaseInput.vue'
+import BaseSelect from '@/components/base/BaseSelect.vue'
 
 const props = defineProps<{
   visible: boolean
@@ -161,22 +162,14 @@ function closeModal() {
           </div>
         </div>
 
-        <div>
-          <label for="status" class="mb-1.5 block text-sm font-medium text-slate-700">
-            Status
-          </label>
-          <div class="relative">
-            <select
-              id="status"
-              v-model="form.status"
-              class="appearance-none w-full rounded border border-slate-300 bg-white px-3 py-2 pr-7 text-sm text-slate-700 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100 cursor-pointer"
-            >
-              <option :value="CampaignStatus.Active">Active</option>
-              <option :value="CampaignStatus.Closed">Closed</option>
-            </select>
-            <span class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">▾</span>
-          </div>
-        </div>
+        <BaseSelect
+          v-model="form.status"
+          label="Status"
+          :options="[
+            { value: CampaignStatus.Active, label: 'Active' },
+            { value: CampaignStatus.Closed, label: 'Closed' },
+          ]"
+        />
       </div>
     </form>
 

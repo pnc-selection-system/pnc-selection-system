@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { PageMeta } from '../types/session'
 
-const props = defineProps<{
+defineProps<{
   meta: PageMeta | null
 }>()
 </script>
