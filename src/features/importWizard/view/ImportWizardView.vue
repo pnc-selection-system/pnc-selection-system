@@ -80,7 +80,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-50 p-6">
+  <div class="min-h-screen bg-slate-50">
     <div class="mx-auto max-w-5xl space-y-4">
       <WizardSteps :current="currentStep" @select="currentStep = $event" />
 
