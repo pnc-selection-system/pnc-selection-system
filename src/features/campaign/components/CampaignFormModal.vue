@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import type { Campaign } from '../types'
 import { useCampaigns } from '../composables/useCampaigns'
 import { CampaignStatus } from '@/enums'
@@ -18,20 +18,43 @@ const emit = defineEmits<{
 
 const { addCampaign, updateCampaign, saving } = useCampaigns()
 
+const currentYear = new Date().getFullYear()
+const today = new Date().toISOString().split('T')[0]
+
 const isEditing = ref(false)
 const form = ref({
   name: '',
-  year: String(new Date().getFullYear()),
+  year: String(currentYear),
   condidate_total: '0',
   start_date: '',
   end_date: '',
   status: CampaignStatus.Active as CampaignStatus,
 })
+const errors = ref({ name: '', year: '', start_date: '', end_date: '', condidate_total: '' })
+
+function validate(): boolean {
+  const e = { name: '', year: '', start_date: '', end_date: '', condidate_total: '' }
+  const year = Number(form.value.year)
+  const condidate_total = Number(form.value.condidate_total)
+
+  if (!form.value.name.trim()) e.name = 'Campaign name is required.'
+  if (!year) e.year = 'Year is required.'
+  else if (!isEditing.value && year < currentYear) e.year = `Year must be ${currentYear} or later.`
+  if (condidate_total < 0) e.condidate_total = 'Total candidates cannot be negative.'
+  if (!form.value.start_date) e.start_date = 'Start date is required.'
+  else if (!isEditing.value && form.value.start_date < today) e.start_date = 'Start date cannot be in the past.'
+  if (!form.value.end_date) e.end_date = 'End date is required.'
+  else if (form.value.end_date < form.value.start_date) e.end_date = 'End date must be after start date.'
+
+  errors.value = e
+  return Object.values(e).every((v) => !v)
+}
 
 watch(
   () => props.visible,
   (val) => {
     if (val) {
+      errors.value = { name: '', year: '', start_date: '', end_date: '', condidate_total: '' }
       if (props.campaign) {
         isEditing.value = true
         form.value = {
@@ -46,7 +69,7 @@ watch(
         isEditing.value = false
         form.value = {
           name: '',
-          year: String(new Date().getFullYear()),
+          year: String(currentYear),
           condidate_total: '0',
           start_date: '',
           end_date: '',
@@ -58,11 +81,9 @@ watch(
 )
 
 async function saveCampaign() {
+  if (!validate()) return
   const year = Number(form.value.year)
   const condidate_total = Number(form.value.condidate_total)
-  if (!form.value.name.trim() || !form.value.start_date || !form.value.end_date) return
-  if (!year || condidate_total < 0) return
-
   const payload = { ...form.value, year, condidate_total }
   if (isEditing.value && props.campaign) {
     await updateCampaign(props.campaign.id, payload)
@@ -94,37 +115,50 @@ function closeModal() {
           placeholder="Enter campaign name"
           name="name"
         />
+        <p v-if="errors.name" class="-mt-3 text-xs text-red-500">{{ errors.name }}</p>
 
         <div class="grid grid-cols-2 gap-4">
-          <BaseInput
-            v-model="form.year"
-            label="Year *"
-            type="number"
-            placeholder="e.g. 2026"
-            name="year"
-          />
-          <BaseInput
-            v-model="form.condidate_total"
-            label="Total Candidates *"
-            type="number"
-            placeholder="e.g. 100"
-            name="condidate_total"
-          />
+          <div>
+            <BaseInput
+              v-model="form.year"
+              label="Year *"
+              type="number"
+              placeholder="e.g. 2026"
+              name="year"
+            />
+            <p v-if="errors.year" class="mt-1 text-xs text-red-500">{{ errors.year }}</p>
+          </div>
+          <div>
+            <BaseInput
+              v-model="form.condidate_total"
+              label="Total Candidates *"
+              type="number"
+              placeholder="e.g. 100"
+              name="condidate_total"
+            />
+            <p v-if="errors.condidate_total" class="mt-1 text-xs text-red-500">{{ errors.condidate_total }}</p>
+          </div>
         </div>
 
         <div class="grid grid-cols-2 gap-4">
-          <BaseInput
-            v-model="form.start_date"
-            label="Start Date *"
-            type="date"
-            name="start_date"
-          />
-          <BaseInput
-            v-model="form.end_date"
-            label="End Date *"
-            type="date"
-            name="end_date"
-          />
+          <div>
+            <BaseInput
+              v-model="form.start_date"
+              label="Start Date *"
+              type="date"
+              name="start_date"
+            />
+            <p v-if="errors.start_date" class="mt-1 text-xs text-red-500">{{ errors.start_date }}</p>
+          </div>
+          <div>
+            <BaseInput
+              v-model="form.end_date"
+              label="End Date *"
+              type="date"
+              name="end_date"
+            />
+            <p v-if="errors.end_date" class="mt-1 text-xs text-red-500">{{ errors.end_date }}</p>
+          </div>
         </div>
 
         <div>
