@@ -3,13 +3,13 @@ import AdminLayout from '@/layouts/AdminLayout.vue'
 
 const routes: RouteRecordRaw[] = [
   {
-    path: '/exam/results',
+    path: '/evaluation/home-investigation',
     component: AdminLayout,
     children: [
       {
         path: '',
-        name: 'results-analytics',
-        component: () => import('./ResultsAnalyticsView.vue'),
+        name: 'home-investigation',
+        component: () => import('./HomeInvestigationView.vue'),
       },
     ],
   },

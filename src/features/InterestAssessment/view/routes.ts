@@ -4,11 +4,11 @@ import AdminLayout from '@/layouts/AdminLayout.vue'
 const routes: RouteRecordRaw[] = [
   {
     path: '/evaluation/interest',
-    name: 'interest-assessment',
     component: AdminLayout,
     children: [
       {
         path: '',
+        name: 'interest-assessment',
         component: () => import('./InterestAssessmentView.vue'),
       },
     ],

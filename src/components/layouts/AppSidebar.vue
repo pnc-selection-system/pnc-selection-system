@@ -150,7 +150,18 @@ const MenuItem = defineComponent({
           Evaluation
         </p>
         <MenuItem title="Interest Assessment" to="/evaluation/interest" />
-        <MenuItem title="Home Investigation" badge="INV" to="/evaluation/home-investigation" />
+        <router-link
+          to="/evaluation/home-investigation"
+          class="flex items-center justify-between px-3 py-2 rounded-lg text-gray-200 transition mb-1"
+          active-class="bg-slate-700 text-white border border-slate-600"
+          exact-active-class="bg-slate-700 text-white border border-slate-600"
+        >
+          <div class="flex items-center gap-3">
+            <div class="w-2 h-2 rounded-sm bg-gray-500"></div>
+            <span class="text-xs text-gray-200">Home Investigation</span>
+          </div>
+          <span class="text-[10px] text-gray-400">INV</span>
+        </router-link>
       </div>
       <!-- DECISION -->
       <div class="px-3 mt-3 pb-4">

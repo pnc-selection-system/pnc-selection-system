@@ -5,6 +5,7 @@ import ngosPartnerRoutes from '@/features/ngosPartner/view/routes'
 import importWizardRoutes from '@/features/importWizard/view/routes'
 import resultAnalyticRoutes from '@/features/resultAnalytic/view/routes'
 import interestAssessmentRoutes from '@/features/InterestAssessment/view/routes'
+import homeInvestionRoutes from '@/features/HomeInvestion/view/routes'
 
 export const routes = [
   ...authRoutes,
@@ -14,4 +15,5 @@ export const routes = [
   ...importWizardRoutes,
   ...resultAnalyticRoutes,
   ...interestAssessmentRoutes,
+  ...homeInvestionRoutes,
 ]
