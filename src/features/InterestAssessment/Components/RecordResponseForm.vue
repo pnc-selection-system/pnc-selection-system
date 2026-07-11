@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
+import BaseButton from '@/components/base/BaseButton.vue'
+import BaseInput from '@/components/base/BaseInput.vue'
+import BaseSelect from '@/components/base/BaseSelect.vue'
+import type { SelectOption } from '@/components/base/BaseSelect.vue'
 import type { AssessmentForm } from '../types/question'
 import type { AssessmentResponse, CandidateOption, QuestionAnswer } from '../types/response'
 
@@ -14,6 +18,10 @@ const emit = defineEmits<{
 
 const selectedCandidateId = ref('')
 const answers = reactive<Record<string, string | string[] | number>>({})
+
+const candidateOptions = computed<SelectOption[]>(() =>
+  props.candidates.map((c) => ({ value: c.id, label: c.name })),
+)
 
 function toggleMultiOption(questionId: string, option: string) {
   const current = (answers[questionId] as string[]) ?? []
@@ -33,27 +41,26 @@ function handleSubmit() {
 
 <template>
   <div class="rounded-lg border border-slate-200 bg-white p-5">
-    <label class="block">
+    <div class="block">
       <span class="font-mono text-[11px] font-medium uppercase tracking-wider text-slate-400">Candidate</span>
-      <select
+      <BaseSelect
         v-model="selectedCandidateId"
-        class="mt-1.5 w-full max-w-sm rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-100"
-      >
-        <option value="" disabled>Select candidate</option>
-        <option v-for="c in candidates" :key="c.id" :value="c.id">{{ c.name }}</option>
-      </select>
-    </label>
+        :options="candidateOptions"
+        placeholder="Select candidate"
+        class="mt-1.5 max-w-sm"
+      />
+    </div>
 
     <div class="mt-6 space-y-5">
       <div v-for="(question, i) in form.questions" :key="question.id" class="border-t border-slate-100 pt-5 first:border-0 first:pt-0">
         <p class="text-sm font-semibold text-slate-800">Q{{ i + 1 }} · {{ question.title }}</p>
 
-        <input
+        <BaseInput
           v-if="question.type === 'short_text'"
-          v-model="answers[question.id]"
-          type="text"
-          class="mt-2 w-full rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-100"
+          :model-value="String(answers[question.id] ?? '')"
           placeholder="Candidate's answer"
+          class="mt-2"
+          @update:model-value="answers[question.id] = $event"
         />
 
         <div v-else-if="question.type === 'scale_1_5'" class="mt-2 flex gap-2">
@@ -102,14 +109,13 @@ function handleSubmit() {
     </div>
 
     <div class="mt-6 flex justify-end">
-      <button
-        type="button"
-        class="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+      <BaseButton
+        class="!w-auto"
         :disabled="!selectedCandidateId"
         @click="handleSubmit"
       >
         Submit response
-      </button>
+      </BaseButton>
     </div>
   </div>
 </template>

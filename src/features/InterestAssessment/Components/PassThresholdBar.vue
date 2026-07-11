@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import BaseButton from '@/components/base/BaseButton.vue'
+
 const props = defineProps<{
   modelValue: number
 }>()
@@ -35,13 +37,8 @@ function handleSaveClick() {
       </div>
     </div>
 
-    <button
-      type="button"
-      class="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 cursor-pointer"
-      style="position: relative; z-index: 9999;"
-      @click="handleSaveClick"
-    >
+    <BaseButton class="!w-auto" @click="handleSaveClick">
       Save form
-    </button>
+    </BaseButton>
   </div>
 </template>

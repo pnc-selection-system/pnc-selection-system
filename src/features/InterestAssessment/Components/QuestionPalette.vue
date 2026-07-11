@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import BaseButton from '@/components/base/BaseButton.vue'
 import { QUESTION_TYPE_LABELS, type QuestionType } from '../types/question'
 
 defineEmits<{
@@ -16,22 +17,20 @@ const questionTypes: QuestionType[] = ['short_text', 'single_choice', 'multi_cho
     </p>
 
     <div class="mt-3 space-y-2">
-      <button
+      <BaseButton
         v-for="type in questionTypes"
         :key="type"
-        type="button"
-        class="w-full rounded-md border border-slate-200 py-2 text-sm text-slate-600 hover:border-slate-300 hover:bg-slate-50"
+        variant="secondary"
         @click="$emit('addQuestion', type)"
       >
         + {{ QUESTION_TYPE_LABELS[type] }}
-      </button>
+      </BaseButton>
     </div>
 
     <div class="my-4 border-t border-slate-100" />
 
-    <button
-      type="button"
-      class="flex w-full items-center justify-center gap-2 rounded-md border border-slate-200 py-2 text-sm text-slate-600 hover:border-slate-300 hover:bg-slate-50"
+    <BaseButton
+      variant="secondary"
       @click="$emit('cloneFromYear', '2025')"
     >
       <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none">
@@ -39,7 +38,7 @@ const questionTypes: QuestionType[] = ['short_text', 'single_choice', 'multi_cho
         <path d="M7 17h8a2 2 0 0 0 2-2V7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
       </svg>
       Clone from 2025
-    </button>
+    </BaseButton>
 
     <div class="mt-4 flex items-start gap-2.5 rounded-lg border border-dashed border-amber-300 bg-amber-50 px-3 py-3">
       <span class="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-amber-500 text-[10px] font-bold text-white">

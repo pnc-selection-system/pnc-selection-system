@@ -29,7 +29,7 @@ function formatDate(iso: string) {
       <p class="font-mono text-[11px] font-medium uppercase tracking-wider text-slate-400">
         Communication log
       </p>
-      <BaseButton variant="secondary" size="sm" @click="emit('logEntry')">+ Add</BaseButton>
+      <BaseButton variant="secondary" size="small" @click="emit('logEntry')">+ Add</BaseButton>
     </div>
     <EmptyState
       v-if="entries.length === 0"
