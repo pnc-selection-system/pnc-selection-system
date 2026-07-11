@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import BaseButton from '../../../components/base/BaseButton.vue'
 import type { ContactPerson } from '../types/partner'
 
 defineProps<{
@@ -11,33 +12,39 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <div class="px-6 pt-6 pb-8">
-    <h3 class="font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-400 mb-5">
-      Contact Persons (1-to-many)
+  <div class="border-t border-slate-200 px-4 py-2.5">
+    <h3 class="text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400 mb-3">
+      Contact Persons
     </h3>
 
-    <div class="space-y-3">
+    <div class="divide-y divide-slate-200">
       <div
         v-for="contact in contacts"
         :key="contact.id"
-        class="flex items-center justify-between rounded-lg border border-slate-200 px-5 py-3.5 text-[15px]"
+        class="flex items-center justify-between px-4 py-2"
       >
-        <div class="flex items-center gap-1.5">
-          <span class="font-bold text-[#2D3748]">{{ contact.name }}</span>
+        <div class="flex items-center gap-1.5 text-xs text-slate-700">
+          <span class="font-semibold">{{ contact.name }}</span>
           <span class="text-slate-300">·</span>
           <span class="text-slate-400">{{ contact.role }}</span>
         </div>
-        <span class="text-slate-400 tabular-nums tracking-wide">
-          {{ contact.phone || contact.email }}
-        </span>
+        <div class="flex items-center gap-2 text-xs text-slate-500">
+          <span v-if="contact.phone" class="tabular-nums tracking-wide">{{ contact.phone }}</span>
+          <span v-if="contact.phone && contact.email" class="text-slate-300">·</span>
+          <span v-if="contact.email" class="truncate max-w-[160px]">{{ contact.email }}</span>
+        </div>
       </div>
 
-      <button 
-        class="mt-2 w-full flex items-center justify-center py-3.5 border border-slate-200 rounded-lg text-slate-500 font-bold text-[14px] hover:bg-slate-50 hover:border-slate-300 transition-all cursor-pointer" 
+      <BaseButton
+        variant="secondary"
+        class="!w-full !rounded-md !border-2 !border-dashed !border-slate-200 !px-4 !py-2.5 !text-xs !font-semibold !text-slate-400 !shadow-none !gap-1.5 hover:!border-blue-300 hover:!text-blue-600 hover:!bg-blue-50/40"
         @click="emit('addContact')"
       >
-        + Add contact
-      </button>
+        <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M10 5v10M5 10h10" stroke-linecap="round" />
+        </svg>
+        Add contact
+      </BaseButton>
     </div>
   </div>
 </template>

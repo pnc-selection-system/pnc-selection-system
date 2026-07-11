@@ -13,8 +13,8 @@ const badgeType = computed(() =>
 </script>
 
 <template>
-  <div class="flex items-center justify-between border-b border-slate-100 px-6 py-5">
-    <h1 class="text-[22px] font-bold text-[#1A202C] tracking-tight">
+  <div class="flex items-center justify-between border-b border-slate-200 px-4 py-2.5">
+    <h1 class="text-[15px] font-bold text-slate-700 tracking-tight">
       {{ partner.organisation }}
     </h1>
     <BaseBadge 

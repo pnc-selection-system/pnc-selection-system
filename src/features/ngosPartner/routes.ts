@@ -1,11 +1,11 @@
 import type { RouteRecordRaw } from 'vue-router'
-import AdminLayout from '@/layouts/AdminLayout.vue'
-import NGOsPartnersView from './NGOsPartnersView.vue'
+import AppLayout from '@/layouts/AppLayout.vue'
+import NGOsPartnersView from './view/NGOsPartnersView.vue'
 
 const routes: RouteRecordRaw[] = [
   {
     path: '/ngos-partners',
-    component: AdminLayout,
+    component: AppLayout,
     children: [
       {
         path: '',

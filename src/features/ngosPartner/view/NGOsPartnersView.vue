@@ -7,12 +7,10 @@ import CommunicationLog from '../components/CommunicationLog.vue'
 import AddPartnerModel from '../components/AddPartnerModel.vue'
 import AddContactModel from '../components/AddContactModel.vue'
 import AddLogEntryModel from '../components/AddLogEntryModel.vue'
-import NGOsPartnersSkeleton from '../components/NGOsPartnersSkeleton.vue'
 import { fetchPartners, addPartner, addContact, addLogEntry, fetchCommunicationLog } from '../service/service'
 import type { Partner } from '../types/partner'
 import type { CommunicationLogEntry } from '../types/communication'
 
-const loading = ref(true)
 const partners = ref<Partner[]>([])
 const selectedPartner = ref<Partner | null>(null)
 const showAddPartner = ref(false)
@@ -21,17 +19,13 @@ const showAddLog = ref(false)
 const logEntries = ref<CommunicationLogEntry[]>([])
 
 onMounted(async () => {
-  try {
-    partners.value = await fetchPartners()
-    
-    // Auto-select the first partner if available
-    const firstPartner = partners.value[0]
-    if (firstPartner) {
-      selectedPartner.value = firstPartner
-      await loadLogEntries(firstPartner.id)
-    }
-  } finally {
-    loading.value = false
+  partners.value = await fetchPartners()
+
+  // Auto-select the first partner if available
+  const firstPartner = partners.value[0]
+  if (firstPartner) {
+    selectedPartner.value = firstPartner
+    await loadLogEntries(firstPartner.id)
   }
 })
 
@@ -69,11 +63,14 @@ async function loadLogEntries(partnerId: string) {
 </script>
 
 <template>
-  <div class="mx-auto max-w-6xl px-4 py-8">
-    <NGOsPartnersSkeleton v-if="loading" />
+  <div class="px-6 py-6">
+    <div class="mx-auto max-w-[1200px] space-y-4">
+      <div class="flex flex-col gap-0">
+        <p class="text-[10px] font-semibold uppercase text-slate-500">Outreach / NGOs &amp; Partners</p>
+        <h1 class="text-[24px] font-semibold tracking-tight text-slate-900">NGOs &amp; Partners</h1>
+      </div>
 
-    <template v-else>
-      <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_1.6fr]">
+      <div class="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_1.6fr]">
         <PartnerList
           :partners="partners"
           :selected-id="selectedPartner?.id ?? null"
@@ -99,7 +96,7 @@ async function loadLogEntries(partnerId: string) {
           <p class="text-slate-500">Select a partner to view details</p>
         </div>
       </div>
-    </template>
+    </div>
 
     <AddPartnerModel :open="showAddPartner" @update:open="showAddPartner = $event" @submit="handleAddPartner" />
     <AddContactModel
@@ -116,3 +113,4 @@ async function loadLogEntries(partnerId: string) {
     />
   </div>
 </template>
+

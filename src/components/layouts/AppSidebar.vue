@@ -60,7 +60,6 @@ import SidebarMenuItem from "@/components/layouts/SidebarMenuItem.vue"
         <p class="text-[8px] tracking-[3px] text-gray-500 uppercase mb-1 font-medium">
           Outreach
         </p>
-<<<<<<< HEAD
         <router-link
           to="/outreach/information-sessions"
           class="flex items-center justify-between px-3 py-2 rounded text-gray-400 transition mb-1 hover:bg-slate-700/50"
@@ -72,21 +71,16 @@ import SidebarMenuItem from "@/components/layouts/SidebarMenuItem.vue"
           </div>
           <span class="badge text-[10px] text-gray-500 bg-gray-500/10 px-1.5 py-0.5 rounded transition">OFF</span>
         </router-link>
-        <SidebarMenuItem title="NGOs & Partners" />
-=======
-        <MenuItem title="Information Sessions" />
         <router-link
           to="/ngos-partners"
-          class="flex items-center justify-between px-3 py-2 rounded-lg text-gray-200 transition mb-1"
-          active-class="bg-slate-700 text-white border border-slate-600"
-          exact-active-class="bg-slate-700 text-white border border-slate-600"
+          class="flex items-center justify-between px-3 py-2 rounded text-gray-400 transition mb-1 hover:bg-slate-700/50"
+          active-class="!text-white bg-slate-700 border border-slate-600 active-link"
         >
           <div class="flex items-center gap-3">
-            <div class="w-2 h-2 rounded-sm bg-gray-500"></div>
-            <span class="text-xs text-gray-200">NGOs & Partners</span>
+            <div class="dot w-2 h-2 rounded-sm bg-gray-500 transition"></div>
+            <span class="text-xs">NGOs & Partners</span>
           </div>
         </router-link>
->>>>>>> 4b235853c3735d0da82fe7d263a98279a4d16f78
       </div>
       <!-- CANDIDATES -->
       <div class="px-3 mt-2">

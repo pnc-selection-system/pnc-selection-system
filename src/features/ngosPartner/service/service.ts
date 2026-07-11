@@ -1,10 +1,8 @@
 import type { ContactPerson, PageMeta, Partner } from '../types/partner'
 import type { CommunicationLogEntry } from '../types/communication'
 
-const DELAY = 400
-
-function wait<T>(value: T, ms = DELAY): Promise<T> {
-  return new Promise((resolve) => setTimeout(() => resolve(value), ms))
+function wait<T>(value: T): Promise<T> {
+  return Promise.resolve(value)
 }
 
 let partners: Partner[] = [
