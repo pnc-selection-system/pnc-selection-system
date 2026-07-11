@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import BaseButton from '../../../components/base/BaseButton.vue'
-import EmptyState from '../../../components/ui/EmptyState.vue'
+import DataTableWrapper from '@/components/ui/DataTableWrapper.vue'
 import type { CommunicationLogEntry } from '../types/communication'
 
 defineProps<{
@@ -40,32 +40,30 @@ function formatDate(iso: string) {
         Log entry
       </BaseButton>
     </div>
-    <EmptyState
-      v-if="entries.length === 0"
-      class="mt-2"
-      title="No log entries yet"
-      description="Record calls, emails, or visits with this partner."
-    />
 
-    <table v-else class="min-w-full text-left text-sm">
-      <thead>
-        <tr class="border-b border-slate-200 bg-slate-50">
-          <th class="px-4 py-2.5 text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400">Date</th>
-          <th class="px-4 py-2.5 text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400">Channel</th>
-          <th class="px-4 py-2.5 text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400">Summary</th>
-        </tr>
-      </thead>
-      <tbody class="divide-y divide-slate-200">
-        <tr v-for="entry in entries" :key="entry.id" class="group hover:bg-blue-50/40 transition-all">
-          <td class="px-4 py-2 text-xs text-slate-700">{{ formatDate(entry.date) }}</td>
-          <td class="px-4 py-2">
-            <span class="rounded px-2 py-0.5 text-xs" :class="channelClasses[entry.channel]">
-              {{ entry.channel }}
-            </span>
-          </td>
-          <td class="px-4 py-2 text-xs text-slate-700">{{ entry.summary }}</td>
-        </tr>
-      </tbody>
-    </table>
+    <DataTableWrapper
+      :data="entries"
+      :bordered="false"
+      empty-text="No log entries yet"
+      empty-description="Record calls, emails, or visits with this partner."
+    >
+      <el-table-column label="Date" width="110">
+        <template #default="{ row }">
+          <span class="text-xs text-slate-700">{{ formatDate(row.date) }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Channel" width="100">
+        <template #default="{ row }">
+          <span class="rounded px-2 py-0.5 text-xs" :class="channelClasses[row.channel]">
+            {{ row.channel }}
+          </span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Summary" min-width="200">
+        <template #default="{ row }">
+          <span class="text-xs text-slate-700">{{ row.summary }}</span>
+        </template>
+      </el-table-column>
+    </DataTableWrapper>
   </div>
 </template>

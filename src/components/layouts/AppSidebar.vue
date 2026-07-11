@@ -87,7 +87,16 @@ import SidebarMenuItem from "@/components/layouts/SidebarMenuItem.vue"
         <p class="text-[8px] tracking-[3px] text-gray-500 uppercase mb-1 font-medium">
           Candidates
         </p>
-        <SidebarMenuItem title="Candidate List" />
+        <router-link
+          to="/candidates"
+          class="flex items-center justify-between px-3 py-2 rounded text-gray-400 transition mb-1 hover:bg-slate-700/50"
+          active-class="!text-white bg-slate-700 border border-slate-600 active-link"
+        >
+          <div class="flex items-center gap-3">
+            <div class="dot w-2 h-2 rounded-sm bg-gray-500 transition"></div>
+            <span class="text-xs">Candidate List</span>
+          </div>
+        </router-link>
         <SidebarMenuItem title="Candidate Profile" />
       </div>
       <!-- EXAM -->

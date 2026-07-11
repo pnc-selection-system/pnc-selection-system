@@ -1,64 +1,39 @@
+<template>
+  <div v-if="isOpen || modelValue" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-xl max-w-sm w-full mx-4 p-6">
+      <h2 class="text-lg font-bold text-gray-900 mb-2">{{ title }}</h2>
+      <p class="text-sm text-gray-600 mb-6">{{ message }}</p>
+      <div class="flex justify-end gap-3">
+        <button @click="onCancel" class="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition font-medium">
+          {{ cancelText || 'Cancel' }}
+        </button>
+        <button @click="$emit('confirm')" :disabled="loading" class="px-4 py-2 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white rounded-lg transition font-medium">
+          {{ loading ? 'Loading...' : (confirmText || 'Delete') }}
+        </button>
+      </div>
+    </div>
+  </div>
+</template>
+
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useSlots } from 'vue'
+const props = defineProps<{
+  isOpen?: boolean
+  modelValue?: boolean
+  title: string
+  message: string
+  confirmText?: string
+  cancelText?: string
+  loading?: boolean
+}>()
 
-const props = defineProps({
-  modelValue: { type: Boolean, default: false },
-  title: { type: String, default: 'Confirm' },
-  message: { type: String, default: 'Are you sure?' },
-  confirmText: { type: String, default: 'Confirm' },
-  cancelText: { type: String, default: 'Cancel' },
-  loading: { type: Boolean, default: false },
-})
+const emit = defineEmits<{
+  confirm: []
+  cancel: []
+  'update:modelValue': [value: boolean]
+}>()
 
-const emit = defineEmits(['update:modelValue', 'confirm', 'cancel'])
-
-function onConfirm() {
-  emit('confirm')
-}
-
-function onCancel() {
+const onCancel = () => {
   emit('cancel')
   emit('update:modelValue', false)
 }
-
-const hasDefaultSlot = computed(() => !!useSlots().default)
 </script>
-
-<template>
-  <el-dialog
-    :model-value="props.modelValue"
-    :title="props.title"
-    width="420px"
-    @update:model-value="(value: any) => emit('update:modelValue', value)"
-    :close-on-click-modal="!props.loading"
-    :close-on-press-escape="!props.loading"
-    :destroy-on-close="false"
-  >
-    <div class="text-sm text-slate-600">
-      <template v-if="hasDefaultSlot">
-        <slot />
-      </template>
-      <template v-else>
-        {{ props.message }}
-      </template>
-    </div>
-
-    <template #footer>
-      <div class="flex justify-end gap-3">
-        <el-button size="small" @click="onCancel" :disabled="props.loading">
-          {{ props.cancelText }}
-        </el-button>
-        <el-button type="primary" size="small" @click="onConfirm" :loading="props.loading">
-          {{ props.confirmText }}
-        </el-button>
-      </div>
-    </template>
-  </el-dialog>
-</template>
-
-<style scoped>
-.el-dialog__body {
-  padding-top: 0;
-}
-</style>
