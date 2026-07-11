@@ -42,7 +42,7 @@ const emit = defineEmits<{
         'bg-amber-500': type === 'warning',
         'bg-slate-400': type === 'info',
         'bg-red-500': type === 'danger',
-        'bg-blue-500': !type || type === '',
+        'bg-blue-500': !type,
       }"
     />
     <slot />
