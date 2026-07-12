@@ -28,7 +28,7 @@ async function doSignOut() {
 }
 </script>
 <template>
-  <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 shadow-xs shrink-0 relative z-10">
+  <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 shadow-xs shrink-0 relative z-50">
     <!-- Left Section: Screens Button and Search Bar -->
     <div class="flex items-center gap-6">
       <BaseButton
@@ -72,14 +72,9 @@ async function doSignOut() {
         Sign out
       </button>
       <div class="h-8 w-px bg-gray-400 mx-1"></div>
-      <BaseButton
-        variant="secondary"
-        class="!w-auto group relative flex items-center gap-3 !border-0 !bg-transparent !shadow-none !p-0 hover:!bg-transparent focus:outline-none"
-      >
-        <div class="w-10 h-10 rounded-full border border-gray-400 flex items-center justify-center font-bold text-gray-600 shadow-sm transform transition-transform active:scale-95">
-          {{ initials || 'SM' }}
-        </div>
-      </BaseButton>
+      <button type="button" class="w-10 h-10 rounded-full border border-gray-400 flex items-center justify-center font-bold text-gray-600 shadow-sm transition-transform active:scale-95">
+        {{ initials || 'SM' }}
+      </button>
     </div>
   </header>
   <ConfirmDialog
