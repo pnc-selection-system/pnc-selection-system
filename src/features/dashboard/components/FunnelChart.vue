@@ -15,11 +15,10 @@ const bars = computed(() =>
   props.stages.map((stage, i) => {
     const prev = i === 0 ? stage.value : props.stages[i - 1]!.value
     const dropOff = i === 0 ? 0 : Math.round(((prev - stage.value) / prev) * 100)
-    return {
-      ...stage,
-      heightPct: (stage.value / maxValue.value) * 100,
-      dropOff,
-    }
+    return Object.assign(stage, {
+	heightPct: stage.value / maxValue.value * 100,
+	dropOff
+})
   }),
 )
 

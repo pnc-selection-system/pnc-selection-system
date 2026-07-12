@@ -5,7 +5,6 @@ import { useCampaigns } from '../composables/useCampaigns'
 import { statusLabels } from '../types'
 import { formatDateShort } from '@/utils/date'
 import { CampaignStatus } from '@/enums'
-import CampaignPageHeader from '../components/CampaignPageHeader.vue'
 import BaseBadge from '@/components/base/BaseBadge.vue'
 import BaseButton from '@/components/base/BaseButton.vue'
 
@@ -22,7 +21,7 @@ const campaign = computed(() =>
   <div class="px-6 py-6">
     <div class="mx-auto max-w-[1200px] space-y-4">
 
-      <CampaignPageHeader
+      <PageHeader
         breadcrumb="SETUP / CAMPAIGNS / VIEW"
         :title="campaign?.name ?? 'Campaign Detail'"
       >
@@ -33,7 +32,7 @@ const campaign = computed(() =>
         >
           ← Back
         </BaseButton>
-      </CampaignPageHeader>
+      </PageHeader>
 
       <!-- Not found -->
       <div v-if="!campaign" class="rounded border border-slate-200 bg-white p-8 text-center text-sm text-slate-500">

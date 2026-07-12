@@ -18,7 +18,10 @@ const segments = computed(() => {
   let offset = 0
   return items.map((item) => {
     const length = (item.value / 100) * CIRC
-    const seg = { ...item, length, offset }
+    const seg = Object.assign(item, {
+	length,
+	offset
+})
     offset += length
     return seg
   })

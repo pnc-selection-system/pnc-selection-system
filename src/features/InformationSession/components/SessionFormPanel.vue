@@ -42,7 +42,7 @@ async function onSave() {
 </script>
 
 <template>
-  <div class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+  <div class="rounded border border-slate-200 bg-white p-6 shadow-sm">
     <!-- Form Header -->
     <div class="mb-2">
       <p class="font-mono text-[11px] font-medium uppercase tracking-wider text-slate-400">
@@ -110,13 +110,13 @@ async function onSave() {
       <!-- Participant List -->
       <div class="space-y-1.5">
         <label class="text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400">PARTICIPANT LIST</label>
-        <textarea
-          rows="5"
-          class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100 placeholder:text-slate-400 resize-none"
+        <BaseInput
+          type="textarea"
+          :model-value="modelValue.participantList"
           placeholder="Add rows or paste · each row can be converted to a candidate (FR-IS-5)"
-          :value="modelValue.participantList"
-          @input="update('participantList', ($event.target as HTMLTextAreaElement).value)"
-        ></textarea>
+          :rows="5"
+          @update:model-value="(v: string) => update('participantList', v)"
+        />
       </div>
 
       <!-- Actions -->

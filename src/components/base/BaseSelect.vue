@@ -39,7 +39,7 @@ function handleChange(value: string | number) {
 
 <template>
   <div class="flex flex-col gap-2">
-    <label v-if="label" :for="id || name" class="text-sm text-slate-600">{{ label }}</label>
+    <label v-if="label" :for="id || name" class="text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400">{{ label }}</label>
     <div class="base-select-wrap" style="position: relative;">
       <el-select
         :id="id || name"

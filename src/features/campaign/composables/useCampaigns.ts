@@ -1,6 +1,7 @@
 import { ref, computed } from 'vue'
 import type { Campaign, CampaignPayload } from '../types'
 import * as campaignService from '../services/campaign'
+import { getErrorMessage } from '@/utils/error'
 
 const campaigns = ref<Campaign[]>([])
 const loading = ref(false)
@@ -35,7 +36,7 @@ export function useCampaigns() {
     try {
       campaigns.value = await campaignService.fetchCampaigns()
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to load campaigns'
+      error.value = getErrorMessage(err, 'Failed to load campaigns')
     } finally {
       loading.value = false
     }
@@ -47,7 +48,7 @@ export function useCampaigns() {
       await campaignService.deleteCampaign(id)
       campaigns.value = campaigns.value.filter((c) => c.id !== id)
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to delete campaign'
+      error.value = getErrorMessage(err, 'Failed to delete campaign')
     } finally {
       deleting.value = false
     }
@@ -62,7 +63,7 @@ export function useCampaigns() {
         campaigns.value[idx] = updated
       }
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to update campaign'
+      error.value = getErrorMessage(err, 'Failed to update campaign')
     } finally {
       saving.value = false
     }
@@ -74,7 +75,7 @@ export function useCampaigns() {
       const created = await campaignService.createCampaign(payload)
       campaigns.value.unshift(created)
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to create campaign'
+      error.value = getErrorMessage(err, 'Failed to create campaign')
     } finally {
       saving.value = false
     }

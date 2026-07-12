@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import PageHeader from '../components/PageHeader.vue'
 import SessionFilters from '../components/SessionFilters.vue'
 import SessionTable from '../components/SessionTable.vue'
 import SessionFormPanel from '../components/SessionFormPanel.vue'
@@ -14,9 +13,17 @@ const meta = ref<PageMeta>(fetchPageMeta())
 const filters = ref<Filters>({ ...DEFAULT_SESSION_FILTERS })
 const filterOptions = ref<SessionFilterOptions>(fetchFilterOptions())
 const sessions = ref<Session[]>(fetchSessions(filters.value))
-const form = ref<SessionFormData>({ ...EMPTY_SESSION_FORM })
 const isFormOpen = ref(false)
 const activeCampaignYear = ref('')
+
+function emptyForm(): SessionFormData {
+  return {
+    ...EMPTY_SESSION_FORM,
+    campaign: activeCampaignYear.value || String(new Date().getFullYear()),
+  }
+}
+
+const form = ref<SessionFormData>(emptyForm())
 
 // Fetch the active campaign year and all campaign years on mount
 async function loadCampaignData() {
@@ -57,34 +64,26 @@ function selectSession(session: Session) {
 }
 
 function startNewSession() {
-  form.value = {
-    ...EMPTY_SESSION_FORM,
-    campaign: activeCampaignYear.value || String(new Date().getFullYear()),
-  }
+  form.value = emptyForm()
   isFormOpen.value = true
 }
 
-function viewCandidates(session: Session) {
+function viewCandidates(_session: Session) {
+  void _session
   // Hook this up to router navigation, e.g.:
   // router.push({ name: 'candidates', query: { sessionId: session.id } })
-  console.log('view candidates for', session.id)
+  
 }
 
 async function handleSave() {
   await saveSession(form.value)
-  form.value = {
-    ...EMPTY_SESSION_FORM,
-    campaign: activeCampaignYear.value || String(new Date().getFullYear()),
-  }
+  form.value = emptyForm()
   isFormOpen.value = false
   loadSessions()
 }
 
 function handleCancel() {
-  form.value = {
-    ...EMPTY_SESSION_FORM,
-    campaign: activeCampaignYear.value || String(new Date().getFullYear()),
-  }
+  form.value = emptyForm()
   isFormOpen.value = false
 }
 
@@ -93,7 +92,10 @@ watch(filters, loadSessions, { deep: true })
 <template>
   <div class="px-6 py-6">
     <div class="mx-auto max-w-[1200px] space-y-4">
-      <PageHeader :meta="meta" />
+      <PageHeader
+        :breadcrumb="meta?.breadcrumb.join(' / ') || 'Outreach'"
+        :title="meta?.title || 'Information sessions'"
+      />
       <SessionFilters v-model="filters" :options="filterOptions" @new="startNewSession" />
       <div class="grid grid-cols-1 gap-4 transition-all duration-300" :class="isFormOpen ? 'lg:grid-cols-[1fr_420px]' : 'lg:grid-cols-1'">
         <SessionTable
