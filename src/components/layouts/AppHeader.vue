@@ -28,7 +28,7 @@ async function doSignOut() {
 }
 </script>
 <template>
-  <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 shadow-xs shrink-0 z-10">
+  <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 shadow-xs shrink-0 relative z-10">
     <!-- Left Section: Screens Button and Search Bar -->
     <div class="flex items-center gap-6">
       <BaseButton
@@ -64,14 +64,13 @@ async function doSignOut() {
         <span class="text-gray-900">2026</span>
       </BaseButton>
       <!-- Sign out and Profile Avatar -->
-      <BaseButton
+      <button
         type="button"
-        variant="secondary"
-        class="!w-auto inline-flex items-center gap-2 !border-gray-200 !rounded-lg !px-4 !py-2 hover:!bg-gray-50 !text-gray-700 text-sm !font-semibold hover:!border-gray-300"
+        class="inline-flex items-center gap-2 border border-gray-200 rounded px-4 py-2 hover:bg-gray-50 text-gray-700 text-sm font-semibold hover:border-gray-300 transition"
         @click="openSignOut"
       >
         Sign out
-      </BaseButton>
+      </button>
       <div class="h-8 w-px bg-gray-400 mx-1"></div>
       <BaseButton
         variant="secondary"

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import PageHeader from '../components/PageHeader.vue'
 import SessionFilters from '../components/SessionFilters.vue'
 import SessionTable from '../components/SessionTable.vue'
 import SessionFormPanel from '../components/SessionFormPanel.vue'
@@ -93,7 +92,10 @@ watch(filters, loadSessions, { deep: true })
 <template>
   <div class="px-6 py-6">
     <div class="mx-auto max-w-[1200px] space-y-4">
-      <PageHeader :meta="meta" />
+      <PageHeader
+        :breadcrumb="meta?.breadcrumb.join(' / ') || 'Outreach'"
+        :title="meta?.title || 'Information sessions'"
+      />
       <SessionFilters v-model="filters" :options="filterOptions" @new="startNewSession" />
       <div class="grid grid-cols-1 gap-4 transition-all duration-300" :class="isFormOpen ? 'lg:grid-cols-[1fr_420px]' : 'lg:grid-cols-1'">
         <SessionTable

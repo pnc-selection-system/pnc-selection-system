@@ -11,7 +11,6 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    AddUserDialog: typeof import('./src/components/ui/AddUserDialog.vue')['default']
     AppHeader: typeof import('./src/components/layouts/AppHeader.vue')['default']
     AppLogo: typeof import('./src/components/AppLogo.vue')['default']
     AppSidebar: typeof import('./src/components/layouts/AppSidebar.vue')['default']
@@ -28,7 +27,6 @@ declare module 'vue' {
     ElButton: typeof import('element-plus/es')['ElButton']
     ElDialog: typeof import('element-plus/es')['ElDialog']
     ElEmpty: typeof import('element-plus/es')['ElEmpty']
-    ElInput: typeof import('element-plus/es')['ElInput']
     ElOption: typeof import('element-plus/es')['ElOption']
     ElPagination: typeof import('element-plus/es')['ElPagination']
     ElSelect: typeof import('element-plus/es')['ElSelect']
@@ -38,7 +36,7 @@ declare module 'vue' {
     EmptyState: typeof import('./src/components/ui/EmptyState.vue')['default']
     ErrorAlert: typeof import('./src/components/ui/ErrorAlert.vue')['default']
     LoadingSpinner: typeof import('./src/components/ui/LoadingSpinner.vue')['default']
-    PermissionMatrix: typeof import('./src/components/ui/PermissionMatrix.vue')['default']
+    PageHeader: typeof import('./src/components/ui/PageHeader.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SidebarMenuItem: typeof import('./src/components/layouts/SidebarMenuItem.vue')['default']

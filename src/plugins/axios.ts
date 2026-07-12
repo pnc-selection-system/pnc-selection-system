@@ -24,7 +24,7 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    if (error.response?.status === 401) {
+    if (error.response?.status === 401 && !error.config?.url?.endsWith('/logout')) {
       const { useAuthStore } = await import('@/features/auth/store/authStore')
       const authStore = useAuthStore()
       if (authStore.isAuthenticated) {

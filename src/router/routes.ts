@@ -1,16 +1,18 @@
 import { authRoutes } from '@/features/auth/routes'
 import dashboardRoutes from '@/features/dashboard/routes'
 import campaignRoutes from '@/features/campaign/routes'
-import informationSessionRoutes from '@/features/InformationSession/routes'
+import candidateListRoutes from '@/features/candidateList/routes'
+import candidateProfileRoutes from '@/features/candidateProfile/routes'
 import ngosPartnerRoutes from '@/features/ngosPartner/routes'
-import candidateRoutes from '@/features/CandidateList/routes'
+import informationSessionRoutes from '@/features/InformationSession/routes'
 
 export const routes = [
   ...authRoutes,
   ...dashboardRoutes,
   ...campaignRoutes,
-  ...informationSessionRoutes,
+  ...candidateListRoutes,
+  ...candidateProfileRoutes,
   ...ngosPartnerRoutes,
-  ...candidateRoutes,
+  ...informationSessionRoutes,
 ]
 

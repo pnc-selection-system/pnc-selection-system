@@ -1,52 +1,52 @@
 <template>
   <div class="flex flex-wrap items-center gap-2">
     <div class="w-40">
-      <select
-        v-model="localProvince"
-        class="w-full px-3 py-2 text-xs border border-slate-200 rounded bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
-        @change="emitFilter"
-      >
-        <option value="">Province: All</option>
-        <option>Phnom Penh</option>
-        <option>Siem Reap</option>
-        <option>Battambang</option>
-        <option>Kampong Cham</option>
-      </select>
+      <BaseSelect
+        :model-value="localProvince"
+        :options="[
+          { value: '', label: 'Province: All' },
+          { value: 'Phnom Penh', label: 'Phnom Penh' },
+          { value: 'Siem Reap', label: 'Siem Reap' },
+          { value: 'Battambang', label: 'Battambang' },
+          { value: 'Kampong Cham', label: 'Kampong Cham' },
+        ]"
+        @update:model-value="localProvince = $event as string; emitFilter()"
+      />
     </div>
     <div class="w-40">
-      <select
-        v-model="localNgo"
-        class="w-full px-3 py-2 text-xs border border-slate-200 rounded bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
-        @change="emitFilter"
-      >
-        <option value="">NGO: All</option>
-        <option>NGO A</option>
-        <option>NGO B</option>
-        <option>NGO C</option>
-      </select>
+      <BaseSelect
+        :model-value="localNgo"
+        :options="[
+          { value: '', label: 'NGO: All' },
+          { value: 'NGO A', label: 'NGO A' },
+          { value: 'NGO B', label: 'NGO B' },
+          { value: 'NGO C', label: 'NGO C' },
+        ]"
+        @update:model-value="localNgo = $event as string; emitFilter()"
+      />
     </div>
     <div class="w-40">
-      <select
-        v-model="localStatus"
-        class="w-full px-3 py-2 text-xs border border-slate-200 rounded bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
-        @change="emitFilter"
-      >
-        <option value="">Status: All</option>
-        <option>Investigating</option>
-        <option>Assessed</option>
-        <option>Exam Done</option>
-      </select>
+      <BaseSelect
+        :model-value="localStatus"
+        :options="[
+          { value: '', label: 'Status: All' },
+          { value: 'Investigating', label: 'Investigating' },
+          { value: 'Assessed', label: 'Assessed' },
+          { value: 'Exam Done', label: 'Exam Done' },
+        ]"
+        @update:model-value="localStatus = $event as string; emitFilter()"
+      />
     </div>
     <div class="w-40">
-      <select
-        v-model="localExamResult"
-        class="w-full px-3 py-2 text-xs border border-slate-200 rounded bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
-        @change="emitFilter"
-      >
-        <option value="">Result: All</option>
-        <option value="Pass">Pass</option>
-        <option value="Fail">Fail</option>
-      </select>
+      <BaseSelect
+        :model-value="localExamResult"
+        :options="[
+          { value: '', label: 'Result: All' },
+          { value: 'Pass', label: 'Pass' },
+          { value: 'Fail', label: 'Fail' },
+        ]"
+        @update:model-value="localExamResult = $event as string; emitFilter()"
+      />
     </div>
     <button
       class="px-3 py-2 text-xs text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded transition font-medium"

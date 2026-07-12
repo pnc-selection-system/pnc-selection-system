@@ -1,18 +1,13 @@
 <template>
   <div class="min-h-screen bg-gray-50">
-    <!-- Header -->
     <div class="bg-white border-b border-gray-200">
       <div class="max-w-7xl mx-auto px-6 py-6">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm text-gray-600 font-medium uppercase tracking-wide">Setup / Users & Roles</p>
-            <h1 class="text-4xl font-bold text-gray-900 mt-2">Users & roles</h1>
-          </div>
+        <PageHeader breadcrumb="Setup / Users &amp; Roles" title="Users &amp; roles">
           <button @click="openAddUserDialog"
-            class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition">
+            class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700">
             + Add user
           </button>
-        </div>
+        </PageHeader>
       </div>
     </div>
 
@@ -44,11 +39,7 @@
           <div class="bg-white rounded-lg shadow">
             <!-- Search Box -->
             <div class="border-b border-gray-200 p-6">
-              <div class="relative">
-                <span class="absolute left-3 top-3 text-gray-400">🔍</span>
-                <input v-model="searchQuery" type="text" placeholder="Search users..."
-                  class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
-              </div>
+              <BaseInput v-model="searchQuery" placeholder="Search users..." />
             </div>
 
             <!-- Users Table -->
@@ -79,21 +70,15 @@
                     </td>
                     <td class="py-4 px-6 text-gray-600">{{ user.email }}</td>
                     <td class="py-4 px-6">
-                      <span :class="[
-                        'inline-block px-3 py-1 rounded text-xs font-medium',
-                        getRoleBgColor(user.role),
-                      ]">
+                      <BaseBadge :type="getRoleBadgeType(user.role)" size="small">
                         {{ user.role }}
-                      </span>
+                      </BaseBadge>
                     </td>
                     <td class="py-4 px-6">
                       <div class="flex items-center gap-2">
-                        <span :class="[
-                          'inline-block px-2 py-1 rounded text-xs font-medium',
-                          getStatusBgColor(user.status),
-                        ]">
+                        <BaseBadge :type="getUserStatusBadgeType(user.status)" size="small">
                           {{ user.status }}
-                        </span>
+                        </BaseBadge>
                         <span v-if="user.status === 'Active'" class="text-green-600">●</span>
                       </div>
                     </td>
@@ -175,15 +160,15 @@ const filteredUsers = computed(() =>
   }),
 )
 
-const getRoleBgColor = (role: string) => {
-  const colors: Record<string, string> = {
-    'Selection Manager': 'bg-blue-100 text-blue-800',
-    'Selection Officer': 'bg-cyan-100 text-cyan-800',
-    Investigator: 'bg-orange-100 text-orange-800',
-    Committee: 'bg-purple-100 text-purple-800',
-    Officer: 'bg-slate-100 text-slate-800',
+const getRoleBadgeType = (role: string): 'success' | 'warning' | 'info' | 'danger' | 'primary' => {
+  const colors: Record<string, 'success' | 'warning' | 'info' | 'danger' | 'primary'> = {
+    'Selection Manager': 'primary',
+    'Selection Officer': 'success',
+    Investigator: 'warning',
+    Committee: 'danger',
+    Officer: 'info',
   }
-  return colors[role] || 'bg-gray-100 text-gray-800'
+  return colors[role] || 'info'
 }
 
 const getUserAvatarColor = (role: string) => {
@@ -200,13 +185,13 @@ const getUserAvatarColor = (role: string) => {
 const getInitials = (name: string) =>
   name.split(' ').map((w) => w[0]).join('').toUpperCase().slice(0, 2)
 
-const getStatusBgColor = (status: string) => {
-  const colors: Record<string, string> = {
-    Active: 'bg-green-100 text-green-800',
-    Invited: 'bg-yellow-100 text-yellow-800',
-    Deactivated: 'bg-red-100 text-red-800',
+const getUserStatusBadgeType = (status: string): 'success' | 'warning' | 'info' | 'danger' | 'primary' => {
+  const colors: Record<string, 'success' | 'warning' | 'info' | 'danger' | 'primary'> = {
+    Active: 'success',
+    Invited: 'warning',
+    Deactivated: 'danger',
   }
-  return colors[status] || 'bg-gray-100 text-gray-800'
+  return colors[status] || 'info'
 }
 
 const toggleMenu = (id: string) => {

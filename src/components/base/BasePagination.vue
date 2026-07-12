@@ -16,7 +16,7 @@ const emit = defineEmits<{
       :current-page="currentPage"
       :page-size="pageSize ?? 10"
       :total="total"
-      small
+      size="small"
       background
       layout="prev, pager, next"
       @current-change="emit('update:currentPage', $event)"

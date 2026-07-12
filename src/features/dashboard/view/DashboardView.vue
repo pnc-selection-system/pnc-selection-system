@@ -46,12 +46,7 @@ watch(filters, loadData, { deep: true, immediate: false });
 <template>
   <div class="px-6 py-6">
     <div class="mx-auto max-w-[1200px] space-y-4">
-      <div class="rounded-3xl p-6​">
-        <div class="flex flex-col gap-0">
-          <p class="text-[10px] font-semibold uppercase text-slate-500">Home / Dashboard</p>
-          <h1 class="text-[24px] font-semibold tracking-tight text-slate-900">Dashboard</h1>
-        </div>
-      </div>
+      <PageHeader breadcrumb="Home / Dashboard" title="Dashboard" />
 
       <DashboardFilter v-model="filters" :options="filterOptions" @export="handleExport" />
 

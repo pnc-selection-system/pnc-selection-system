@@ -11,24 +11,28 @@
     <el-table-column prop="ngo" label="NGO" min-width="140" />
     <el-table-column label="Exam" width="110">
       <template #default="{ row }">
-        <span
+        <BaseBadge
           v-if="row.exam_result === 'Pass'"
-          class="inline-block px-2 py-0.5 rounded text-[0.6rem] font-semibold bg-green-100 text-green-700"
+          type="success"
+          size="small"
         >
           Pass {{ row.exam_score }}
-        </span>
-        <span
+        </BaseBadge>
+        <BaseBadge
           v-else-if="row.exam_result === 'Fail'"
-          class="inline-block px-2 py-0.5 rounded text-[0.6rem] font-semibold bg-red-100 text-red-700"
+          type="danger"
+          size="small"
         >
           Fail {{ row.exam_score }}
-        </span>
+        </BaseBadge>
         <span v-else class="text-slate-300 text-xs">—</span>
       </template>
     </el-table-column>
     <el-table-column label="Status" width="130">
       <template #default="{ row }">
-        <StatusBadge :status="row.status" />
+        <BaseBadge type="info" size="small">
+          {{ row.status }}
+        </BaseBadge>
       </template>
     </el-table-column>
   </DataTableWrapper>
@@ -36,7 +40,6 @@
 
 <script setup lang="ts">
 import type { Candidate } from '../types/candidate'
-import StatusBadge from './StatusBadge.vue'
 import DataTableWrapper from '@/components/ui/DataTableWrapper.vue'
 
 defineProps<{ candidates: Candidate[]; loading: boolean }>()

@@ -22,7 +22,7 @@ import SidebarMenuItem from "@/components/layouts/SidebarMenuItem.vue"
     <div class="flex-1 overflow-y-auto hide-scrollbar">
       <!-- HOME -->
       <nav class="px-4 mt-4">
-        <p class="text-[8px] tracking-[3px] text-gray-500 uppercase mb-2 font-medium">
+        <p class="text-[8px] tracking-[2px] text-gray-500 uppercase mb-2 font-medium">
           Home
         </p>
         <router-link
@@ -39,7 +39,7 @@ import SidebarMenuItem from "@/components/layouts/SidebarMenuItem.vue"
       </nav>
       <!-- SETUP -->
       <div class="px-3 mt-2">
-        <p class="text-[8px] tracking-[3px] text-gray-500 uppercase mb-1 font-medium">
+        <p class="text-[8px] tracking-[2px] text-gray-500 uppercase mb-1 font-medium">
           Setup
         </p>
         <router-link
@@ -57,7 +57,7 @@ import SidebarMenuItem from "@/components/layouts/SidebarMenuItem.vue"
       </div>
       <!-- OUTREACH -->
       <div class="px-3 mt-2">
-        <p class="text-[8px] tracking-[3px] text-gray-500 uppercase mb-1 font-medium">
+        <p class="text-[8px] tracking-[2px] text-gray-500 uppercase mb-1 font-medium">
           Outreach
         </p>
         <router-link
@@ -84,24 +84,15 @@ import SidebarMenuItem from "@/components/layouts/SidebarMenuItem.vue"
       </div>
       <!-- CANDIDATES -->
       <div class="px-3 mt-2">
-        <p class="text-[8px] tracking-[3px] text-gray-500 uppercase mb-1 font-medium">
+        <p class="text-[8px] tracking-[2px] text-gray-500 uppercase mb-1 font-medium">
           Candidates
         </p>
-        <router-link
-          to="/candidates"
-          class="flex items-center justify-between px-3 py-2 rounded text-gray-400 transition mb-1 hover:bg-slate-700/50"
-          active-class="!text-white bg-slate-700 border border-slate-600 active-link"
-        >
-          <div class="flex items-center gap-3">
-            <div class="dot w-2 h-2 rounded-sm bg-gray-500 transition"></div>
-            <span class="text-xs">Candidate List</span>
-          </div>
-        </router-link>
-        <SidebarMenuItem title="Candidate Profile" />
+        <SidebarMenuItem title="Candidate List" to="/candidates" />
+        <SidebarMenuItem title="Candidate Profile" to="/candidates/1" />
       </div>
       <!-- EXAM -->
       <div class="px-3 mt-2">
-        <p class="text-[8px] tracking-[3px] text-gray-500 uppercase mb-1 font-medium">
+        <p class="text-[8px] tracking-[2px] text-gray-500 uppercase mb-1 font-medium">
           Exam
         </p>
         <SidebarMenuItem title="Exam Configuration" badge="MGR" />
@@ -110,7 +101,7 @@ import SidebarMenuItem from "@/components/layouts/SidebarMenuItem.vue"
       </div>
       <!-- EVALUATION -->
       <div class="px-3 mt-2">
-        <p class="text-[8px] tracking-[3px] text-gray-500 uppercase mb-1 font-medium">
+        <p class="text-[8px] tracking-[2px] text-gray-500 uppercase mb-1 font-medium">
           Evaluation
         </p>
         <SidebarMenuItem title="Interest Assessment" />
@@ -118,7 +109,7 @@ import SidebarMenuItem from "@/components/layouts/SidebarMenuItem.vue"
       </div>
       <!-- DECISION -->
       <div class="px-3 mt-3 pb-4">
-        <p class="text-[8px] tracking-[3px] text-gray-500 uppercase mb-1.5 font-medium">
+        <p class="text-[8px] tracking-[2px] text-gray-500 uppercase mb-1.5 font-medium">
           Decision
         </p>
         <SidebarMenuItem title="Voting & Selection" badge="CMT" />

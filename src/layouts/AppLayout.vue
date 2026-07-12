@@ -12,7 +12,7 @@ const AppSidebar = defineAsyncComponent(() => import('@/components/layouts/AppSi
       <!-- Top Header -->
       <AppHeader />
       <!-- Page Content -->
-      <main class="flex-1 overflow-y-auto overflow-x-hidden relative focus:outline-none hide-scrollbar">
+      <main class="flex-1 overflow-y-auto overflow-x-hidden focus:outline-none hide-scrollbar">
           <router-view />
       </main>
     </div>

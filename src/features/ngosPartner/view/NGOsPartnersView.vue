@@ -65,10 +65,7 @@ async function loadLogEntries(partnerId: string) {
 <template>
   <div class="px-6 py-6">
     <div class="mx-auto max-w-[1200px] space-y-4">
-      <div class="flex flex-col gap-0">
-        <p class="text-[10px] font-semibold uppercase text-slate-500">Outreach / NGOs &amp; Partners</p>
-        <h1 class="text-[24px] font-semibold tracking-tight text-slate-900">NGOs &amp; Partners</h1>
-      </div>
+      <PageHeader breadcrumb="Outreach / NGOs &amp; Partners" title="NGOs &amp; Partners" />
 
       <div class="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_1.6fr]">
         <PartnerList
@@ -78,7 +75,7 @@ async function loadLogEntries(partnerId: string) {
           @add="showAddPartner = true"
         />
 
-        <div v-if="selectedPartner" class="rounded-lg border border-slate-200 bg-white">
+        <div v-if="selectedPartner" class="rounded border border-slate-200 bg-white">
           <PartnerDetailHeader :partner="selectedPartner" />
 
           <ContactPersonList

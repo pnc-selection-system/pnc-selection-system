@@ -11,12 +11,7 @@ const emit = defineEmits<{
   logEntry: []
 }>()
 
-const channelClasses: Record<string, string> = {
-  Email: 'bg-slate-100 text-slate-600',
-  Call: 'bg-slate-100 text-slate-600',
-  Visit: 'bg-slate-100 text-slate-600',
-  SMS: 'bg-slate-100 text-slate-600',
-}
+
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })
@@ -54,9 +49,9 @@ function formatDate(iso: string) {
       </el-table-column>
       <el-table-column label="Channel" width="100">
         <template #default="{ row }">
-          <span class="rounded px-2 py-0.5 text-xs" :class="channelClasses[row.channel]">
+          <BaseBadge type="info" size="small">
             {{ row.channel }}
-          </span>
+          </BaseBadge>
         </template>
       </el-table-column>
       <el-table-column label="Summary" min-width="200">

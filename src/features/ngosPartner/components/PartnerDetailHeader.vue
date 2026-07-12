@@ -17,18 +17,7 @@ const badgeType = computed(() =>
     <h1 class="text-[15px] font-bold text-slate-700 tracking-tight">
       {{ partner.organisation }}
     </h1>
-    <BaseBadge 
-      v-if="partner.status === 'Active'"
-      :type="badgeType" 
-      class="!rounded-lg !px-3 !py-1 !h-auto !text-[13px] font-medium border-emerald-200 bg-emerald-50 text-emerald-700"
-    >
-      {{ partner.status }}
-    </BaseBadge>
-    <BaseBadge 
-      v-else
-      type="info" 
-      class="!rounded-lg !px-3 !py-1 !h-auto !text-[13px] font-medium"
-    >
+    <BaseBadge :type="badgeType" size="default" class="!rounded !px-3 !py-1 !h-auto">
       {{ partner.status }}
     </BaseBadge>
   </div>

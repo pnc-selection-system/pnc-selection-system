@@ -4,7 +4,6 @@ import { useRouter } from 'vue-router'
 import type { Campaign } from '../types'
 import { statusLabels } from '../types'
 import { useCampaigns } from '../composables/useCampaigns'
-import CampaignPageHeader from '../components/CampaignPageHeader.vue'
 import CampaignToolbar from '../components/CampaignToolbar.vue'
 import CampaignFormModal from '../components/CampaignFormModal.vue'
 
@@ -57,7 +56,7 @@ function viewCampaign(campaign: Campaign) {
   <div class="px-6 py-6">
     <div class="mx-auto max-w-[1200px] space-y-4">
 
-      <CampaignPageHeader breadcrumb="SETUP / CAMPAIGNS" title="Campaigns" />
+      <PageHeader breadcrumb="SETUP / CAMPAIGNS" title="Campaigns" />
 
       <div v-if="loading && filteredCampaigns.length === 0" class="flex justify-center py-12">
         <LoadingSpinner />
