@@ -21,7 +21,7 @@ withDefaults(
     :disabled="disabled"
     :loading="loading"
     :native-type="type"
-    :class="['w-full', $attrs.class]"
+    :class="$attrs.class"
   >
     <slot />
   </el-button>
