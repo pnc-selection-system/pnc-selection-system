@@ -3,44 +3,26 @@ import { ref } from 'vue'
 import type { Subject } from '../service/useSubjects'
 import { useSubjects } from '../service/useSubjects'
 import BaseButton from '@/components/base/BaseButton.vue'
+import SubjectFormModal from './SubjectFormModal.vue'
 
-const { subjects, totalWeight, isValidWeight, addSubject, updateSubject, removeSubject } = useSubjects()
+const { subjects, totalWeight, isValidWeight, removeSubject } = useSubjects()
 
+const showModal = ref(false)
 const editingSubject = ref<Subject | null>(null)
-const showAddForm = ref(false)
-const newSubject = ref<Omit<Subject, 'id'>>({
-  name: '',
-  maxScore: 100,
-  weight: 0,
-  deductionRule: 'none',
-})
 
-function startEdit(subject: Subject) {
-  editingSubject.value = { ...subject }
-}
-
-function saveEdit() {
-  if (editingSubject.value) {
-    updateSubject(editingSubject.value)
-    editingSubject.value = null
-  }
-}
-
-function cancelEdit() {
+function openAddModal() {
   editingSubject.value = null
+  showModal.value = true
 }
 
-function handleAdd() {
-  if (newSubject.value.name.trim()) {
-    addSubject({ ...newSubject.value })
-    newSubject.value = { name: '', maxScore: 100, weight: 0, deductionRule: 'none' }
-    showAddForm.value = false
-  }
+function openEditModal(subject: Subject) {
+  editingSubject.value = { ...subject }
+  showModal.value = true
 }
 
-function cancelAdd() {
-  newSubject.value = { name: '', maxScore: 100, weight: 0, deductionRule: 'none' }
-  showAddForm.value = false
+function closeModal() {
+  showModal.value = false
+  editingSubject.value = null
 }
 </script>
 
@@ -53,7 +35,7 @@ function cancelAdd() {
         <p class="mt-0.5 text-xs text-slate-400">{{ subjects.length }} subject{{ subjects.length !== 1 ? 's' : '' }} configured</p>
       </div>
       <BaseButton
-        @click="showAddForm = !showAddForm"
+        @click="openAddModal"
         class="!w-auto !rounded-lg !px-4 !py-2 !text-xs"
         variant="primary"
       >
@@ -90,112 +72,55 @@ function cancelAdd() {
           >
             <!-- Subject Name -->
             <td class="px-6 py-4">
-              <template v-if="editingSubject?.id === subject.id">
-                <input
-                  v-model="editingSubject.name"
-                  class="w-full rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
-                />
-              </template>
-              <template v-else>
-                <span class="font-medium text-slate-800">{{ subject.name }}</span>
-              </template>
+              <span class="font-medium text-slate-800">{{ subject.name }}</span>
             </td>
 
             <!-- Max Score -->
             <td class="px-6 py-4">
-              <template v-if="editingSubject?.id === subject.id">
-                <input
-                  v-model.number="editingSubject.maxScore"
-                  type="number"
-                  min="1"
-                  class="w-24 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
-                />
-              </template>
-              <template v-else>
-                <span class="tabular-nums text-slate-600">{{ subject.maxScore }}</span>
-              </template>
+              <span class="tabular-nums text-slate-600">{{ subject.maxScore }}</span>
             </td>
 
             <!-- Weight -->
             <td class="px-6 py-4">
-              <template v-if="editingSubject?.id === subject.id">
-                <input
-                  v-model.number="editingSubject.weight"
-                  type="number"
-                  min="0"
-                  max="100"
-                  class="w-24 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
-                />
-              </template>
-              <template v-else>
-                <span class="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700 tabular-nums">
-                  {{ subject.weight }}%
-                </span>
-              </template>
+              <span class="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700 tabular-nums">
+                {{ subject.weight }}%
+              </span>
             </td>
 
             <!-- Deduction Rule -->
             <td class="px-6 py-4">
-              <template v-if="editingSubject?.id === subject.id">
-                <input
-                  v-model="editingSubject.deductionRule"
-                  class="w-full rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
-                />
-              </template>
-              <template v-else>
-                <span
-                  :class="[
-                    'text-sm',
-                    subject.deductionRule === 'none' ? 'text-slate-400 italic' : 'text-slate-600',
-                  ]"
-                >
-                  {{ subject.deductionRule }}
-                </span>
-              </template>
+              <span
+                :class="[
+                  'text-sm',
+                  subject.deductionRule === 'none' ? 'text-slate-400 italic' : 'text-slate-600',
+                ]"
+              >
+                {{ subject.deductionRule }}
+              </span>
             </td>
 
             <!-- Actions -->
             <td class="px-6 py-4 text-center">
-              <template v-if="editingSubject?.id === subject.id">
-                <div class="flex items-center justify-center gap-2">
-                  <BaseButton
-                    @click="saveEdit"
-                    variant="primary"
-                    class="!w-auto !rounded-lg !px-3 !py-1.5 !text-xs"
-                  >
-                    Save
-                  </BaseButton>
-                  <BaseButton
-                    @click="cancelEdit"
-                    variant="secondary"
-                    class="!w-auto !rounded-lg !px-3 !py-1.5 !text-xs"
-                  >
-                    Cancel
-                  </BaseButton>
-                </div>
-              </template>
-              <template v-else>
-                <div class="flex items-center justify-center gap-2">
-                  <button
-                    @click="startEdit(subject)"
-                    class="inline-flex items-center gap-1.5 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 shadow-sm transition hover:bg-slate-50 hover:border-slate-300"
-                  >
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M17 3a2.85 2.85 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
-                    </svg>
-                    Edit
-                  </button>
-                  <button
-                    @click="removeSubject(subject.id)"
-                    class="inline-flex items-center gap-1.5 rounded-md border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-medium text-red-600 shadow-sm transition hover:bg-red-100 hover:border-red-300"
-                  >
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
-                    </svg>
-                    Delete
-                  </button>
-                </div>
-              </template>
+              <div class="flex items-center justify-center gap-2">
+                <button
+                  @click="openEditModal(subject)"
+                  class="inline-flex items-center gap-1.5 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 shadow-sm transition hover:bg-slate-50 hover:border-slate-300"
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17 3a2.85 2.85 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
+                  </svg>
+                  Edit
+                </button>
+                <button
+                  @click="removeSubject(subject.id)"
+                  class="inline-flex items-center gap-1.5 rounded-md border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-medium text-red-600 shadow-sm transition hover:bg-red-100 hover:border-red-300"
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+                  </svg>
+                  Delete
+                </button>
+              </div>
             </td>
           </tr>
 
@@ -216,60 +141,6 @@ function cancelAdd() {
         </tbody>
       </table>
     </div>
-
-    <!-- Add Subject Form -->
-    <Transition
-      enter-active-class="transition duration-200 ease-out"
-      enter-from-class="opacity-0 -translate-y-2"
-      enter-to-class="opacity-100 translate-y-0"
-      leave-active-class="transition duration-150 ease-in"
-      leave-from-class="opacity-100 translate-y-0"
-      leave-to-class="opacity-0 -translate-y-2"
-    >
-      <div v-if="showAddForm" class="border-t border-dashed border-slate-200 bg-slate-50/50 px-6 py-4">
-        <p class="mb-3 text-xs font-medium text-slate-500">New Subject</p>
-        <div class="grid grid-cols-4 gap-3">
-          <input
-            v-model="newSubject.name"
-            placeholder="Subject name"
-            class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition placeholder:text-slate-300 focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
-          />
-          <input
-            v-model.number="newSubject.maxScore"
-            type="number"
-            placeholder="Max Score"
-            class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition placeholder:text-slate-300 focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
-          />
-          <input
-            v-model.number="newSubject.weight"
-            type="number"
-            placeholder="Weight %"
-            class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition placeholder:text-slate-300 focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
-          />
-          <input
-            v-model="newSubject.deductionRule"
-            placeholder="Deduction Rule"
-            class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition placeholder:text-slate-300 focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
-          />
-        </div>
-        <div class="mt-3 flex justify-end gap-2">
-          <BaseButton
-            @click="cancelAdd"
-            variant="secondary"
-            class="!w-auto !rounded-lg !px-4 !py-2 !text-xs"
-          >
-            Cancel
-          </BaseButton>
-          <BaseButton
-            @click="handleAdd"
-            variant="primary"
-            class="!w-auto !rounded-lg !px-4 !py-2 !text-xs"
-          >
-            Add Subject
-          </BaseButton>
-        </div>
-      </div>
-    </Transition>
 
     <!-- Footer -->
     <div class="flex items-center justify-between border-t border-slate-100 bg-slate-50/30 px-6 py-3">
@@ -294,4 +165,12 @@ function cancelAdd() {
       </div>
     </div>
   </div>
+
+  <!-- Subject Form Modal -->
+  <SubjectFormModal
+    :visible="showModal"
+    :subject="editingSubject"
+    @close="closeModal"
+    @saved="closeModal"
+  />
 </template>
