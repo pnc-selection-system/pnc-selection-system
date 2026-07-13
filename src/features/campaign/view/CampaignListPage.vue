@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import type { Campaign } from '../types'
-import { useCampaigns } from '../composables/useCampaigns'
+import type { Campaign } from '../types/index.ts'
+import { useCampaigns } from '../composables/useCampaigns.ts'
 import CampaignPageHeader from '../components/CampaignPageHeader.vue'
 import CampaignToolbar from '../components/CampaignToolbar.vue'
 import CampaignTableRow from '../components/CampaignTableRow.vue'

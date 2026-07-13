@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useCampaigns } from '../composables/useCampaigns'
-import { statusLabels } from '../types'
+import { useCampaigns } from '../composables/useCampaigns.ts'
+import { statusLabels } from '../types/index.ts'
 import { formatDateShort } from '@/utils/date'
 import { CampaignStatus } from '@/enums'
 import CampaignPageHeader from '../components/CampaignPageHeader.vue'
