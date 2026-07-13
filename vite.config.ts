@@ -19,9 +19,13 @@ export default defineConfig(({ mode }) => ({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          'vue-vendor': ['vue', 'vue-router', 'pinia'],
-          'element-plus': ['element-plus'],
+        manualChunks(id) {
+          if (id.includes('node_modules/vue') || id.includes('node_modules/pinia') || id.includes('node_modules/vue-router')) {
+            return 'vue-vendor'
+          }
+          if (id.includes('node_modules/element-plus')) {
+            return 'element-plus'
+          }
         },
       },
     },

@@ -1,14 +1,14 @@
 import api from '@/plugins/axios'
-import type { Report, GenerateReportPayload, ReportApiResponse } from '../types'
+import { ReportType, ReportFormat, ReportStatus, type Report, type GenerateReportPayload, type ReportApiResponse } from '../types'
 
 // Mock data for development
 let mockReports: Report[] = [
   {
     id: '1',
     name: 'Final selected list',
-    type: 'final-selected-list' as any,
-    format: 'xlsx' as any,
-    status: 'processing' as any,
+    type: ReportType.FinalSelectedList,
+    format: ReportFormat.XLSX,
+    status: ReportStatus.Processing,
     progress: 60,
     campaign: '2026',
     createdAt: new Date().toISOString(),
@@ -16,9 +16,9 @@ let mockReports: Report[] = [
   {
     id: '2',
     name: 'Exam results — Round 1',
-    type: 'exam-results' as any,
-    format: 'xlsx' as any,
-    status: 'ready' as any,
+    type: ReportType.ExamResults,
+    format: ReportFormat.XLSX,
+    status: ReportStatus.Ready,
     downloadUrl: '#',
     campaign: '2026',
     createdAt: new Date().toISOString(),
@@ -27,9 +27,9 @@ let mockReports: Report[] = [
   {
     id: '3',
     name: 'Investigation summary',
-    type: 'investigation-summary' as any,
-    format: 'pdf' as any,
-    status: 'ready' as any,
+    type: ReportType.InvestigationSummary,
+    format: ReportFormat.PDF,
+    status: ReportStatus.Ready,
     downloadUrl: '#',
     campaign: '2026',
     createdAt: new Date().toISOString(),
@@ -38,9 +38,9 @@ let mockReports: Report[] = [
   {
     id: '4',
     name: 'Voting record',
-    type: 'voting-record' as any,
-    format: 'pdf' as any,
-    status: 'ready' as any,
+    type: ReportType.VotingRecord,
+    format: ReportFormat.PDF,
+    status: ReportStatus.Ready,
     downloadUrl: '#',
     campaign: '2026',
     createdAt: new Date().toISOString(),
@@ -69,7 +69,7 @@ export async function generateReport(payload: GenerateReportPayload): Promise<Re
       name: getReportName(payload.type),
       type: payload.type,
       format: payload.format,
-      status: 'processing' as any,
+      status: ReportStatus.Processing,
       progress: 0,
       campaign: payload.campaign,
       createdAt: new Date().toISOString(),

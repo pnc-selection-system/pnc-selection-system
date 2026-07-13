@@ -2,7 +2,7 @@
 import { ReportStatus, reportStatusLabels, reportFormatLabels } from '../types'
 import type { Report } from '../types'
 
-const props = defineProps<{
+defineProps<{
   reports: Report[]
 }>()
 
