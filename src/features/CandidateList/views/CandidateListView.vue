@@ -36,8 +36,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useCandidates } from '../composables/useCandidates'
-import { useCandidateStore } from '../stores/candidateStore'
+import { useCandidates } from '../composables/useCandidates.ts'
+import { useCandidateStore } from '../stores/candidateStore.ts'
 import type { Candidate } from '../types/index'
 import CandidateHeader from '../components/CandidateHeader.vue'
 import CandidateSearch from '../components/CandidateSearch.vue'
