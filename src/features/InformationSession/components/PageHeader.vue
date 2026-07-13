@@ -7,19 +7,12 @@ defineProps<{
 </script>
 
 <template>
-  <div class="space-y-5">
-    <!-- Breadcrumb and Title -->
-    <div class="space-y-1.5">
-      <p class="font-mono text-[10px] font-bold uppercase tracking-[0.25em] text-slate-400">
-        {{ meta.breadcrumb.join(' / ') }}
-      </p>
-      <h1 class="text-3xl font-extrabold tracking-tight text-slate-900">
-        {{ meta.title }}
-      </h1>
-    </div>
+  <div>
+    <p class="font-mono text-[11px] font-medium uppercase tracking-wider text-slate-400">
+      {{ meta.breadcrumb.join(' / ') }}
+    </p>
+    <h1 class="mt-1 text-2xl font-bold text-slate-800">
+      {{ meta.title }}
+    </h1>
   </div>
 </template>
-
-<style scoped>
-/* Page header specific styles */
-</style>

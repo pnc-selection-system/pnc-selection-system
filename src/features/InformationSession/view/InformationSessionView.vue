@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 import PageHeader from '../components/PageHeader.vue'
 import SessionFilters from '../components/SessionFilters.vue'
 import SessionTable from '../components/SessionTable.vue'
-import SessionFormPanel from '../components/SessionFormPanel.vue'
-import SessionSkeleton from '../components/SessionSkeleton.vue'
+import NewSessionPanel from '../components/NewSessionPanel.vue'
+import SessionsSkeleton from '../components/SessionSkeleton.vue'
 import { fetchFilterOptions, fetchPageMeta, fetchSessions, saveSession } from '../service/service'
 import { EMPTY_SESSION_FORM, type PageMeta, type Session, type SessionFormData } from '../types/session'
 import { DEFAULT_SESSION_FILTERS, type SessionFilterOptions, type SessionFilters as Filters } from '../types/filter'
@@ -12,10 +12,12 @@ import { DEFAULT_SESSION_FILTERS, type SessionFilterOptions, type SessionFilters
 const loading = ref(true)
 const meta = ref<PageMeta | null>(null)
 const filters = ref<Filters>({ ...DEFAULT_SESSION_FILTERS })
-const filterOptions = ref<SessionFilterOptions>({ provinces: [], schools: [], dateRanges: [] })
+const filterOptions = ref<SessionFilterOptions>({ provinces: [], schools: [], pncNgoOptions: [], dateRanges: [] })
 const sessions = ref<Session[]>([])
+const isPanelOpen = ref(false)
 const form = ref<SessionFormData>({ ...EMPTY_SESSION_FORM })
-const isFormOpen = ref(false)
+const selectedSessionId = ref<string | null>(null)
+let filterTimer: ReturnType<typeof setTimeout> | null = null
 
 async function loadSessions() {
   loading.value = true
@@ -23,78 +25,76 @@ async function loadSessions() {
   loading.value = false
 }
 
-function selectSession(session: Session) {
-  form.value = {
-    id: session.id,
-    date: session.date,
-    province: session.province,
-    school: session.school,
-    attendanceCount: session.attendance,
-    campaign: '2026',
-    participantList: '',
-  }
-  isFormOpen.value = true
+/** Smoothly refresh the session list without showing the skeleton loader. */
+async function refreshSessions() {
+  sessions.value = await fetchSessions(filters.value)
 }
 
 function startNewSession() {
   form.value = { ...EMPTY_SESSION_FORM }
-  isFormOpen.value = true
+  isPanelOpen.value = true
 }
 
-function viewCandidates(session: Session) {
-  // Hook this up to router navigation, e.g.:
-  // router.push({ name: 'candidates', query: { sessionId: session.id } })
-  console.log('view candidates for', session.id)
+function selectSession(session: Session) {
+  // Only highlight the row — don't open the edit form
+  selectedSessionId.value = session.id
 }
 
 async function handleSave() {
   await saveSession(form.value)
-  form.value = { ...EMPTY_SESSION_FORM }
-  isFormOpen.value = false
-  await loadSessions()
+  isPanelOpen.value = false
+  await refreshSessions()
 }
 
 function handleCancel() {
-  form.value = { ...EMPTY_SESSION_FORM }
-  isFormOpen.value = false
+  isPanelOpen.value = false
 }
+
+function handleAddStudent() {
+  const name = window.prompt('Student name')
+  if (!name) return
+  form.value = {
+    ...form.value,
+    interestedStudents: [...form.value.interestedStudents, { id: `st${Date.now()}`, name }],
+  }
+}
+
 onMounted(async () => {
   meta.value = await fetchPageMeta()
   filterOptions.value = await fetchFilterOptions()
   await loadSessions()
 })
-watch(filters, loadSessions, { deep: true })
+
+// Debounced filter: update smoothly without skeleton flash
+watch(filters, () => {
+  if (filterTimer) clearTimeout(filterTimer)
+  filterTimer = setTimeout(refreshSessions, 300)
+})
+
+onUnmounted(() => {
+  if (filterTimer) clearTimeout(filterTimer)
+})
 </script>
+
 <template>
   <div class="min-h-screen bg-slate-50 p-6">
-    <div class="mx-auto max-w-6xl space-y-4">
+    <div class="mx-auto max-w-7xl space-y-4">
       <PageHeader v-if="meta" :meta="meta" />
-      <SessionFilters v-model="filters" :options="filterOptions" @new="startNewSession" />
-      <SessionSkeleton v-if="loading" />
 
-      <div v-else class="grid grid-cols-1 gap-4 transition-all duration-300" :class="isFormOpen ? 'lg:grid-cols-[1fr_420px]' : 'lg:grid-cols-1'">
-        <SessionTable
-          :sessions="sessions"
-          :selected-id="form.id"
-          @select="selectSession"
-          @view-candidates="viewCandidates"
+      <SessionFilters v-model="filters" :options="filterOptions" @new="startNewSession" />
+
+      <SessionsSkeleton v-if="loading" />
+
+      <div v-else class="grid grid-cols-1 gap-4" :class="isPanelOpen ? 'lg:grid-cols-[1fr_420px]' : ''">
+        <SessionTable :sessions="sessions" :selected-id="selectedSessionId" @select="selectSession" />
+
+        <NewSessionPanel
+          v-if="isPanelOpen"
+          v-model="form"
+          @save="handleSave"
+          @cancel="handleCancel"
+          @add-student="handleAddStudent"
         />
-        <transition
-          enter-active-class="transition duration-300 ease-out"
-          enter-from-class="transform translate-x-10 opacity-0"
-          enter-to-class="transform translate-x-0 opacity-100"
-          leave-active-class="transition duration-200 ease-in"
-          leave-from-class="transform translate-x-0 opacity-100"
-          leave-to-class="transform translate-x-10 opacity-0"
-        >
-          <SessionFormPanel
-            v-if="isFormOpen"
-            v-model="form"
-            :options="filterOptions"
-            @save="handleSave"
-            @cancel="handleCancel"
-          />
-        </transition>
       </div>
     </div>
   </div>

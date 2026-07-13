@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 import DashboardCard from './components/DashboardCard.vue'
 import DashboardFilter from './components/DashboardFilter.vue'
 import DashboardSkeleton from './components/DashboardSkeleton.vue'
@@ -15,11 +15,17 @@ const loading = ref(true)
 const filters = ref<DashboardFilters>({ ...DEFAULT_FILTERS })
 const filterOptions = ref<FilterOptions>({ campaigns: [], provinces: [], statuses: [] })
 const data = ref<DashboardData | null>(null)
+let filterTimer: ReturnType<typeof setTimeout> | null = null
 
 async function loadData() {
   loading.value = true
   data.value = await fetchDashboardData(filters.value)
   loading.value = false
+}
+
+/** Smoothly refresh dashboard data without showing the skeleton loader. */
+async function refreshData() {
+  data.value = await fetchDashboardData(filters.value)
 }
 
 function handleExport() {
@@ -38,7 +44,15 @@ onMounted(async () => {
   await loadData()
 })
 
-watch(filters, loadData, { deep: true })
+// Debounced filter: update smoothly without skeleton flash
+watch(filters, () => {
+  if (filterTimer) clearTimeout(filterTimer)
+  filterTimer = setTimeout(refreshData, 300)
+})
+
+onUnmounted(() => {
+  if (filterTimer) clearTimeout(filterTimer)
+})
 </script>
 
 <template>

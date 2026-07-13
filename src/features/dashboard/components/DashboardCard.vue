@@ -12,23 +12,17 @@ const props = withDefaults(defineProps<Props>(), {
   variant: 'white'
 })
 
-const cardClasses = computed(() => {
-  if (props.variant === 'blue') {
-    return 'border-blue-200 bg-blue-50/50 hover:bg-blue-50 hover:shadow-md active:scale-[0.98]'
+/** Single computed groups all variant-dependent classes for less reactive overhead. */
+const styles = computed(() => {
+  const isBlue = props.variant === 'blue'
+  return {
+    card: isBlue
+      ? 'border-blue-200 bg-blue-50/50 hover:bg-blue-50 hover:shadow-md active:scale-[0.98]'
+      : 'border-slate-200 bg-white hover:shadow-md active:scale-[0.98]',
+    label: isBlue ? 'text-blue-600' : 'text-slate-400',
+    value: isBlue ? 'text-blue-700' : 'text-slate-900',
+    icon: isBlue ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-400',
   }
-  return 'border-slate-200 bg-white hover:shadow-md active:scale-[0.98]'
-})
-
-const labelClasses = computed(() => {
-  return props.variant === 'blue' ? 'text-blue-600' : 'text-slate-400'
-})
-
-const valueClasses = computed(() => {
-  return props.variant === 'blue' ? 'text-blue-700' : 'text-slate-900'
-})
-
-const iconClasses = computed(() => {
-  return props.variant === 'blue' ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-400'
 })
 </script>
 
@@ -36,13 +30,13 @@ const iconClasses = computed(() => {
   <button
     type="button"
     class="group relative flex w-full flex-col items-start overflow-hidden rounded-xl border p-6 shadow-sm transition-all duration-200 text-left focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-    :class="cardClasses"
+    :class="styles.card"
     :aria-label="`${label}: ${value}`"
   >
-    <p class="font-mono text-[10px] font-bold uppercase tracking-[2px]" :class="labelClasses">
+    <p class="font-mono text-[10px] font-bold uppercase tracking-[2px]" :class="styles.label">
       {{ label }}
     </p>
-    <p class="mt-4 text-4xl font-extrabold tracking-tight" :class="valueClasses">
+    <p class="mt-4 text-4xl font-extrabold tracking-tight" :class="styles.value">
       {{ value }}
     </p>
     
@@ -54,7 +48,7 @@ const iconClasses = computed(() => {
       <!-- Button Indicator Icon -->
       <div 
         class="rounded-full p-1.5 opacity-0 transition-all duration-300 group-hover:translate-x-0.5 group-hover:opacity-100"
-        :class="iconClasses"
+        :class="styles.icon"
       >
         <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
           <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" />
