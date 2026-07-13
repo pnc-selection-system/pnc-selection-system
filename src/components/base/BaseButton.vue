@@ -2,7 +2,7 @@
 withDefaults(
   defineProps<{
     type?: 'button' | 'submit' | 'reset'
-    variant?: 'primary' | 'secondary'
+    variant?: 'primary' | 'secondary' | 'outline'
     disabled?: boolean
     loading?: boolean
   }>(),
@@ -17,7 +17,8 @@ withDefaults(
 
 <template>
   <el-button
-    :type="variant === 'secondary' ? 'default' : 'primary'"
+    :type="variant === 'secondary' || variant === 'outline' ? 'default' : 'primary'"
+    :plain="variant === 'outline'"
     :disabled="disabled"
     :loading="loading"
     :native-type="type"

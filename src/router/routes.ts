@@ -6,6 +6,7 @@ import importWizardRoutes from '@/features/importWizard/view/routes'
 import resultAnalyticRoutes from '@/features/resultAnalytic/view/routes'
 import interestAssessmentRoutes from '@/features/InterestAssessment/view/routes'
 import homeInvestionRoutes from '@/features/HomeInvestion/view/routes'
+import votingRoutes from '@/features/Voting/view/routes'
 
 export const routes = [
   ...authRoutes,
@@ -16,4 +17,5 @@ export const routes = [
   ...resultAnalyticRoutes,
   ...interestAssessmentRoutes,
   ...homeInvestionRoutes,
+  ...votingRoutes,
 ]

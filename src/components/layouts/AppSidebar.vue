@@ -168,7 +168,7 @@ const MenuItem = defineComponent({
         <p class="text-[8px] tracking-[3px] text-gray-500 uppercase mb-1.5 font-medium">
           Decision
         </p>
-        <MenuItem title="Voting & Selection" badge="CMT" to="/decision/voting" />
+        <MenuItem title="Voting & Selection" badge="CMT" to="/decision/voting-selection" />
         <MenuItem title="Reports & Exports" to="/decision/reports" />
       </div>
     </div>
