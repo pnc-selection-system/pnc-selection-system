@@ -14,9 +14,9 @@ const maxValue = computed(() =>
 </script>
 
 <template>
-  <div class="rounded-lg border border-slate-200 bg-white p-5">
+  <div class="rounded border border-slate-200 bg-white p-5">
     <div class="flex items-center justify-between">
-      <p class="font-mono text-[11px] font-medium uppercase tracking-wider text-slate-400">
+      <p class="text-[11px] font-medium uppercase tracking-wider text-slate-400">
         Year-over-year
       </p>
       <BaseBadge

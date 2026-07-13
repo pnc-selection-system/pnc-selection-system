@@ -18,7 +18,10 @@ const segments = computed(() => {
   let offset = 0
   return items.map((item) => {
     const length = (item.value / 100) * CIRC
-    const seg = { ...item, length, offset }
+    const seg = Object.assign(item, {
+	length,
+	offset
+})
     offset += length
     return seg
   })
@@ -26,8 +29,8 @@ const segments = computed(() => {
 </script>
 
 <template>
-  <div class="rounded-lg border border-slate-200 bg-white p-5">
-    <p class="font-mono text-[11px] font-medium uppercase tracking-wider text-slate-400">
+  <div class="rounded border border-slate-200 bg-white p-5">
+    <p class="text-[11px] font-medium uppercase tracking-wider text-slate-400">
       Outcome split
     </p>
 
@@ -47,7 +50,7 @@ const segments = computed(() => {
             :stroke-dashoffset="-seg.offset"
           />
         </svg>
-        <div class="absolute inset-0 flex flex-col items-center justify-center gap-0.5 font-mono text-xs text-slate-500">
+        <div class="absolute inset-0 flex flex-col items-center justify-center gap-0.5 text-xs text-slate-500">
           <span class="font-semibold text-blue-600">{{ data.pass }}% pass</span>
           <span>{{ data.fail }}% fail</span>
           <span>{{ data.pending }}% pending</span>

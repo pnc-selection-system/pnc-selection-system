@@ -12,10 +12,10 @@ const emit = defineEmits<{
 }>()
 
 const channelClasses: Record<string, string> = {
-  Email: 'bg-slate-100 text-slate-600',
-  Call: 'bg-slate-100 text-slate-600',
-  Visit: 'bg-slate-100 text-slate-600',
-  SMS: 'bg-slate-100 text-slate-600',
+  Email: 'bg-blue-50 text-blue-700 border border-blue-200',
+  Call: 'bg-green-50 text-green-700 border border-green-200',
+  Visit: 'bg-purple-50 text-purple-700 border border-purple-200',
+  Meeting: 'bg-amber-50 text-amber-700 border border-amber-200',
 }
 
 function formatDate(iso: string) {
@@ -30,7 +30,7 @@ function formatDate(iso: string) {
         Communication log
       </p>
     </div>
-    <div culass="pb-2">
+    <div class="pb-2">
       <BaseButton variant="secondary" class="!h-auto !w-full !border-dashed !py-2.5 !text-[13px]" @click="emit('logEntry')">+ Log entry</BaseButton>
     </div>
     <EmptyState

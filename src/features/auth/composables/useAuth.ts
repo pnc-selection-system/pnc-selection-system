@@ -29,7 +29,7 @@ export function useAuth() {
     return `${firstLetter}${secondLetter}`.toUpperCase()
   })
 
-  async function login(payload: LoginPayload) {
+  function login(payload: LoginPayload) {
     return authStore.login(payload)
   }
 

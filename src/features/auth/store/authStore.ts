@@ -1,18 +1,23 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { login as loginRequest, logout as logoutRequest } from '../servers/authService'
+import { getCookie, removeCookie, setCookie, TOKEN_COOKIE, USER_COOKIE } from '@/utils/cookie'
 import type { AuthUser, LoginPayload } from '../types/auth'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<AuthUser | null>(null)
-  const token = ref<string | null>(localStorage.getItem('auth_token'))
+  const token = ref<string | null>(getCookie(TOKEN_COOKIE))
   const loading = ref(false)
   const error = ref<string | null>(null)
 
   if (token.value) {
-    const savedUser = localStorage.getItem('auth_user')
+    const savedUser = getCookie(USER_COOKIE)
     if (savedUser) {
-      user.value = JSON.parse(savedUser) as AuthUser
+      try {
+        user.value = JSON.parse(savedUser) as AuthUser
+      } catch {
+        // Corrupted cookie data, ignore
+      }
     }
   }
 
@@ -27,8 +32,8 @@ export const useAuthStore = defineStore('auth', () => {
       user.value = response.user
       token.value = response.token
 
-      localStorage.setItem('auth_token', response.token)
-      localStorage.setItem('auth_user', JSON.stringify(response.user))
+      setCookie(TOKEN_COOKIE, response.token, 7)
+      setCookie(USER_COOKIE, JSON.stringify(response.user), 7)
 
       return response
     } catch (err) {
@@ -53,8 +58,8 @@ export const useAuthStore = defineStore('auth', () => {
     token.value = null
     error.value = null
 
-    localStorage.removeItem('auth_token')
-    localStorage.removeItem('auth_user')
+    removeCookie(TOKEN_COOKIE)
+    removeCookie(USER_COOKIE)
   }
 
   return {

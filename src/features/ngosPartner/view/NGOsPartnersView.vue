@@ -7,12 +7,10 @@ import CommunicationLog from '../components/CommunicationLog.vue'
 import AddPartnerModel from '../components/AddPartnerModel.vue'
 import AddContactModel from '../components/AddContactModel.vue'
 import AddLogEntryModel from '../components/AddLogEntryModel.vue'
-import NGOsPartnersSkeleton from '../components/NGOsPartnersSkeleton.vue'
 import { fetchPartners, addPartner, addContact, addLogEntry, fetchCommunicationLog } from '../service/service'
 import type { Partner } from '../types/partner'
 import type { CommunicationLogEntry } from '../types/communication'
 
-const loading = ref(true)
 const partners = ref<Partner[]>([])
 const selectedPartner = ref<Partner | null>(null)
 const showAddPartner = ref(false)
@@ -21,17 +19,13 @@ const showAddLog = ref(false)
 const logEntries = ref<CommunicationLogEntry[]>([])
 
 onMounted(async () => {
-  try {
-    partners.value = await fetchPartners()
-    
-    // Auto-select the first partner if available
-    const firstPartner = partners.value[0]
-    if (firstPartner) {
-      selectedPartner.value = firstPartner
-      await loadLogEntries(firstPartner.id)
-    }
-  } finally {
-    loading.value = false
+  partners.value = await fetchPartners()
+
+  // Auto-select the first partner if available
+  const firstPartner = partners.value[0]
+  if (firstPartner) {
+    selectedPartner.value = firstPartner
+    await loadLogEntries(firstPartner.id)
   }
 })
 
@@ -75,36 +69,32 @@ async function loadLogEntries(partnerId: string) {
 
 <template>
   <div class="mx-auto max-w-6xl px-4 py-4">
-    <NGOsPartnersSkeleton v-if="loading" />
+    <div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-[1fr_1.6fr]">
+      <PartnerList
+        :partners="partners"
+        :selected-id="selectedPartner?.id ?? null"
+        @select="handleSelectPartner"
+        @add="showAddPartner = true"
+      />
 
-    <template v-else>
-      <div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-[1fr_1.6fr]">
-        <PartnerList
-          :partners="partners"
-          :selected-id="selectedPartner?.id ?? null"
-          @select="handleSelectPartner"
-          @add="showAddPartner = true"
+      <div v-if="selectedPartner" class="rounded border border-slate-200 bg-white">
+        <PartnerDetailHeader :partner="selectedPartner" />
+
+        <ContactPersonList
+          :contacts="selectedPartner.contacts"
+          @addContact="showAddContact = true"
         />
 
-        <div v-if="selectedPartner" class="rounded-lg border border-slate-200 bg-white">
-          <PartnerDetailHeader :partner="selectedPartner" />
-
-          <ContactPersonList
-            :contacts="selectedPartner.contacts"
-            @addContact="showAddContact = true"
-          />
-
-          <CommunicationLog
-            :entries="logEntries"
-            @logEntry="showAddLog = true"
-          />
-        </div>
-
-        <div v-else class="rounded-lg border border-slate-200 bg-white p-12 text-center">
-          <p class="text-slate-500">Select a partner to view details</p>
-        </div>
+        <CommunicationLog
+          :entries="logEntries"
+          @logEntry="showAddLog = true"
+        />
       </div>
-    </template>
+
+      <div v-else class="rounded-lg border border-slate-200 bg-white p-12 text-center">
+        <p class="text-slate-500">Select a partner to view details</p>
+      </div>
+    </div>
 
     <AddPartnerModel :open="showAddPartner" @update:open="showAddPartner = $event" @submit="handleAddPartner" />
     <AddContactModel
@@ -121,3 +111,4 @@ async function loadLogEntries(partnerId: string) {
     />
   </div>
 </template>
+

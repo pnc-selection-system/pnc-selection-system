@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import BaseButton from '../../../components/base/BaseButton.vue'
-import EmptyState from '../../../components/ui/EmptyState.vue'
+import DataTableWrapper from '@/components/ui/DataTableWrapper.vue'
 import type { Partner } from '../types/partner'
 
 defineProps<{
@@ -12,6 +12,10 @@ const emit = defineEmits<{
   select: [partner: Partner]
   add: []
 }>()
+
+function onCurrentChange(row: Partner | null) {
+  if (row) emit('select', row)
+}
 </script>
 
 <template>
