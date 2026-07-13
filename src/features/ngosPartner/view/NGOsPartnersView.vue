@@ -41,9 +41,14 @@ function handleSelectPartner(partner: Partner) {
 }
 
 async function handleAddPartner(organisation: string) {
-  const created = await addPartner(organisation)
-  partners.value = [...partners.value, created]
-  showAddPartner.value = false
+  try {
+    const created = await addPartner(organisation)
+    partners.value = [...partners.value, created]
+    showAddPartner.value = false
+  } catch (err) {
+    // Error will be handled by the modal component
+    throw err
+  }
 }
 
 async function handleAddContact(contact: Omit<Partner['contacts'][0], 'id'>) {
@@ -69,11 +74,11 @@ async function loadLogEntries(partnerId: string) {
 </script>
 
 <template>
-  <div class="mx-auto max-w-6xl px-4 py-8">
+  <div class="mx-auto max-w-6xl px-4 py-4">
     <NGOsPartnersSkeleton v-if="loading" />
 
     <template v-else>
-      <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_1.6fr]">
+      <div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-[1fr_1.6fr]">
         <PartnerList
           :partners="partners"
           :selected-id="selectedPartner?.id ?? null"

@@ -16,14 +16,13 @@ const emit = defineEmits<{
 
 <template>
   <div class="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden h-full">
-    <div class="flex items-center justify-between border-b border-slate-100 px-6 py-4">
-      <h2 class="font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-400">
+    <div class="border-b border-slate-100 px-4 py-2">
+      <h2 class="font-mono text-[9px] uppercase tracking-[0.1em] text-slate-400">
         Partners
       </h2>
-      <BaseButton 
-        class="!w-auto !px-4 !py-2 !text-[13px] font-bold" 
-        @click="emit('add')"
-      >
+    </div>
+    <div class="px-4 pb-2">
+      <BaseButton variant="secondary" class="!h-auto !w-full !border-dashed !py-2.5 !text-[13px]" @click="emit('add')">
         + Add
       </BaseButton>
     </div>
@@ -38,10 +37,10 @@ const emit = defineEmits<{
     <table v-else class="w-full border-collapse">
       <thead>
         <tr class="border-b border-slate-100 bg-slate-50/30">
-          <th class="px-6 py-3.5 text-left font-mono text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-400">
+          <th class="px-4 py-2 text-left font-mono text-[9px] uppercase tracking-[0.1em] text-slate-400">
             Organisation
           </th>
-          <th class="px-6 py-3.5 text-left font-mono text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-400">
+          <th class="px-4 py-2 text-left font-mono text-[9px] uppercase tracking-[0.1em] text-slate-400">
             Candidates
           </th>
         </tr>
@@ -58,10 +57,10 @@ const emit = defineEmits<{
           ]"
           @click="emit('select', partner)"
         >
-          <td class="px-6 py-5 font-bold text-[#2D3748] text-[15px] transition-colors group-hover:text-blue-600">
+          <td class="px-4 py-2.5 text-[#2D3748] text-[13px] transition-colors group-hover:text-blue-600">
             {{ partner.organisation }}
           </td>
-          <td class="px-6 py-5 font-medium text-slate-500 text-[14px]">
+          <td class="px-4 py-2.5 text-slate-500 text-[12px]">
             {{ partner.candidateCount }}
           </td>
         </tr>
