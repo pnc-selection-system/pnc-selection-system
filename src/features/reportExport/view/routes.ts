@@ -9,7 +9,7 @@ const routes: RouteRecordRaw[] = [
         path: '',
         name: 'reports',
         meta: { requiresAuth: true },
-        component: () => import('./view/ReportExportView.vue'),
+        component: () => import('./ReportExportView.vue'),
       },
     ],
   },
