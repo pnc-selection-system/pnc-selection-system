@@ -64,13 +64,13 @@ async function doSignOut() {
         <span class="text-gray-900">2026</span>
       </BaseButton>
       <!-- Sign out and Profile Avatar -->
-      <BaseButton
-        variant="secondary"
-        class="!w-auto !inline-flex items-center gap-2 !border-gray-200 !rounded !px-4 !py-2 hover:!bg-gray-50 !text-gray-700 text-sm !font-semibold hover:!border-gray-300"
+      <button
+        type="button"
+        class="inline-flex items-center gap-2 border border-gray-200 rounded px-4 py-2 hover:bg-gray-50 text-gray-700 text-sm font-semibold hover:border-gray-300 transition cursor-pointer"
         @click="openSignOut"
       >
         Sign out
-      </BaseButton>
+      </button>
       <div class="h-8 w-px bg-gray-400 mx-1"></div>
       <BaseButton
         variant="secondary"

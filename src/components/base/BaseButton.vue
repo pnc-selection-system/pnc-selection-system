@@ -1,8 +1,10 @@
 <script setup lang="ts">
-withDefaults(
+import { computed } from 'vue'
+
+const props = withDefaults(
   defineProps<{
     type?: 'button' | 'submit' | 'reset'
-    variant?: 'primary' | 'secondary'
+    variant?: 'primary' | 'secondary' | 'danger'
     disabled?: boolean
     loading?: boolean
   }>(),
@@ -13,15 +15,29 @@ withDefaults(
     loading: false,
   },
 )
+
+const elType = computed(() => {
+  if (props.variant === 'secondary') return 'default'
+  if (props.variant === 'danger') return 'danger'
+  return 'primary'
+})
+
+defineEmits<{
+  click: [event: MouseEvent]
+}>()
+
+defineOptions({ inheritAttrs: false })
 </script>
 
 <template>
   <el-button
-    :type="variant === 'secondary' ? 'default' : 'primary'"
+    :class="$attrs.class"
+    :style="$attrs.style"
+    :type="elType"
     :disabled="disabled"
     :loading="loading"
     :native-type="type"
-    :class="$attrs.class"
+    @click="(e: MouseEvent) => $emit('click', e)"
   >
     <slot />
   </el-button>

@@ -30,7 +30,7 @@ const emit = defineEmits<{
     :closable="closable"
     :hit="hit"
     :disable-transitions="disableTransitions"
-    effect="plain"
+    effect="light"
     class="inline-flex items-center gap-1.5 rounded"
     @close="emit('close')"
   >

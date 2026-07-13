@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import BaseButton from '@/components/base/BaseButton.vue'
 
 const props = defineProps<{
-  isOpen?: boolean
   modelValue?: boolean
   title: string
   message: string
@@ -17,43 +16,48 @@ const emit = defineEmits<{
   'update:modelValue': [value: boolean]
 }>()
 
-const visible = computed({
-  get: () => props.isOpen ?? props.modelValue ?? false,
-  set: (val) => emit('update:modelValue', val)
-})
-
 function onCancel() {
+  if (props.loading) return
   emit('cancel')
   emit('update:modelValue', false)
 }
 
 function onConfirm() {
+  if (props.loading) return
   emit('confirm')
-  emit('update:modelValue', false)
 }
 </script>
 
 <template>
   <ElDialog
-    v-model="visible"
+    :model-value="modelValue"
     :title="title"
-    width="400px"
+    width="420px"
     :close-on-click-modal="!loading"
     :close-on-press-escape="!loading"
     :show-close="!loading"
-    align-center
     append-to-body
     destroy-on-close
+    @update:model-value="(v: boolean) => { if (!v) onCancel() }"
   >
-    <p class="text-sm text-slate-600 leading-relaxed">{{ message }}</p>
+    <p class="text-sm text-gray-600 leading-relaxed">{{ message }}</p>
     <template #footer>
-      <div class="flex justify-end gap-2">
-        <ElButton :disabled="loading" @click="onCancel">
+      <div class="flex justify-end gap-3">
+        <BaseButton
+          variant="secondary"
+          :disabled="loading"
+          @click="onCancel"
+        >
           {{ cancelText || 'Cancel' }}
-        </ElButton>
-        <ElButton type="danger" :loading="loading" @click="onConfirm">
-          {{ confirmText || 'Confirm' }}
-        </ElButton>
+        </BaseButton>
+        <BaseButton
+          variant="danger"
+          :loading="loading"
+          :disabled="loading"
+          @click="onConfirm"
+        >
+          {{ loading ? confirmText || 'Processing...' : (confirmText || 'Confirm') }}
+        </BaseButton>
       </div>
     </template>
   </ElDialog>

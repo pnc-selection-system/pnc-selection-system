@@ -54,5 +54,40 @@ export const useCandidateStore = defineStore('candidate', {
       this.page = page
       this.fetchCandidates()
     },
+
+    addCandidate(candidate: { name: string; province: string; ngo: string }) {
+      const nextId = mockCandidates.length > 0 ? Math.max(...mockCandidates.map(c => c.id)) + 1 : 1
+      const nextNo = `C-${String(nextId).padStart(3, '0')}`
+      mockCandidates.push({
+        id: nextId,
+        candidate_no: nextNo,
+        name: candidate.name,
+        province: candidate.province,
+        ngo: candidate.ngo,
+        exam_score: null,
+        exam_result: null,
+        status: 'Registered',
+      })
+      this.fetchCandidates()
+    },
+
+    importCandidates(newCandidates: Array<{ name: string; province: string; ngo: string }>) {
+      const startId = mockCandidates.length > 0 ? Math.max(...mockCandidates.map(c => c.id)) + 1 : 1
+      newCandidates.forEach((c, idx) => {
+        const id = startId + idx
+        const nextNo = `C-${String(id).padStart(3, '0')}`
+        mockCandidates.push({
+          id,
+          candidate_no: nextNo,
+          name: c.name,
+          province: c.province,
+          ngo: c.ngo,
+          exam_score: null,
+          exam_result: null,
+          status: 'Registered',
+        })
+      })
+      this.fetchCandidates()
+    },
   },
 })
