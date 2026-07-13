@@ -55,7 +55,7 @@ async function handleSubmit() {
 
       <a href="#" class="text-right text-sm font-medium text-blue-400 hover:text-blue-500">Forgot password?</a>
 
-      <BaseButton type="submit" class="mt-2" :loading="loading">Login</BaseButton>
+      <BaseButton type="submit" class="w-full mt-2" :loading="loading">Login</BaseButton>
     </form>
   </div>
 </template>

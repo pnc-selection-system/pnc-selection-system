@@ -104,7 +104,17 @@ import SidebarMenuItem from "@/components/layouts/SidebarMenuItem.vue"
           Decision
         </p>
         <SidebarMenuItem title="Voting & Selection" badge="CMT" />
-        <SidebarMenuItem title="Reports & Exports" />
+        <router-link
+          to="/reports"
+          class="flex items-center justify-between px-3 py-2 rounded text-gray-400 transition mb-1 hover:bg-slate-700/50"
+          active-class="!text-white bg-slate-700 border border-slate-600 active-link"
+        >
+          <div class="flex items-center gap-3">
+            <div class="dot w-2 h-2 rounded-sm bg-gray-500 transition"></div>
+            <span class="text-xs">Reports & Exports</span>
+          </div>
+          <span class="badge text-[10px] text-gray-500 bg-gray-500/10 px-1.5 py-0.5 rounded transition">OFF</span>
+        </router-link>
       </div>
     </div>
 

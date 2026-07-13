@@ -58,7 +58,7 @@ function closeFormModal() {
       <div v-else-if="error">
         <ErrorAlert :message="error" />
         <div class="mt-3 flex justify-end">
-          <BaseButton @click="loadCampaigns" variant="secondary" class="!w-auto !rounded !px-3 !py-1 text-sm">
+          <BaseButton @click="loadCampaigns" variant="secondary" class="rounded px-3 py-1 text-sm">
             Retry
           </BaseButton>
         </div>
