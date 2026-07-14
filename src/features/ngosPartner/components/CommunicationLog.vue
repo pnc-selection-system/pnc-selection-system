@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import BaseButton from '../../../components/base/BaseButton.vue'
-import DataTableWrapper from '@/components/ui/DataTableWrapper.vue'
+import EmptyState from '../../../components/ui/EmptyState.vue'
 import type { CommunicationLogEntry } from '../types/communication'
 
 defineProps<{
@@ -11,7 +11,12 @@ const emit = defineEmits<{
   logEntry: []
 }>()
 
-
+const channelClasses: Record<string, string> = {
+  Email: 'bg-blue-50 text-blue-700 border border-blue-200',
+  Call: 'bg-green-50 text-green-700 border border-green-200',
+  Visit: 'bg-purple-50 text-purple-700 border border-purple-200',
+  Meeting: 'bg-amber-50 text-amber-700 border border-amber-200',
+}
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })
@@ -19,46 +24,41 @@ function formatDate(iso: string) {
 </script>
 
 <template>
-  <div class="border-t border-slate-200 px-4 py-2.5">
-    <div class="flex items-center justify-between mb-3">
-      <h3 class="text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400">
+  <div class="border-t border-slate-100 px-4 py-2">
+    <div class="flex items-center justify-between">
+      <p class="font-mono text-[9px] uppercase tracking-[0.1em] text-slate-400">
         Communication log
-      </h3>
-      <BaseButton
-        variant="secondary"
-        class="!w-auto !rounded-md !border !border-slate-200 !px-2.5 !py-1 !text-xs !font-semibold !shadow-none flex items-center gap-1"
-        @click="emit('logEntry')"
-      >
-        <svg class="w-3 h-3" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5">
-          <path d="M10 5v10M5 10h10" stroke-linecap="round" />
-        </svg>
-        Log entry
-      </BaseButton>
+      </p>
     </div>
+    <div class="pb-2">
+      <BaseButton variant="secondary" class="!h-auto !w-full !border-dashed !py-2.5 !text-[13px]" @click="emit('logEntry')">+ Log entry</BaseButton>
+    </div>
+    <EmptyState
+      v-if="entries.length === 0"
+      class="mt-2"
+      title="No log entries yet"
+      description="Record calls, emails, or visits with this partner."
+    />
 
-    <DataTableWrapper
-      :data="entries"
-      :bordered="false"
-      empty-text="No log entries yet"
-      empty-description="Record calls, emails, or visits with this partner."
-    >
-      <el-table-column label="Date" width="110">
-        <template #default="{ row }">
-          <span class="text-xs text-slate-700">{{ formatDate(row.date) }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="Channel" width="100">
-        <template #default="{ row }">
-          <BaseBadge type="info" size="small">
-            {{ row.channel }}
-          </BaseBadge>
-        </template>
-      </el-table-column>
-      <el-table-column label="Summary" min-width="200">
-        <template #default="{ row }">
-          <span class="text-xs text-slate-700">{{ row.summary }}</span>
-        </template>
-      </el-table-column>
-    </DataTableWrapper>
+    <table v-else class="mt-1 w-full border-collapse">
+      <thead>
+        <tr class="border-b border-slate-100 bg-slate-50/30">
+          <th class="px-4 py-2 text-left font-mono text-[9px] uppercase tracking-[0.1em] text-slate-400">Date</th>
+          <th class="px-4 py-2 text-left font-mono text-[9px] uppercase tracking-[0.1em] text-slate-400">Channel</th>
+          <th class="px-4 py-2 text-left font-mono text-[9px] uppercase tracking-[0.1em] text-slate-400">Summary</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="entry in entries" :key="entry.id" class="border-b border-slate-50 last:border-0 transition-colors hover:bg-slate-50/80">
+          <td class="px-4 py-2.5 text-slate-600 text-[13px]">{{ formatDate(entry.date) }}</td>
+          <td class="px-4 py-2.5">
+            <span class="rounded px-2 py-0.5 font-mono text-[11px]" :class="channelClasses[entry.channel]">
+              {{ entry.channel }}
+            </span>
+          </td>
+          <td class="px-4 py-2.5 text-slate-600 text-[13px]">{{ entry.summary }}</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </template>

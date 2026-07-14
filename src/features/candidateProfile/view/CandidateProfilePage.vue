@@ -1,4 +1,5 @@
-<script setup lang="ts">
+
+.0<script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import type { CandidateStatus } from '../types/index'
@@ -43,12 +44,12 @@ function handlePhotoUpdate(photoUrl: string) {
 <template>
   <div class="min-h-screen bg-slate-100 px-4 py-4 sm:px-6 lg:px-8">
     <div class="mx-auto max-w-[1200px] py-4">
-      <PageHeader
-        breadcrumb="CANDIDATES / PROFILE"
-        :title="candidate?.fullName ?? 'Candidate Profile'"
-        :subtitle="candidate?.candidateCode"
-        class="mb-3"
-      />
+      <div class="mb-3">
+        <h1 class="text-2xl font-semibold text-slate-900">
+          {{ candidate?.fullName ?? 'Candidate Profile' }}
+        </h1>
+        <p class="mt-1 text-sm text-slate-500">{{ candidate?.candidateCode }}</p>
+      </div>
 
       <!-- Main Content -->
       <div v-if="candidate" class="flex justify-center gap-6">

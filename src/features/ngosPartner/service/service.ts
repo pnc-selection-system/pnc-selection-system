@@ -44,6 +44,13 @@ export async function fetchCommunicationLog(partnerId: string): Promise<Communic
 }
 
 export async function addPartner(organisation: string): Promise<Partner> {
+  const existingPartner = partners.find(
+    (p) => p.organisation.toLowerCase() === organisation.toLowerCase()
+  )
+  if (existingPartner) {
+    throw new Error('A partner with this name already exists')
+  }
+  
   const created: Partner = {
     id: `p${partners.length + 1}`,
     organisation,

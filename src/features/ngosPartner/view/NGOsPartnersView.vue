@@ -35,9 +35,14 @@ function handleSelectPartner(partner: Partner) {
 }
 
 async function handleAddPartner(organisation: string) {
-  const created = await addPartner(organisation)
-  partners.value = [...partners.value, created]
-  showAddPartner.value = false
+  try {
+    const created = await addPartner(organisation)
+    partners.value = [...partners.value, created]
+    showAddPartner.value = false
+  } catch (err) {
+    // Error will be handled by the modal component
+    throw err
+  }
 }
 
 async function handleAddContact(contact: Omit<Partner['contacts'][0], 'id'>) {
@@ -63,35 +68,31 @@ async function loadLogEntries(partnerId: string) {
 </script>
 
 <template>
-  <div class="px-6 py-6">
-    <div class="mx-auto max-w-[1200px] space-y-4">
-      <PageHeader breadcrumb="Outreach / NGOs &amp; Partners" title="NGOs &amp; Partners" />
+  <div class="mx-auto max-w-6xl px-4 py-4">
+    <div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-[1fr_1.6fr]">
+      <PartnerList
+        :partners="partners"
+        :selected-id="selectedPartner?.id ?? null"
+        @select="handleSelectPartner"
+        @add="showAddPartner = true"
+      />
 
-      <div class="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_1.6fr]">
-        <PartnerList
-          :partners="partners"
-          :selected-id="selectedPartner?.id ?? null"
-          @select="handleSelectPartner"
-          @add="showAddPartner = true"
+      <div v-if="selectedPartner" class="rounded border border-slate-200 bg-white">
+        <PartnerDetailHeader :partner="selectedPartner" />
+
+        <ContactPersonList
+          :contacts="selectedPartner.contacts"
+          @addContact="showAddContact = true"
         />
 
-        <div v-if="selectedPartner" class="rounded border border-slate-200 bg-white">
-          <PartnerDetailHeader :partner="selectedPartner" />
+        <CommunicationLog
+          :entries="logEntries"
+          @logEntry="showAddLog = true"
+        />
+      </div>
 
-          <ContactPersonList
-            :contacts="selectedPartner.contacts"
-            @addContact="showAddContact = true"
-          />
-
-          <CommunicationLog
-            :entries="logEntries"
-            @logEntry="showAddLog = true"
-          />
-        </div>
-
-        <div v-else class="rounded-lg border border-slate-200 bg-white p-12 text-center">
-          <p class="text-slate-500">Select a partner to view details</p>
-        </div>
+      <div v-else class="rounded-lg border border-slate-200 bg-white p-12 text-center">
+        <p class="text-slate-500">Select a partner to view details</p>
       </div>
     </div>
 
