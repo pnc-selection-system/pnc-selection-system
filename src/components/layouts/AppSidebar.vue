@@ -97,7 +97,7 @@ import SidebarMenuItem from "@/components/layouts/SidebarMenuItem.vue"
         </p>
         <SidebarMenuItem title="Exam Configuration" to="/exams" badge="MGR" />
         <SidebarMenuItem title="Import Wizard" to="/exam/import-wizard" />
-        <SidebarMenuItem title="Results & Analytics" />
+        <SidebarMenuItem title="Results & Analytics" to="/exam/results" />
       </div>
       <!-- EVALUATION -->
       <div class="px-3 mt-2">

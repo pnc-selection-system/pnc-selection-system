@@ -7,7 +7,7 @@ import ngosPartnerRoutes from '@/features/ngosPartner/routes'
 import informationSessionRoutes from '@/features/InformationSession/routes'
 import ExamConfiguration from '@/features/exam/routes'
 import ImportWizardView from '@/features/importWizard/routes'
-
+import resultAnalyticRoutes from '@/features/resultAnalytic/routes'
 
 export const routes = [
   ...authRoutes,
@@ -19,5 +19,6 @@ export const routes = [
   ...informationSessionRoutes,
   ...ExamConfiguration,
   ...ImportWizardView,
+  ...resultAnalyticRoutes,
 ]
 
