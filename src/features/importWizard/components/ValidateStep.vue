@@ -13,7 +13,7 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <div class="rounded-lg border border-slate-200 bg-white">
+  <div class="rounded border border-slate-200 bg-white">
     <div class="border-b border-slate-100 px-5 py-4">
       <p class="font-mono text-[11px] font-medium uppercase tracking-wider text-slate-400">
         Validation results
@@ -26,15 +26,15 @@ const emit = defineEmits<{
 
     <div v-else>
       <div class="grid grid-cols-3 gap-4 px-5 py-4">
-        <div class="rounded-lg border border-slate-100 bg-slate-50 p-4">
+        <div class="rounded border border-slate-100 bg-slate-50 p-4">
           <p class="text-xs text-slate-400">Valid rows</p>
           <p class="text-2xl font-semibold text-green-600">{{ result.validRows.toLocaleString() }}</p>
         </div>
-        <div class="rounded-lg border border-slate-100 bg-slate-50 p-4">
+        <div class="rounded border border-slate-100 bg-slate-50 p-4">
           <p class="text-xs text-slate-400">Warnings</p>
           <p class="text-2xl font-semibold text-amber-600">{{ result.issues.filter(i => i.type === 'warning').length }}</p>
         </div>
-        <div class="rounded-lg border border-slate-100 bg-slate-50 p-4">
+        <div class="rounded border border-slate-100 bg-slate-50 p-4">
           <p class="text-xs text-slate-400">Errors (skipped)</p>
           <p class="text-2xl font-semibold text-red-600">{{ result.issues.filter(i => i.type === 'error').length }}</p>
         </div>

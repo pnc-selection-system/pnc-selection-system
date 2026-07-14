@@ -25,7 +25,7 @@ function stateOf(order: number): 'done' | 'active' | 'upcoming' {
       v-for="step in WIZARD_STEPS"
       :key="step.key"
       type="button"
-      class="flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium transition"
+      class="flex items-center gap-2 rounded border px-4 py-2.5 text-sm font-medium transition"
       :class="
         stateOf(step.order) === 'active'
           ? 'border-blue-300 bg-blue-50 text-slate-800'

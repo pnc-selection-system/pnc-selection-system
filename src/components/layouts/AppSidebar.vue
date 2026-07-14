@@ -1,53 +1,6 @@
 <script setup lang="ts">
-<<<<<<< HEAD
 import AppLogo from "@/components/AppLogo.vue"
 import SidebarMenuItem from "@/components/layouts/SidebarMenuItem.vue"
-=======
-import { defineComponent, h } from "vue"
-import { useRouter } from "vue-router"
-
-const router = useRouter()
-
-// MenuItem is a small internal component for Sidebar items
-const MenuItem = defineComponent({
-  props: {
-    title: { type: String, required: true },
-    badge: String,
-    to: String,
-  },
-  setup(props) {
-    const handleClick = () => {
-      if (props.to) {
-        router.push(props.to)
-      }
-    }
-
-    return () =>
-      h(
-        "a",
-        {
-          href: props.to || "#",
-          class: "flex items-center justify-between px-3 py-2 rounded-lg hover:bg-gray-700 transition mb-1",
-          onClick: (e: Event) => {
-            if (props.to) {
-              e.preventDefault()
-              handleClick()
-            }
-          },
-        },
-        [
-          h("div", { class: "flex items-center gap-3" }, [
-            h("div", { class: "w-2 h-2 rounded-sm bg-gray-500" }),
-            h("span", { class: "text-xs text-gray-200" }, props.title),
-          ]),
-          props.badge
-            ? h("span", { class: "text-[10px] text-gray-400" }, props.badge)
-            : null,
-        ]
-      )
-  },
-})
->>>>>>> 0871e6fce04e3923f1ed63c5663d8b2687b130c1
 </script>
 <template>
   <aside class="w-[225px] bg-[#1F2937] text-gray-300 flex flex-col h-full border-r border-gray-700">
@@ -100,21 +53,13 @@ const MenuItem = defineComponent({
           </div>
           <span class="badge text-[10px] text-gray-500 bg-gray-500/10 px-1.5 py-0.5 rounded transition">MGR</span>
         </router-link>
-<<<<<<< HEAD
         <SidebarMenuItem title="Users & Roles" badge="ADM" />
-=======
-        <MenuItem title="Users & Roles" badge="ADM" to="/users-roles" />
->>>>>>> 0871e6fce04e3923f1ed63c5663d8b2687b130c1
       </div>
       <!-- OUTREACH -->
       <div class="px-3 mt-2">
         <p class="text-[8px] tracking-[2px] text-gray-500 uppercase mb-1 font-medium">
           Outreach
         </p>
-<<<<<<< HEAD
-=======
-        <MenuItem title="Information Sessions" to="/information-sessions" />
->>>>>>> 0871e6fce04e3923f1ed63c5663d8b2687b130c1
         <router-link
           to="/outreach/information-sessions"
           class="flex items-center justify-between px-3 py-2 rounded text-gray-400 transition mb-1 hover:bg-slate-700/50"
@@ -142,63 +87,33 @@ const MenuItem = defineComponent({
         <p class="text-[8px] tracking-[2px] text-gray-500 uppercase mb-1 font-medium">
           Candidates
         </p>
-<<<<<<< HEAD
         <SidebarMenuItem title="Candidate List" to="/candidates" />
         <SidebarMenuItem title="Candidate Profile" to="/candidates/1" />
-=======
-        <MenuItem title="Candidate List" to="/candidates" />
-        <MenuItem title="Candidate Profile" to="/candidates/profile" />
->>>>>>> 0871e6fce04e3923f1ed63c5663d8b2687b130c1
       </div>
       <!-- EXAM -->
       <div class="px-3 mt-2">
         <p class="text-[8px] tracking-[2px] text-gray-500 uppercase mb-1 font-medium">
           Exam
         </p>
-<<<<<<< HEAD
         <SidebarMenuItem title="Exam Configuration" to="/exams" badge="MGR" />
-        <SidebarMenuItem title="Import Wizard" />
+        <SidebarMenuItem title="Import Wizard" to="/exam/import-wizard" />
         <SidebarMenuItem title="Results & Analytics" />
-=======
-        <MenuItem title="Exam Configuration" badge="MGR" to="/exam/configuration" />
-        <router-link
-          to="/exam/import-wizard"
-          class="flex items-center justify-between px-3 py-2 rounded-lg text-gray-200 transition mb-1"
-          active-class="bg-slate-700 text-white border border-slate-600"
-          exact-active-class="bg-slate-700 text-white border border-slate-600"
-        >
-          <div class="flex items-center gap-3">
-            <div class="w-2 h-2 rounded-sm bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]"></div>
-            <span class="text-xs font-medium">Import Wizard</span>
-          </div>
-        </router-link>
-        <MenuItem title="Results & Analytics" to="/exam/results" />
->>>>>>> 0871e6fce04e3923f1ed63c5663d8b2687b130c1
       </div>
       <!-- EVALUATION -->
       <div class="px-3 mt-2">
         <p class="text-[8px] tracking-[2px] text-gray-500 uppercase mb-1 font-medium">
           Evaluation
         </p>
-<<<<<<< HEAD
         <SidebarMenuItem title="Interest Assessment" />
         <SidebarMenuItem title="Home Investigation" badge="INV" />
-=======
-        <MenuItem title="Interest Assessment" to="/evaluation/interest" />
-        <MenuItem title="Home Investigation" badge="INV" to="/evaluation/home-investigation" />
->>>>>>> 0871e6fce04e3923f1ed63c5663d8b2687b130c1
       </div>
       <!-- DECISION -->
       <div class="px-3 mt-3 pb-4">
         <p class="text-[8px] tracking-[2px] text-gray-500 uppercase mb-1.5 font-medium">
           Decision
         </p>
-<<<<<<< HEAD
         <SidebarMenuItem title="Voting & Selection" badge="CMT" />
         <SidebarMenuItem title="Reports & Exports" />
-=======
-        <MenuItem title="Voting & Selection" badge="CMT" to="/decision/voting" />
-        <MenuItem title="Reports & Exports" to="/decision/reports" />
       </div>
     </div>
     <!-- Footer -->
@@ -207,7 +122,6 @@ const MenuItem = defineComponent({
       <div>Sprint 0 • S0-13 / S0-14</div>
       <div class="mt-3 text-[8px] text-gray-600 uppercase tracking-tighter">
         Role legend: ADM admin • MGR manager • INV officer • CMT committee
->>>>>>> 0871e6fce04e3923f1ed63c5663d8b2687b130c1
       </div>
     </div>
 

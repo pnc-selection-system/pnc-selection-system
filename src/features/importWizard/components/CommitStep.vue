@@ -12,13 +12,13 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <div class="rounded-lg border border-slate-200 bg-white p-6">
+  <div class="rounded border border-slate-200 bg-white p-6">
     <div v-if="!summary" class="py-10 text-center text-sm text-slate-400">
       Committing import…
     </div>
 
     <div v-else class="py-6 text-center">
-      <div class="rounded-lg border border-dashed border-green-300 bg-green-50 px-6 py-8">
+      <div class="rounded border border-dashed border-green-300 bg-green-50 px-6 py-8">
         <p class="text-lg font-semibold text-green-700">✓ {{ summary.imported.toLocaleString() }} results committed</p>
       </div>
       

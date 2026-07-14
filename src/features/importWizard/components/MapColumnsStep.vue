@@ -20,7 +20,7 @@ function updateMapping(index: number, value: SystemField) {
 </script>
 
 <template>
-  <div class="rounded-lg border border-slate-200 bg-white">
+  <div class="rounded border border-slate-200 bg-white">
     <div class="border-b border-slate-100 px-5 py-4">
       <p class="font-mono text-[11px] font-medium uppercase tracking-wider text-slate-400">
         Map file columns → system fields

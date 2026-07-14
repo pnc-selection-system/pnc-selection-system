@@ -20,7 +20,7 @@ function handleChange(e: Event) {
 </script>
 
 <template>
-  <div class="rounded-lg border border-slate-200 bg-white p-6">
+  <div class="rounded border border-slate-200 bg-white p-6">
     <label
       class="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed px-6 py-14 text-center transition"
       :class="isDragging ? 'border-blue-400 bg-blue-50' : 'border-slate-200 hover:border-slate-300'"

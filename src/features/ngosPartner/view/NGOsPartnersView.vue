@@ -68,8 +68,8 @@ async function loadLogEntries(partnerId: string) {
 </script>
 
 <template>
-  <div class="mx-auto max-w-6xl px-4 py-4">
-    <div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-[1fr_1.6fr]">
+  <div class="mx-auto max-w-[1200px] px-6 py-6">
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_1.6fr]">
       <PartnerList
         :partners="partners"
         :selected-id="selectedPartner?.id ?? null"

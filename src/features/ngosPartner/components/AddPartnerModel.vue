@@ -43,7 +43,7 @@ async function handleSubmit() {
     title=""
     @update:model-value="emit('update:open', $event)"
   >
-    <div class="px-1 pt-2 pb-1">
+    <div class="px-6 space-y-5">
       <!-- Header with icon -->
       <div class="mb-6 flex items-center gap-3">
         <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 ring-1 ring-blue-100">
@@ -80,7 +80,7 @@ async function handleSubmit() {
     </div>
 
     <template #footer>
-      <div class="flex items-center justify-end gap-3 border-t border-slate-100 px-1 pt-4">
+      <div class="flex items-center justify-end gap-3">
         <BaseButton 
           variant="secondary" 
           class="!w-auto !px-5" 

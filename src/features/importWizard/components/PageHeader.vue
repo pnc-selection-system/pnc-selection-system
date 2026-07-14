@@ -15,7 +15,7 @@ defineProps<{
       {{ meta.title }}
     </h1>
 
-    <div class="mt-4 flex flex-wrap items-center gap-6 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3">
+    <div class="mt-4 flex flex-wrap items-center gap-6 rounded border border-amber-200 bg-amber-50 px-4 py-3">
       <div class="flex items-center gap-2">
         <span class="font-mono text-[11px] font-medium uppercase tracking-wider text-amber-600">Roles</span>
         <span class="text-sm text-amber-800">{{ meta.roles.join(' · ') }}</span>

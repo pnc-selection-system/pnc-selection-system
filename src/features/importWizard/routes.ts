@@ -1,11 +1,10 @@
 import type { RouteRecordRaw } from 'vue-router'
-import AdminLayout from '@/layouts/AdminLayout.vue'
 
 const routes: RouteRecordRaw[] = [
   {
     path: '/exam/import-wizard',
     name: 'import-wizard',
-    component: AdminLayout,
+    component: () => import('@/layouts/AppLayout.vue'),
     children: [
       {
         path: '',
