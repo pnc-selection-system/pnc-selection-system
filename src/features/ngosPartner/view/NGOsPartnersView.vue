@@ -68,47 +68,53 @@ async function loadLogEntries(partnerId: string) {
 </script>
 
 <template>
-  <div class="mx-auto max-w-[1200px] px-6 py-6">
-    <div class="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_1.6fr]">
-      <PartnerList
-        :partners="partners"
-        :selected-id="selectedPartner?.id ?? null"
-        @select="handleSelectPartner"
-        @add="showAddPartner = true"
+  <div class="px-6 py-6">
+    <div class="mx-auto max-w-[1200px] space-y-4">
+      <PageHeader
+        breadcrumb="Outreach"
+        title="NGOs & Partners"
+        subtitle="Manage your partner organizations and their contact information"
       />
-
-      <div v-if="selectedPartner" class="rounded border border-slate-200 bg-white">
-        <PartnerDetailHeader :partner="selectedPartner" />
-
-        <ContactPersonList
-          :contacts="selectedPartner.contacts"
-          @addContact="showAddContact = true"
+      <div class="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_1.6fr]">
+        <PartnerList
+          :partners="partners"
+          :selected-id="selectedPartner?.id ?? null"
+          @select="handleSelectPartner"
+          @add="showAddPartner = true"
         />
 
-        <CommunicationLog
-          :entries="logEntries"
-          @logEntry="showAddLog = true"
-        />
+        <div v-if="selectedPartner" class="rounded border border-slate-200 bg-white">
+          <PartnerDetailHeader :partner="selectedPartner" />
+
+          <ContactPersonList
+            :contacts="selectedPartner.contacts"
+            @addContact="showAddContact = true"
+          />
+
+          <CommunicationLog
+            :entries="logEntries"
+            @logEntry="showAddLog = true"
+          />
+        </div>
+
+        <div v-else class="rounded-lg border border-slate-200 bg-white p-12 text-center">
+          <p class="text-slate-500">Select a partner to view details</p>
+        </div>
       </div>
 
-      <div v-else class="rounded-lg border border-slate-200 bg-white p-12 text-center">
-        <p class="text-slate-500">Select a partner to view details</p>
-      </div>
+      <AddPartnerModel :open="showAddPartner" @update:open="showAddPartner = $event" @submit="handleAddPartner" />
+      <AddContactModel
+        v-if="selectedPartner"
+        :open="showAddContact"
+        @update:open="showAddContact = $event"
+        @submit="handleAddContact"
+      />
+      <AddLogEntryModel
+        v-if="selectedPartner"
+        :open="showAddLog"
+        @update:open="showAddLog = $event"
+        @submit="handleAddLog"
+      />
     </div>
-
-    <AddPartnerModel :open="showAddPartner" @update:open="showAddPartner = $event" @submit="handleAddPartner" />
-    <AddContactModel
-      v-if="selectedPartner"
-      :open="showAddContact"
-      @update:open="showAddContact = $event"
-      @submit="handleAddContact"
-    />
-    <AddLogEntryModel
-      v-if="selectedPartner"
-      :open="showAddLog"
-      @update:open="showAddLog = $event"
-      @submit="handleAddLog"
-    />
   </div>
 </template>
-
