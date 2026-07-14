@@ -36,7 +36,7 @@ defineOptions({ inheritAttrs: false })
     :type="elType"
     :disabled="disabled"
     :loading="loading"
-    native-type="button"
+    :native-type="type"
     @click="(e: MouseEvent) => $emit('click', e)"
   >
     <slot />

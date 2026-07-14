@@ -10,7 +10,7 @@ defineProps<{
 <template>
   <div class="overflow-hidden rounded border border-slate-200 bg-white">
     <table class="w-full text-sm">
-      <thead>
+      <thead v-once>
         <tr class="border-b border-slate-100 bg-slate-50">
           <th class="px-5 py-2.5 text-left font-mono text-[11px] font-medium uppercase tracking-wider text-slate-400">Rank</th>
           <th class="px-5 py-2.5 text-left font-mono text-[11px] font-medium uppercase tracking-wider text-slate-400">Candidate</th>

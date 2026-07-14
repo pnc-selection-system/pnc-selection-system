@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 import SessionFilters from '../components/SessionFilters.vue'
 import SessionTable from '../components/SessionTable.vue'
 import SessionFormPanel from '../components/SessionFormPanel.vue'
@@ -8,6 +8,7 @@ import { EMPTY_SESSION_FORM, type PageMeta, type Session, type SessionFormData }
 import { DEFAULT_SESSION_FILTERS, type SessionFilterOptions, type SessionFilters as Filters } from '../types/filter'
 import { fetchCampaigns } from '@/features/campaign/services/campaign'
 import { CampaignStatus } from '@/enums'
+import { useDebouncedWatch } from '@/utils/useDebouncedWatch'
 
 const meta = ref<PageMeta>(fetchPageMeta())
 const filters = ref<Filters>({ ...DEFAULT_SESSION_FILTERS })
@@ -85,9 +86,7 @@ async function handleSave() {
 function handleCancel() {
   form.value = emptyForm()
   isFormOpen.value = false
-}
-
-watch(filters, loadSessions, { deep: true })
+}  useDebouncedWatch(filters, loadSessions, 300, true)
 </script>
 <template>
   <div class="px-6 py-6">
