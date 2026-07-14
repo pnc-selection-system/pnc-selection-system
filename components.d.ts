@@ -12,13 +12,17 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AppHeader: typeof import('./src/components/layouts/AppHeader.vue')['default']
+    AppLogo: typeof import('./src/components/AppLogo.vue')['default']
     AppSidebar: typeof import('./src/components/layouts/AppSidebar.vue')['default']
     BaseBadge: typeof import('./src/components/base/BaseBadge.vue')['default']
     BaseButton: typeof import('./src/components/base/BaseButton.vue')['default']
+    BaseIcon: typeof import('./src/components/base/BaseIcon.vue')['default']
     BaseInput: typeof import('./src/components/base/BaseInput.vue')['default']
     BaseModal: typeof import('./src/components/base/BaseModal.vue')['default']
+    BasePagination: typeof import('./src/components/base/BasePagination.vue')['default']
     BaseSelect: typeof import('./src/components/base/BaseSelect.vue')['default']
     ConfirmDialog: typeof import('./src/components/ui/ConfirmDialog.vue')['default']
+    DataTableWrapper: typeof import('./src/components/ui/DataTableWrapper.vue')['default']
     ElAlert: typeof import('element-plus/es')['ElAlert']
     ElButton: typeof import('element-plus/es')['ElButton']
     ElDialog: typeof import('element-plus/es')['ElDialog']
@@ -33,7 +37,9 @@ declare module 'vue' {
     EmptyState: typeof import('./src/components/ui/EmptyState.vue')['default']
     ErrorAlert: typeof import('./src/components/ui/ErrorAlert.vue')['default']
     LoadingSpinner: typeof import('./src/components/ui/LoadingSpinner.vue')['default']
+    PageHeader: typeof import('./src/components/ui/PageHeader.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    SidebarMenuItem: typeof import('./src/components/layouts/SidebarMenuItem.vue')['default']
   }
 }

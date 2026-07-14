@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import AppHeader from "@/components/layouts/AppHeader.vue"
-import AppSidebar from "@/components/layouts/AppSidebar.vue"
+import { defineAsyncComponent } from 'vue'
+const AppHeader = defineAsyncComponent(() => import('@/components/layouts/AppHeader.vue'))
+const AppSidebar = defineAsyncComponent(() => import('@/components/layouts/AppSidebar.vue'))
 </script>
 <template>
   <div class="flex h-screen bg-slate-100 overflow-hidden font-sans antialiased text-slate-900">
@@ -11,13 +12,9 @@ import AppSidebar from "@/components/layouts/AppSidebar.vue"
       <!-- Top Header -->
       <AppHeader />
       <!-- Page Content -->
-      <main class="flex-1 overflow-y-auto overflow-x-hidden relative focus:outline-none hide-scrollbar">
-        <div class="p-6 md:p-8">
-          <router-view />
-        </div>
+      <main class="flex-1 overflow-y-auto overflow-x-hidden focus:outline-none hide-scrollbar">
+        <router-view :key="$route.fullPath" />
       </main>
     </div>
   </div>
 </template>
-<style scoped>
-</style>

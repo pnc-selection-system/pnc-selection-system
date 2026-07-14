@@ -1,64 +1,64 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useSlots } from 'vue'
+import BaseButton from '@/components/base/BaseButton.vue'
 
-const props = defineProps({
-  modelValue: { type: Boolean, default: false },
-  title: { type: String, default: 'Confirm' },
-  message: { type: String, default: 'Are you sure?' },
-  confirmText: { type: String, default: 'Confirm' },
-  cancelText: { type: String, default: 'Cancel' },
-  loading: { type: Boolean, default: false },
-})
+const props = defineProps<{
+  modelValue?: boolean
+  title: string
+  message: string
+  confirmText?: string
+  cancelText?: string
+  loading?: boolean
+}>()
 
-const emit = defineEmits(['update:modelValue', 'confirm', 'cancel'])
-
-function onConfirm() {
-  emit('confirm')
-}
+const emit = defineEmits<{
+  confirm: []
+  cancel: []
+  'update:modelValue': [value: boolean]
+}>()
 
 function onCancel() {
+  if (props.loading) return
   emit('cancel')
   emit('update:modelValue', false)
 }
 
-const hasDefaultSlot = computed(() => !!useSlots().default)
+function onConfirm() {
+  if (props.loading) return
+  emit('confirm')
+}
 </script>
 
 <template>
-  <el-dialog
-    :model-value="props.modelValue"
-    :title="props.title"
+  <ElDialog
+    :model-value="modelValue"
+    :title="title"
     width="420px"
-    @update:model-value="(value: any) => emit('update:modelValue', value)"
-    :close-on-click-modal="!props.loading"
-    :close-on-press-escape="!props.loading"
-    :destroy-on-close="false"
+    :close-on-click-modal="!loading"
+    :close-on-press-escape="!loading"
+    :show-close="!loading"
+    append-to-body
+    destroy-on-close
+    @update:model-value="(v: boolean) => { if (!v) onCancel() }"
   >
-    <div class="text-sm text-slate-600">
-      <template v-if="hasDefaultSlot">
-        <slot />
-      </template>
-      <template v-else>
-        {{ props.message }}
-      </template>
-    </div>
-
+    <p class="text-sm text-gray-600 leading-relaxed">{{ message }}</p>
     <template #footer>
       <div class="flex justify-end gap-3">
-        <el-button size="small" @click="onCancel" :disabled="props.loading">
-          {{ props.cancelText }}
-        </el-button>
-        <el-button type="primary" size="small" @click="onConfirm" :loading="props.loading">
-          {{ props.confirmText }}
-        </el-button>
+        <BaseButton
+          variant="secondary"
+          :disabled="loading"
+          @click="onCancel"
+        >
+          {{ cancelText || 'Cancel' }}
+        </BaseButton>
+        <BaseButton
+          variant="danger"
+          :loading="loading"
+          :disabled="loading"
+          @click="onConfirm"
+        >
+          {{ loading ? confirmText || 'Processing...' : (confirmText || 'Confirm') }}
+        </BaseButton>
       </div>
     </template>
-  </el-dialog>
+  </ElDialog>
 </template>
-
-<style scoped>
-.el-dialog__body {
-  padding-top: 0;
-}
-</style>

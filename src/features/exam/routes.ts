@@ -1,15 +1,14 @@
 import type { RouteRecordRaw } from 'vue-router'
-import AdminLayout from '@/layouts/AdminLayout.vue'
 
 const routes: RouteRecordRaw[] = [
   {
     path: '/exams',
-    component: AdminLayout,
+    component: () => import('@/layouts/AppLayout.vue'),
     children: [
       {
         path: '',
         name: 'exam-configuration',
-        component: () => import('./ExamConfigurationPage.vue'),
+        component: () => import('./view/ExamConfigurationPage.vue'),
       },
     ],
   },

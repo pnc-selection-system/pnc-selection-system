@@ -2,8 +2,7 @@
 import { computed } from 'vue'
 import type { Campaign } from '../types'
 import { useCampaigns } from '../composables/useCampaigns'
-import BaseModal from '@/components/base/BaseModal.vue'
-import BaseButton from '@/components/base/BaseButton.vue'
+import ConfirmDialog from '@/components/ui/ConfirmDialog.vue'
 
 const props = defineProps<{
   campaign: Campaign | null
@@ -13,63 +12,29 @@ const emit = defineEmits<{
   close: []
 }>()
 
-const { deleteCampaign } = useCampaigns()
+const { deleteCampaign, deleting } = useCampaigns()
 
 const visible = computed(() => !!props.campaign)
+const message = computed(() =>
+  props.campaign ? `Are you sure you want to delete "${props.campaign.name}"? This action cannot be undone.` : ''
+)
 
-function handleDelete(id: string) {
-  deleteCampaign(id)
-  emit('close')
-}
-
-function closeModal() {
+async function handleDelete() {
+  if (!props.campaign) return
+  await deleteCampaign(props.campaign.id)
   emit('close')
 }
 </script>
 
 <template>
-  <BaseModal
+  <ConfirmDialog
     :model-value="visible"
-    width="440px"
-    destroy-on-close
-    @update:model-value="closeModal"
-  >
-    <div class="py-2 text-center">
-      <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-red-50">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-        </svg>
-      </div>
-      <h3 class="mb-2 text-lg font-bold text-slate-900">Delete Campaign</h3>
-      <p v-if="campaign" class="text-sm leading-relaxed text-slate-500">
-        Are you sure you want to delete the campaign
-        <strong class="text-slate-900">"{{ campaign.name }}"</strong>?
-        This action cannot be undone.
-      </p>
-    </div>
-
-    <template #footer>
-      <div class="flex items-center justify-center gap-3">
-        <BaseButton
-          variant="secondary"
-          class="!w-auto !rounded-lg !px-4 !py-2"
-          @click="closeModal"
-        >
-          Cancel
-        </BaseButton>
-        <BaseButton
-          v-if="campaign"
-          variant="primary"
-          class="!w-auto !rounded-lg !bg-red-600 !border-red-600 hover:!bg-red-700 !px-4 !py-2"
-          autofocus
-          @click="handleDelete(campaign.id)"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2" />
-          </svg>
-          Delete
-        </BaseButton>
-      </div>
-    </template>
-  </BaseModal>
+    title="Delete Campaign"
+    :message="message"
+    confirmText="Delete"
+    :loading="deleting"
+    @confirm="handleDelete"
+    @cancel="emit('close')"
+    @update:model-value="(v) => { if (!v) emit('close') }"
+  />
 </template>
