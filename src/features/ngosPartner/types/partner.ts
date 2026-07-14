@@ -1,19 +1,51 @@
-export type PartnerStatus = 'Active' | 'Inactive'
+export type NgoPartnerStatus = 'Active' | 'Inactive'
 
-export interface ContactPerson {
-  id: string
+export interface NgoPartner {
+  id: number
   name: string
-  role: string
-  phone?: string
-  email?: string
+  type: string
+  address: string
+  phone: string
+  email: string
+  active: boolean
+  status: NgoPartnerStatus
+  created_at: string
+  updated_at: string
 }
 
-export interface Partner {
-  id: string
-  organisation: string
-  candidateCount: number
-  status: PartnerStatus
-  contacts: ContactPerson[]
+export interface ContactPerson {
+  id: number
+  ngo_partner_id: number
+  full_name: string
+  email: string
+  phone: string
+  role: string | null
+  created_at: string
+  updated_at: string
+  ngo_partner?: NgoPartner
+}
+
+export interface NgoPartnerFormData {
+  name: string
+  type?: string
+  address?: string
+  phone?: string
+  email?: string
+  active?: boolean
+  status?: NgoPartnerStatus
+}
+
+export interface ContactPersonFormData {
+  full_name: string
+  email?: string
+  phone?: string
+  role?: string
+}
+
+export interface ApiResponse<T> {
+  success: boolean
+  message: string
+  data: T
 }
 
 export interface PageMeta {

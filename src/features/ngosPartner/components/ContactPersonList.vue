@@ -37,7 +37,8 @@ const emit = defineEmits<{
         <tr class="border-b border-slate-100 bg-slate-50/30">
           <th class="px-4 py-2 text-left font-mono text-[9px] uppercase tracking-[0.1em] text-slate-400">Name</th>
           <th class="px-4 py-2 text-left font-mono text-[9px] uppercase tracking-[0.1em] text-slate-400">Role</th>
-          <th class="px-4 py-2 text-right font-mono text-[9px] uppercase tracking-[0.1em] text-slate-400">Contact</th>
+          <th class="px-4 py-2 text-left font-mono text-[9px] uppercase tracking-[0.1em] text-slate-400">Phone</th>
+          <th class="px-4 py-2 text-left font-mono text-[9px] uppercase tracking-[0.1em] text-slate-400">Email</th>
         </tr>
       </thead>
       <tbody>
@@ -46,11 +47,10 @@ const emit = defineEmits<{
           :key="contact.id"
           class="border-b border-slate-50 last:border-0 transition-colors hover:bg-slate-50/80"
         >
-          <td class="px-4 py-2.5 text-[#2D3748] text-[13px]">{{ contact.name }}</td>
-          <td class="px-4 py-2.5 text-slate-500 text-[12px]">{{ contact.role }}</td>
-          <td class="px-4 py-2.5 text-right text-slate-500 tabular-nums tracking-wide text-[12px]">
-            {{ contact.phone || contact.email }}
-          </td>
+          <td class="px-4 py-2.5 text-[#2D3748] text-[13px]">{{ contact.full_name }}</td>
+          <td class="px-4 py-2.5 text-slate-500 text-[12px]">{{ contact.role || '-' }}</td>
+          <td class="px-4 py-2.5 text-slate-500 text-[12px]">{{ contact.phone || '-' }}</td>
+          <td class="px-4 py-2.5 text-slate-500 text-[12px]">{{ contact.email || '-' }}</td>
         </tr>
       </tbody>
     </table>

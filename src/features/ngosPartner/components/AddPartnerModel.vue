@@ -1,39 +1,57 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { reactive, ref, watch } from 'vue'
 import BaseModal from '../../../components/base/BaseModal.vue'
 import BaseInput from '../../../components/base/BaseInput.vue'
 import BaseButton from '../../../components/base/BaseButton.vue'
+import type { NgoPartnerFormData } from '../types/partner'
 
 const props = defineProps<{
   open: boolean
+  apiError?: string | null
 }>()
 
 const emit = defineEmits<{
   'update:open': [value: boolean]
-  submit: [organisation: string]
-  error: [message: string]
+  submit: [formData: NgoPartnerFormData]
 }>()
 
-const organisation = ref('')
-const error = ref('')
+const form = reactive({
+  name: '',
+  type: '',
+  address: '',
+  phone: '',
+  email: '',
+})
+const validationError = ref('')
 
 watch(
   () => props.open,
   (isOpen) => {
     if (isOpen) {
-      organisation.value = ''
-      error.value = ''
+      form.name = ''
+      form.type = ''
+      form.address = ''
+      form.phone = ''
+      form.email = ''
+      validationError.value = ''
     }
   },
 )
 
 async function handleSubmit() {
-  if (!organisation.value.trim()) {
-    error.value = 'Organisation name is required'
+  if (!form.name.trim()) {
+    validationError.value = 'Organisation name is required'
     return
   }
   
-  emit('submit', organisation.value.trim())
+  validationError.value = ''
+  emit('submit', {
+    name: form.name.trim(),
+    type: form.type.trim() || undefined,
+    address: form.address.trim() || undefined,
+    phone: form.phone.trim() || undefined,
+    email: form.email.trim() || undefined,
+  })
 }
 </script>
 
@@ -57,18 +75,53 @@ async function handleSubmit() {
         </div>
       </div>
 
+      <!-- Server error banner -->
+      <div
+        v-if="apiError"
+        class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-[13px] text-red-700"
+      >
+        {{ apiError }}
+      </div>
+
       <!-- Form card -->
-      <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-5">
+      <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-5 space-y-5">
+        <div class="grid grid-cols-2 gap-4">
+          <BaseInput
+            v-model="form.name"
+            label="Organisation name"
+            placeholder="e.g. Future Light NGO"
+            required
+            :error="validationError"
+          />
+          <BaseInput
+            v-model="form.type"
+            label="Type"
+            placeholder="e.g. Environmental, Education"
+          />
+        </div>
+
         <BaseInput
-          v-model="organisation"
-          label="Organisation name"
-          placeholder="e.g. Future Light NGO"
-          required
-          :error="error"
-          @keyup.enter="handleSubmit"
+          v-model="form.address"
+          label="Address"
+          placeholder="123 Street, City"
         />
 
-        <div class="mt-4 flex items-start gap-2 rounded-lg border border-blue-100 bg-blue-50/60 px-3.5 py-2.5">
+        <div class="grid grid-cols-2 gap-4">
+          <BaseInput
+            v-model="form.phone"
+            label="Phone"
+            placeholder="+855 12 345 678"
+          />
+          <BaseInput
+            v-model="form.email"
+            label="Email"
+            type="email"
+            placeholder="contact@organisation.org"
+            @keyup.enter="handleSubmit"
+          />
+        </div>
+
+        <div class="flex items-start gap-2 rounded-lg border border-blue-100 bg-blue-50/60 px-3.5 py-2.5">
           <svg class="mt-0.5 h-4 w-4 shrink-0 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
           </svg>

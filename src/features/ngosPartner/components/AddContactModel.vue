@@ -3,41 +3,43 @@ import { reactive, ref, watch } from 'vue'
 import BaseModal from '../../../components/base/BaseModal.vue'
 import BaseInput from '../../../components/base/BaseInput.vue'
 import BaseButton from '../../../components/base/BaseButton.vue'
-import type { ContactPerson } from '../types/partner'
+import type { ContactPersonFormData } from '../types/partner'
 
 const props = defineProps<{
   open: boolean
+  apiError?: string | null
 }>()
 
 const emit = defineEmits<{
   'update:open': [value: boolean]
-  submit: [contact: Omit<ContactPerson, 'id'>]
+  submit: [contact: ContactPersonFormData]
 }>()
 
-const form = reactive({ name: '', role: '', phone: '', email: '' })
-const error = ref('')
+const form = reactive({ full_name: '', role: '', phone: '', email: '' })
+const validationError = ref('')
 
 watch(
   () => props.open,
   (isOpen) => {
     if (isOpen) {
-      form.name = ''
+      form.full_name = ''
       form.role = ''
       form.phone = ''
       form.email = ''
-      error.value = ''
+      validationError.value = ''
     }
   },
 )
 
 function handleSubmit() {
-  if (!form.name.trim() || !form.role.trim()) {
-    error.value = 'Name and role are required'
+  if (!form.full_name.trim()) {
+    validationError.value = 'Full name is required'
     return
   }
+  validationError.value = ''
   emit('submit', {
-    name: form.name.trim(),
-    role: form.role.trim(),
+    full_name: form.full_name.trim(),
+    role: form.role.trim() || undefined,
     phone: form.phone.trim() || undefined,
     email: form.email.trim() || undefined,
   })
@@ -64,15 +66,23 @@ function handleSubmit() {
         </div>
       </div>
 
+      <!-- Server error banner -->
+      <div
+        v-if="apiError"
+        class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-[13px] text-red-700"
+      >
+        {{ apiError }}
+      </div>
+
       <!-- Form card -->
       <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-5 space-y-5">
         <div class="grid grid-cols-2 gap-4">
           <BaseInput
-            v-model="form.name"
+            v-model="form.full_name"
             label="Full name"
             placeholder="e.g. Sopheak Lim"
             required
-            :error="error"
+            :error="validationError"
           />
           <BaseInput v-model="form.role" label="Role / title" placeholder="e.g. Director" />
         </div>

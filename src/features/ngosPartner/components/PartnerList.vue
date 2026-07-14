@@ -1,21 +1,16 @@
 <script setup lang="ts">
 import BaseButton from '../../../components/base/BaseButton.vue'
-import DataTableWrapper from '@/components/ui/DataTableWrapper.vue'
-import type { Partner } from '../types/partner'
+import type { NgoPartner } from '../types/partner'
 
 defineProps<{
-  partners: Partner[]
-  selectedId?: string | null
+  partners: NgoPartner[]
+  selectedId?: number | null
 }>()
 
 const emit = defineEmits<{
-  select: [partner: Partner]
+  select: [partner: NgoPartner]
   add: []
 }>()
-
-function onCurrentChange(row: Partner | null) {
-  if (row) emit('select', row)
-}
 </script>
 
 <template>
@@ -45,7 +40,10 @@ function onCurrentChange(row: Partner | null) {
             Organisation
           </th>
           <th class="px-4 py-2 text-left font-mono text-[9px] uppercase tracking-[0.1em] text-slate-400">
-            Candidates
+            Type
+          </th>
+          <th class="px-4 py-2 text-left font-mono text-[9px] uppercase tracking-[0.1em] text-slate-400">
+            Status
           </th>
         </tr>
       </thead>
@@ -62,10 +60,22 @@ function onCurrentChange(row: Partner | null) {
           @click="emit('select', partner)"
         >
           <td class="px-4 py-2.5 text-[#2D3748] text-[13px] transition-colors group-hover:text-blue-600">
-            {{ partner.organisation }}
+            {{ partner.name }}
           </td>
           <td class="px-4 py-2.5 text-slate-500 text-[12px]">
-            {{ partner.candidateCount }}
+            {{ partner.type }}
+          </td>
+          <td class="px-4 py-2.5">
+            <span
+              class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium"
+              :class="partner.status === 'Active' ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500'"
+            >
+              <span
+                class="h-1.5 w-1.5 rounded-full"
+                :class="partner.status === 'Active' ? 'bg-emerald-500' : 'bg-slate-400'"
+              />
+              {{ partner.status }}
+            </span>
           </td>
         </tr>
       </tbody>
