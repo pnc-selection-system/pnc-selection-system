@@ -144,7 +144,7 @@ function closeModal() {
   <BaseModal
     :model-value="visible"
     :title="isEditing ? 'Edit Subject' : 'Add New Subject'"
-    width="480px"
+    width="560px"
     destroy-on-close
     @update:model-value="closeModal"
   >
@@ -152,8 +152,8 @@ function closeModal() {
       <div class="space-y-5">
         <!-- Subject Name -->
         <div>
-          <label for="subjectName" class="mb-1.5 block text-sm font-medium text-slate-700">
-            Subject Name <span class="text-rose-500">*</span>
+          <label for="subjectName" class="mb-2 block text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400">
+            Subject Name <span class="text-red-500">*</span>
           </label>
           <div class="relative">
             <input
@@ -161,12 +161,12 @@ function closeModal() {
               v-model="form.name"
               type="text"
               :class="[
-                'w-full rounded-lg border px-3 py-2.5 text-sm outline-none transition placeholder:text-slate-400',
+                'w-full rounded border px-3 py-2 text-sm text-slate-700 outline-none transition placeholder:text-slate-400',
                 errors.name
-                  ? 'border-rose-300 bg-rose-50/30 focus:border-rose-400 focus:ring-1 focus:ring-rose-100'
+                  ? 'border-red-300 bg-red-50/30 focus:border-red-400 focus:ring-2 focus:ring-red-100'
                   : nameStatus === 'duplicate'
-                    ? 'border-amber-300 bg-amber-50/30 focus:border-amber-400 focus:ring-1 focus:ring-amber-100'
-                    : 'border-slate-200 focus:border-blue-400 focus:ring-1 focus:ring-blue-100',
+                    ? 'border-amber-300 bg-amber-50/30 focus:border-amber-400 focus:ring-2 focus:ring-amber-100'
+                    : 'border-slate-300 focus:border-blue-400 focus:ring-2 focus:ring-blue-100',
               ]"
               placeholder="e.g., Mathematics, Physics"
               maxlength="50"
@@ -210,15 +210,15 @@ function closeModal() {
               </svg>
             </div>
           </div>
-          <p v-if="errors.name" class="mt-1.5 text-xs text-rose-500">{{ errors.name }}</p>
-          <p v-else-if="nameStatusMessage" class="mt-1.5 text-xs text-amber-600">{{ nameStatusMessage }}</p>
+          <p v-if="errors.name" class="mt-1 text-xs text-red-500">{{ errors.name }}</p>
+          <p v-else-if="nameStatusMessage" class="mt-1 text-xs text-amber-600">{{ nameStatusMessage }}</p>
           <p v-else class="mt-1 text-xs text-slate-400">Only letters, spaces, hyphens and underscores (no numbers)</p>
         </div>
 
         <!-- Max Score -->
         <div>
-          <label for="maxScore" class="mb-1.5 block text-sm font-medium text-slate-700">
-            Max Score <span class="text-rose-500">*</span>
+          <label for="maxScore" class="mb-2 block text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400">
+            Max Score <span class="text-red-500">*</span>
           </label>
           <input
             id="maxScore"
@@ -227,20 +227,20 @@ function closeModal() {
             min="1"
             max="1000"
             :class="[
-              'w-full rounded-lg border px-3 py-2.5 text-sm outline-none transition',
+              'w-full rounded border px-3 py-2 text-sm text-slate-700 outline-none transition',
               errors.maxScore
-                ? 'border-rose-300 focus:border-rose-400 focus:ring-1 focus:ring-rose-100'
-                : 'border-slate-200 focus:border-blue-400 focus:ring-1 focus:ring-blue-100',
+                ? 'border-red-300 focus:border-red-400 focus:ring-2 focus:ring-red-100'
+                : 'border-slate-300 focus:border-blue-400 focus:ring-2 focus:ring-blue-100',
             ]"
             placeholder="100"
           />
-          <p v-if="errors.maxScore" class="mt-1.5 text-xs text-rose-500">{{ errors.maxScore }}</p>
+          <p v-if="errors.maxScore" class="mt-1 text-xs text-red-500">{{ errors.maxScore }}</p>
         </div>
 
         <!-- Weight -->
         <div>
-          <label for="weight" class="mb-1.5 block text-sm font-medium text-slate-700">
-            Weight <span class="text-rose-500">*</span>
+          <label for="weight" class="mb-2 block text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400">
+            Weight <span class="text-red-500">*</span>
           </label>
           <div class="relative">
             <input
@@ -250,27 +250,27 @@ function closeModal() {
               min="0"
               max="100"
               :class="[
-                'w-full rounded-lg border px-3 py-2.5 pr-8 text-sm outline-none transition',
+                'w-full rounded border px-3 py-2 pr-8 text-sm text-slate-700 outline-none transition',
                 errors.weight
-                  ? 'border-rose-300 focus:border-rose-400 focus:ring-1 focus:ring-rose-100'
-                  : 'border-slate-200 focus:border-blue-400 focus:ring-1 focus:ring-blue-100',
+                  ? 'border-red-300 focus:border-red-400 focus:ring-2 focus:ring-red-100'
+                  : 'border-slate-300 focus:border-blue-400 focus:ring-2 focus:ring-blue-100',
               ]"
               placeholder="0"
             />
             <span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-400">%</span>
           </div>
-          <p v-if="errors.weight" class="mt-1.5 text-xs text-rose-500">{{ errors.weight }}</p>
+          <p v-if="errors.weight" class="mt-1 text-xs text-red-500">{{ errors.weight }}</p>
         </div>
 
         <!-- Deduction Rule -->
         <div>
-          <label for="deductionRule" class="mb-1.5 block text-sm font-medium text-slate-700">
+          <label for="deductionRule" class="mb-2 block text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400">
             Deduction Rule
           </label>
           <select
             id="deductionRule"
             v-model="form.deductionRule"
-            class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none transition focus:border-blue-400 focus:ring-1 focus:ring-blue-100"
+            class="w-full rounded border border-slate-300 px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
           >
             <option value="none">None</option>
             <option value="-0.25 / wrong">-0.25 per wrong answer</option>
@@ -282,17 +282,15 @@ function closeModal() {
     </form>
 
     <template #footer>
-      <div class="flex items-center justify-end gap-2">
+      <div class="flex items-center justify-end gap-3">
         <BaseButton
           variant="secondary"
-          class="!w-auto !rounded-lg !px-4 !py-2 !text-sm"
           @click="closeModal"
         >
           Cancel
         </BaseButton>
         <BaseButton
           variant="primary"
-          class="!w-auto !rounded-lg !px-4 !py-2 !text-sm"
           :disabled="nameStatus === 'duplicate' || nameStatus === 'invalid'"
           @click="saveSubject"
         >

@@ -19,7 +19,7 @@ function onCurrentChange(row: Partner | null) {
 </script>
 
 <template>
-  <div class="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden h-full">
+  <div class="rounded border border-slate-200 bg-white shadow-sm overflow-hidden h-full">
     <div class="border-b border-slate-100 px-4 py-2">
       <h2 class="font-mono text-[9px] uppercase tracking-[0.1em] text-slate-400">
         Partners

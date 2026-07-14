@@ -2,6 +2,7 @@
 import { ref, computed, watch } from 'vue'
 import { useExamConfig, defaultExamConfig } from '../service/useExamConfig'
 import { useSubjects } from '../service/useSubjects'
+import BaseButton from '@/components/base/BaseButton.vue'
 
 const { config, isSaving, lastSavedFormatted, saveConfiguration, resetConfiguration, validateConfiguration } = useExamConfig()
 const { isValidWeight } = useSubjects()
@@ -94,7 +95,7 @@ function resetConfig() {
 </script>
 
 <template>
-  <div class="rounded-xl bg-white shadow-sm ring-1 ring-slate-200/60">
+  <div class="rounded bg-white shadow-sm ring-1 ring-slate-200/60">
     <!-- Header -->
     <div class="flex items-center justify-between border-b border-slate-100 px-6 py-4">
       <div>
@@ -108,17 +109,17 @@ function resetConfig() {
 
     <!-- Table -->
     <div class="overflow-hidden">
-      <table class="min-w-full text-left text-sm">
+      <table class="min-w-full table-fixed text-left text-sm">
         <thead>
-          <tr class="border-b border-slate-100 bg-slate-50/80">
-            <th class="px-6 py-3 text-[11px] font-medium uppercase tracking-wider text-slate-400">Setting</th>
-            <th class="px-6 py-3 text-[11px] font-medium uppercase tracking-wider text-slate-400">Value</th>
+          <tr class="border-b border-slate-100 bg-slate-50">
+            <th class="w-[35%] px-4 py-2.5 text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400">Setting</th>
+            <th class="w-[65%] px-4 py-2.5 text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400">Value</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-slate-100">
-          <tr>
-            <td class="px-6 py-3.5 text-sm text-slate-700">Overall Pass Mark</td>
-            <td class="px-6 py-3.5">
+        <tbody>
+          <tr class="border-b border-slate-100 transition-colors duration-150 hover:bg-blue-50/30">
+            <td class="px-4 py-2 text-xs text-slate-600">Overall Pass Mark</td>
+            <td class="px-4 py-2">
               <div class="inline-flex items-center">
                 <input
                   v-model.number="overallPassMark"
@@ -137,9 +138,9 @@ function resetConfig() {
               <p v-if="errors.overallPassMark" class="mt-1 text-xs text-rose-500">{{ errors.overallPassMark }}</p>
             </td>
           </tr>
-          <tr>
-            <td class="px-6 py-3.5 text-sm text-slate-700">Per-Subject Minimum</td>
-            <td class="px-6 py-3.5">
+          <tr class="border-b border-slate-100 transition-colors duration-150 hover:bg-blue-50/30">
+            <td class="px-4 py-2 text-xs text-slate-600">Per-Subject Minimum</td>
+            <td class="px-4 py-2">
               <div class="inline-flex items-center">
                 <input
                   v-model.number="perSubjectMin"
@@ -158,9 +159,9 @@ function resetConfig() {
               <p v-if="errors.perSubjectMin" class="mt-1 text-xs text-rose-500">{{ errors.perSubjectMin }}</p>
             </td>
           </tr>
-          <tr>
-            <td class="px-6 py-3.5 text-sm text-slate-700">Must Pass Every Subject</td>
-            <td class="px-6 py-3.5">
+          <tr class="border-b-0 transition-colors duration-150 hover:bg-blue-50/30">
+            <td class="px-4 py-2 text-xs text-slate-600">Must Pass Every Subject</td>
+            <td class="px-4 py-2">
               <input
                 v-model="mustPassEverySubject"
                 type="checkbox"
@@ -227,31 +228,20 @@ function resetConfig() {
 
     <!-- Footer -->
     <div class="flex items-center justify-between border-t border-slate-100 px-6 py-4">
-      <button
+      <BaseButton
         @click="resetConfig"
-        class="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50 hover:border-slate-300"
+        variant="secondary"
       >
         Reset to Default
-      </button>
-      <button
+      </BaseButton>
+      <BaseButton
         @click="saveConfig"
         :disabled="isSaving"
-        :class="[
-          'rounded-lg px-6 py-2.5 text-sm font-medium text-white transition',
-          isSaving
-            ? 'cursor-not-allowed bg-slate-400'
-            : 'bg-[#3b4a5c] hover:bg-[#2d3a48]',
-        ]"
+        :loading="isSaving"
+        variant="primary"
       >
-        <span v-if="isSaving" class="flex items-center gap-2">
-          <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-          </svg>
-          Saving...
-        </span>
-        <span v-else>Save Configuration</span>
-      </button>
+        Save Configuration
+      </BaseButton>
     </div>
   </div>
 </template>
