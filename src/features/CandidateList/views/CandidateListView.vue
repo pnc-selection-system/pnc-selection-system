@@ -22,13 +22,11 @@
 
     <!-- Modals -->
     <CandidateFormModal
-      :visible="showFormModal"
-      @close="showFormModal = false"
+      v-model="showFormModal"
       @save="handleSaveCandidate"
     />
     <BulkImportModal
-      :visible="showImportModal"
-      @close="showImportModal = false"
+      v-model="showImportModal"
       @import="handleImportCandidates"
     />
   </div>

@@ -37,8 +37,8 @@ export const useAuthStore = defineStore('auth', () => {
 
       return response
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Invalid email or password'
-      error.value = message
+      const rawMessage = err instanceof Error ? err.message : 'Invalid email or password'
+      error.value = rawMessage.replace(/[\n\r\t]/g, ' ')
       throw err
     } finally {
       loading.value = false

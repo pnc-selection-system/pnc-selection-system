@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+
 export interface SelectOption {
   value: string | number
   label: string
@@ -21,7 +23,7 @@ const emit = defineEmits<{
   (e: 'change', value: string | number): void
 }>()
 
-function normalizedOptions(): SelectOption[] {
+const normalizedOptions = computed<SelectOption[]>(() => {
   if (!props.options) return []
   return props.options.map((opt) => {
     if (typeof opt === 'string') {
@@ -29,7 +31,7 @@ function normalizedOptions(): SelectOption[] {
     }
     return opt
   })
-}
+})
 
 function handleChange(value: string | number) {
   emit('update:modelValue', value)
@@ -51,7 +53,7 @@ function handleChange(value: string | number) {
         @update:model-value="handleChange"
       >
         <el-option
-          v-for="opt in normalizedOptions()"
+          v-for="opt in normalizedOptions"
           :key="opt.value"
           :value="opt.value"
           :label="opt.label"

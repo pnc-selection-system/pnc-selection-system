@@ -1,85 +1,90 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, ref, watch, onMounted } from 'vue'
 import SessionFilters from '../components/SessionFilters.vue'
 import SessionTable from '../components/SessionTable.vue'
 import SessionFormPanel from '../components/SessionFormPanel.vue'
-import { fetchFilterOptions, fetchPageMeta, fetchSessions, saveSession } from '../service/service'
-import { EMPTY_SESSION_FORM, type PageMeta, type Session, type SessionFormData } from '../types/session'
-import { DEFAULT_SESSION_FILTERS, type SessionFilterOptions, type SessionFilters as Filters } from '../types/filter'
-import { fetchCampaigns } from '@/features/campaign/services/campaign'
-import { CampaignStatus } from '@/enums'
+import { useInfoSessions } from '../composables/useInfoSessions'
+import { EMPTY_SESSION_FORM, type Session, type SessionFormData } from '../types/session'
+import BasePagination from '@/components/base/BasePagination.vue'
+import BaseModal from '@/components/base/BaseModal.vue'
+import { ElMessage } from 'element-plus'
 
-const meta = ref<PageMeta>(fetchPageMeta())
-const filters = ref<Filters>({ ...DEFAULT_SESSION_FILTERS })
-const filterOptions = ref<SessionFilterOptions>(fetchFilterOptions())
-const sessions = ref<Session[]>(fetchSessions(filters.value))
+const {
+  sessions,
+  campaigns,
+  filterOptions,
+  filters,
+  currentPage,
+  total,
+  isLoading,
+  bootstrap,
+  setPage,
+  applyFilters,
+  createSession,
+  updateSession,
+  getActiveCampaignId,
+} = useInfoSessions()
+
+onMounted(() => bootstrap())
+
 const isFormOpen = ref(false)
-const activeCampaignYear = ref('')
+const isSaving = ref(false)
 
 function emptyForm(): SessionFormData {
-  return {
-    ...EMPTY_SESSION_FORM,
-    campaign: activeCampaignYear.value || String(new Date().getFullYear()),
-  }
+  return { ...EMPTY_SESSION_FORM, campaign_id: getActiveCampaignId() }
 }
 
 const form = ref<SessionFormData>(emptyForm())
-
-// Fetch the active campaign year and all campaign years on mount
-async function loadCampaignData() {
-  try {
-    const campaigns = await fetchCampaigns()
-    // Set available campaign years (sorted descending)
-    const years = [...new Set(campaigns.map(c => String(c.year)))].sort().reverse()
-    filterOptions.value = { ...filterOptions.value, campaignYears: years }
-    // Find active campaign's year
-    const active = campaigns.find(c => c.status === CampaignStatus.Active)
-    if (active) {
-      activeCampaignYear.value = String(active.year)
-    }
-  } catch {
-    // Fallback to current year
-    const thisYear = String(new Date().getFullYear())
-    activeCampaignYear.value = thisYear
-    filterOptions.value = { ...filterOptions.value, campaignYears: [thisYear] }
-  }
-}
-loadCampaignData()
-
-function loadSessions() {
-  sessions.value = fetchSessions(filters.value)
-}
-
-function selectSession(session: Session) {
-  form.value = {
-    id: session.id,
-    date: session.date,
-    province: session.province,
-    school: session.school,
-    attendanceCount: session.attendance,
-    campaign: activeCampaignYear.value || String(new Date().getFullYear()),
-    participantList: '',
-  }
-  isFormOpen.value = true
-}
 
 function startNewSession() {
   form.value = emptyForm()
   isFormOpen.value = true
 }
 
-function viewCandidates(_session: Session) {
-  void _session
-  // Hook this up to router navigation, e.g.:
-  // router.push({ name: 'candidates', query: { sessionId: session.id } })
-  
+function handleEdit(session: Session) {
+  const dateOnly = session.session_date?.split('T')[0] ?? ''
+  let timeValue = session.session_time ?? ''
+  if (timeValue) {
+    timeValue = timeValue.split(':').slice(0, 2).join(':')
+    const [hours, minutes] = timeValue.split(':')
+    timeValue = `${hours.padStart(2, '0')}:${minutes}`
+  }
+  form.value = {
+    id: session.id,
+    date: dateOnly,
+    time: timeValue,
+    province_id: session.province_id ?? null,
+    district_id: session.district_id ?? null,
+    commune_id: session.commune_id ?? null,
+    village_id: session.village_id,
+    school: session.school_name,
+    attendanceCount: session.attendance_count ?? 0,
+    expectedAttendance: session.expected_attendance,
+    partnerType: (session.partner_type as 'NGO' | 'Officer' | '') ?? '',
+    ngoName: session.ngo_name ?? '',
+    hostBy: session.hosts?.[0]?.host_name ?? '',
+    campaign_id: session.campaign_id,
+  }
+  isFormOpen.value = true
 }
 
 async function handleSave() {
-  await saveSession(form.value)
-  form.value = emptyForm()
-  isFormOpen.value = false
-  loadSessions()
+  if (isSaving.value) return
+  isSaving.value = true
+  try {
+    if (form.value.id) {
+      await updateSession(form.value)
+    } else {
+      await createSession(form.value)
+    }
+    ElMessage.success('Session saved successfully')
+    form.value = emptyForm()
+    isFormOpen.value = false
+  } catch (err: any) {
+    ElMessage.error(err?.response?.data?.message || err?.message || 'Failed to save session')
+  } finally {
+    isSaving.value = false
+  }
 }
 
 function handleCancel() {
@@ -87,40 +92,59 @@ function handleCancel() {
   isFormOpen.value = false
 }
 
-watch(filters, loadSessions, { deep: true })
+function viewCandidates(_session: Session) { void _session }
+
+const modalTitle = computed(() =>
+  form.value.id ? 'Edit Information Session' : 'New Information Session'
+)
+
+let filterDebounce: ReturnType<typeof setTimeout>
+watch(filters, () => {
+  clearTimeout(filterDebounce)
+  filterDebounce = setTimeout(() => applyFilters(), 300)
+}, { deep: true })
 </script>
+
 <template>
   <div class="px-6 py-6">
     <div class="mx-auto max-w-[1200px] space-y-4">
-      <PageHeader
-        :breadcrumb="meta?.breadcrumb.join(' / ') || 'Outreach'"
-        :title="meta?.title || 'Information sessions'"
-      />
+      <PageHeader breadcrumb="OUTREACH / INFORMATION SESSIONS" title="Information sessions" />
+
       <SessionFilters v-model="filters" :options="filterOptions" @new="startNewSession" />
-      <div class="grid grid-cols-1 gap-4 transition-all duration-300" :class="isFormOpen ? 'lg:grid-cols-[1fr_420px]' : 'lg:grid-cols-1'">
+
+      <div class="flex flex-col gap-0">
         <SessionTable
           :sessions="sessions"
+          :loading="isLoading"
           :selected-id="form.id"
-          @select="selectSession"
+          @select="handleEdit"
+          @edit="handleEdit"
           @view-candidates="viewCandidates"
         />
-        <transition
-          enter-active-class="transition duration-300 ease-out"
-          enter-from-class="transform translate-x-10 opacity-0"
-          enter-to-class="transform translate-x-0 opacity-100"
-          leave-active-class="transition duration-200 ease-in"
-          leave-from-class="transform translate-x-0 opacity-100"
-          leave-to-class="transform translate-x-10 opacity-0"
-        >
-          <SessionFormPanel
-            v-if="isFormOpen"
-            v-model="form"
-            :options="filterOptions"
-            @save="handleSave"
-            @cancel="handleCancel"
-          />
-        </transition>
+        <BasePagination
+          :current-page="currentPage"
+          :total="total"
+          :page-size="10"
+          @update:current-page="setPage"
+        />
       </div>
+
+      <BaseModal
+        v-model="isFormOpen"
+        :title="modalTitle"
+        width="640px"
+        :close-on-click-modal="false"
+        destroy-on-close
+      >
+        <SessionFormPanel
+          v-model="form"
+          :options="filterOptions"
+          :campaigns="campaigns"
+          :is-saving="isSaving"
+          @save="handleSave"
+          @cancel="handleCancel"
+        />
+      </BaseModal>
     </div>
   </div>
 </template>

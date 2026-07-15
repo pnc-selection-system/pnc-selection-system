@@ -2,6 +2,11 @@ export type CandidateStatus = 'registered' | 'exam_done' | 'investigating' | 'as
 
 export type ExamResult = 'pass' | 'fail' | null
 
+/**
+ * Extended Candidate type for profile/form views.
+ * Note: candidateList/types/candidate.ts has a simpler Candidate type for table views.
+ * These should be consolidated in a future refactor.
+ */
 export interface Candidate {
   id: string
   candidateCode: string

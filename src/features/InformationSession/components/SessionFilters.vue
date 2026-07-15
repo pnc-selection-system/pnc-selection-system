@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import BaseSelect from '@/components/base/BaseSelect.vue'
 import type { SelectOption } from '@/components/base/BaseSelect.vue'
 import BaseButton from '@/components/base/BaseButton.vue'
@@ -19,12 +20,10 @@ function update<K extends keyof SessionFilters>(key: K, value: SessionFilters[K]
   emit('update:modelValue', { ...props.modelValue, [key]: value })
 }
 
-function mapOptions(items: string[], prefix: string): SelectOption[] {
-  return [
-    { value: '', label: `${prefix}: All` },
-    ...items.filter(i => i !== 'All').map(i => ({ value: i, label: `${prefix}: ${i}` })),
-  ]
-}
+const provinceOptions = computed((): SelectOption[] => [
+  { value: '', label: 'Province: All' },
+  ...props.options.provinces.map(p => ({ value: p.name, label: p.name })),
+])
 </script>
 
 <template>
@@ -33,7 +32,7 @@ function mapOptions(items: string[], prefix: string): SelectOption[] {
       <div class="w-44">
         <BaseSelect
           :model-value="modelValue.province"
-          :options="mapOptions(options.provinces, 'Province')"
+          :options="provinceOptions"
           placeholder="Province"
           clearable
           @update:model-value="(v: string | number) => update('province', v as string)"
@@ -42,23 +41,24 @@ function mapOptions(items: string[], prefix: string): SelectOption[] {
 
       <div class="w-44">
         <BaseSelect
-          :model-value="modelValue.school"
-          :options="mapOptions(options.schools, 'School')"
-          placeholder="School"
-          clearable
-          @update:model-value="(v: string | number) => update('school', v as string)"
-        />
-      </div>
-
-      <div class="w-44">
-        <BaseSelect
           :model-value="modelValue.dateRange"
-          :options="mapOptions(options.dateRanges, 'Date')"
+          :options="[{ value: '', label: 'Date: All' }, ...options.dateRanges.filter(d => d !== 'All').map(d => ({ value: d, label: d }))]"
           placeholder="Date range"
           clearable
           @update:model-value="(v: string | number) => update('dateRange', v as string)"
         />
       </div>
+
+      <div class="w-44">
+        <BaseSelect
+          :model-value="modelValue.partnerType ?? ''"
+          :options="[{ value: '', label: 'Partner: All' }, ...options.partnerTypes.map(p => ({ value: p, label: p }))]"
+          placeholder="Partner Type"
+          clearable
+          @update:model-value="(v: string | number) => update('partnerType', v as string)"
+        />
+      </div>
+
     </div>
 
     <BaseButton

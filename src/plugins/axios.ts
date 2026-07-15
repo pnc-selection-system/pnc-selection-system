@@ -9,6 +9,9 @@ const api = axios.create({
   },
 })
 
+// Request deduplication map
+const pendingRequests = new Map<string, Promise<any>>()
+
 api.interceptors.request.use((config) => {
   if (config.url?.endsWith('/login')) {
     return config
@@ -22,8 +25,15 @@ api.interceptors.request.use((config) => {
 })
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    const key = `${response.config.method}:${response.config.url}`
+    pendingRequests.delete(key)
+    return response
+  },
   async (error) => {
+    const key = `${error.config?.method}:${error.config?.url}`
+    pendingRequests.delete(key)
+    
     if (error.response?.status === 401 && !error.config?.url?.endsWith('/logout')) {
       const { useAuthStore } = await import('@/features/auth/store/authStore')
       const authStore = useAuthStore()

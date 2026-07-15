@@ -1,27 +1,29 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import BaseBadge from '@/components/base/BaseBadge.vue'
+import { useRouter } from 'vue-router'
 import DataTableWrapper from '@/components/ui/DataTableWrapper.vue'
 import { formatDateShort } from '@/utils/date'
 import type { Session } from '../types/session'
 
 const props = defineProps<{
   sessions: Session[]
-  selectedId: string | null
+  selectedId: number | null
+  loading?: boolean
 }>()
 
 const emit = defineEmits<{
   select: [session: Session]
+  edit: [session: Session]
   'view-candidates': [session: Session]
 }>()
 
+const router = useRouter()
 const currentRow = ref<Session | null>(null)
 
-// Sync selectedId -> currentRow
 watch(
   () => props.selectedId,
   (id) => {
-    if (!id) {
+    if (id === null) {
       currentRow.value = null
       return
     }
@@ -33,15 +35,18 @@ watch(
 
 function onCurrentChange(row: Session | null) {
   currentRow.value = row
-  if (row) {
-    emit('select', row)
-  }
+  if (row) emit('select', row)
+}
+
+function viewDetail(session: Session) {
+  router.push({ name: 'information-session-detail', params: { id: session.id } })
 }
 </script>
 
 <template>
   <DataTableWrapper
     :data="sessions"
+    :loading="loading"
     :highlight-current="true"
     row-key="id"
     empty-text="No sessions found"
@@ -50,24 +55,40 @@ function onCurrentChange(row: Session | null) {
   >
     <el-table-column label="Date" width="130">
       <template #default="{ row }">
-        <span class="text-xs text-slate-700">{{ formatDateShort(row.date) }}</span>
+        <span class="text-xs text-slate-700">{{ formatDateShort(row.session_date) }}</span>
       </template>
     </el-table-column>
     <el-table-column label="Province / School" min-width="220">
       <template #default="{ row }">
-        <span class="text-xs text-slate-700">{{ row.province }} · {{ row.school }}</span>
+        <span class="text-xs text-slate-700">{{ row.province || row.village }} · {{ row.school_name }}</span>
       </template>
     </el-table-column>
     <el-table-column label="Attendance" width="130">
       <template #default="{ row }">
-        <span class="text-xs text-slate-700">{{ row.attendance.toLocaleString() }}</span>
+        <span class="text-xs text-slate-700">{{ (row.attendance_count ?? 0).toLocaleString() }}</span>
       </template>
     </el-table-column>
-    <el-table-column label="Candidates" width="140">
+    <el-table-column label="Expected" width="120">
       <template #default="{ row }">
-        <BaseBadge type="primary" size="small">
-          {{ row.convertedCount }} converted
-        </BaseBadge>
+        <span class="text-xs text-slate-500">{{ (row.expected_attendance ?? 0).toLocaleString() }}</span>
+      </template>
+    </el-table-column>
+    <el-table-column label="Actions" width="160" fixed="right">
+      <template #default="{ row }">
+        <div class="flex items-center gap-1">
+          <button
+            class="rounded px-2.5 py-1.5 text-[11px] font-medium text-blue-600 transition hover:bg-blue-50 hover:text-blue-700"
+            @click.stop="emit('edit', row)"
+          >
+            Edit
+          </button>
+          <button
+            class="rounded px-2.5 py-1.5 text-[11px] font-medium text-slate-500 transition hover:bg-slate-100 hover:text-slate-700"
+            @click.stop="viewDetail(row)"
+          >
+            View
+          </button>
+        </div>
       </template>
     </el-table-column>
   </DataTableWrapper>
