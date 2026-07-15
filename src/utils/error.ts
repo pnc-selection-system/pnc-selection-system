@@ -12,8 +12,9 @@ export function getErrorMessage(err: unknown, fallback: string): string {
     if (!err.response) {
       return 'Unable to connect to the server. Please check your network connection and ensure the backend is running.'
     }
-    if (err.response?.data?.message) {
-      return err.response.data.message
+    const data = err.response?.data as Record<string, unknown> | undefined
+    if (data?.message && typeof data.message === 'string') {
+      return data.message
     }
   }
   return err instanceof Error ? err.message : fallback

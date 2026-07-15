@@ -107,7 +107,7 @@ function viewCampaign(campaign: Campaign) {
         <el-table-column label="Status" width="120">
           <template #default="{ row }">
             <BaseBadge :type="row.status === CampaignStatus.Active ? 'primary' : 'info'" size="small">
-              {{ statusLabels[row.status] }}
+              {{ statusLabels[row.status as CampaignStatus] }}
             </BaseBadge>
           </template>
         </el-table-column>

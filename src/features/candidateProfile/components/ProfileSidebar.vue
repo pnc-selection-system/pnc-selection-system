@@ -51,7 +51,7 @@ function handlePhotoUpload(event: Event) {
   const input = event.target as HTMLInputElement
   if (input.files && input.files.length > 0) {
     const file = input.files[0]
-    if (!file.type.startsWith('image/')) return
+    if (!file || !file.type.startsWith('image/')) return
 
     const reader = new FileReader()
     reader.onload = (e) => {

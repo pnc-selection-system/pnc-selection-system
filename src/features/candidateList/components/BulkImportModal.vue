@@ -19,8 +19,11 @@ const parsing = ref(false)
 function handleFileSelect(event: Event) {
   const input = event.target as HTMLInputElement
   if (input.files && input.files.length > 0) {
-    selectedFile.value = input.files[0]
-    parseFile(input.files[0])
+    const file = input.files[0]
+    if (file) {
+      selectedFile.value = file
+      parseFile(file)
+    }
   }
 }
 
@@ -29,8 +32,11 @@ function handleDrop(event: DragEvent) {
   dragOver.value = false
   const files = event.dataTransfer?.files
   if (files && files.length > 0) {
-    selectedFile.value = files[0]
-    parseFile(files[0])
+    const file = files[0]
+    if (file) {
+      selectedFile.value = file
+      parseFile(file)
+    }
   }
 }
 

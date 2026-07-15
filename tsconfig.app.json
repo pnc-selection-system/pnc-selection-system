@@ -13,6 +13,10 @@
 
     // `vue-tsc --build` produces a .tsbuildinfo file for incremental type-checking.
     // Specified here to keep it out of the root directory.
-    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo"
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+
+    // TODO: Revert to true once the CandidateList directory casing is fixed in git index.
+    // Windows case-insensitive FS causes TS1261 errors when git tracks directory with different casing.
+    "forceConsistentCasingInFileNames": false
   }
 }

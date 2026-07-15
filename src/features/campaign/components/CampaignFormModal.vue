@@ -20,7 +20,7 @@ const emit = defineEmits<{
 const { addCampaign, updateCampaign, saving } = useCampaigns()
 
 const currentYear = new Date().getFullYear()
-const today = new Date().toISOString().split('T')[0]
+const today = new Date().toISOString().split('T')[0] ?? ''
 
 const isEditing = ref(false)
 const form = ref({

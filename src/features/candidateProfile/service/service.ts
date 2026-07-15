@@ -185,15 +185,19 @@ export function useCandidateProfile() {
 
   function updateCandidateStatus(id: string, status: CandidateStatus) {
     const idx = candidates.value.findIndex((c) => c.id === id)
-    if (idx !== -1) {
-      candidates.value[idx] = { ...candidates.value[idx], status }
+    if (idx !== -1 && candidates.value[idx]) {
+      const updated: Candidate = { ...candidates.value[idx]! }
+      updated.status = status
+      candidates.value[idx] = updated
     }
   }
 
   function updateCandidatePhoto(id: string, photoUrl: string) {
     const idx = candidates.value.findIndex((c) => c.id === id)
-    if (idx !== -1) {
-      candidates.value[idx] = { ...candidates.value[idx], photoUrl }
+    if (idx !== -1 && candidates.value[idx]) {
+      const updated: Candidate = { ...candidates.value[idx]! }
+      updated.photoUrl = photoUrl
+      candidates.value[idx] = updated
     }
   }
 
