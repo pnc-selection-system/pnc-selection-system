@@ -2,6 +2,7 @@
 import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import DataTableWrapper from '@/components/ui/DataTableWrapper.vue'
+import FormAction from '@/components/ui/FormAction.vue'
 import { formatDateShort } from '@/utils/date'
 import type { Session } from '../types/session'
 
@@ -75,20 +76,10 @@ function viewDetail(session: Session) {
     </el-table-column>
     <el-table-column label="Actions" width="160" fixed="right">
       <template #default="{ row }">
-        <div class="flex items-center gap-1">
-          <button
-            class="rounded px-2.5 py-1.5 text-[11px] font-medium text-blue-600 transition hover:bg-blue-50 hover:text-blue-700"
-            @click.stop="emit('edit', row)"
-          >
-            Edit
-          </button>
-          <button
-            class="rounded px-2.5 py-1.5 text-[11px] font-medium text-slate-500 transition hover:bg-slate-100 hover:text-slate-700"
-            @click.stop="viewDetail(row)"
-          >
-            View
-          </button>
-        </div>
+        <FormAction
+          @edit="emit('edit', row)"
+          @view="viewDetail(row)"
+        />
       </template>
     </el-table-column>
   </DataTableWrapper>
