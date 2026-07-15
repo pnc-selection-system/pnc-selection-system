@@ -186,14 +186,14 @@ export function useCandidateProfile() {
   function updateCandidateStatus(id: string, status: CandidateStatus) {
     const idx = candidates.value.findIndex((c) => c.id === id)
     if (idx !== -1) {
-      candidates.value[idx] = { ...candidates.value[idx], status }
+      candidates.value[idx] = { ...candidates.value[idx], status } as Candidate
     }
   }
 
   function updateCandidatePhoto(id: string, photoUrl: string) {
     const idx = candidates.value.findIndex((c) => c.id === id)
     if (idx !== -1) {
-      candidates.value[idx] = { ...candidates.value[idx], photoUrl }
+      candidates.value[idx] = { ...candidates.value[idx], photoUrl } as Candidate
     }
   }
 

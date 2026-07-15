@@ -1,7 +1,7 @@
 import { authRoutes } from '@/features/auth/routes'
 import dashboardRoutes from '@/features/dashboard/routes'
 import campaignRoutes from '@/features/campaign/routes'
-import candidateListRoutes from '@/features/candidateList/routes'
+import candidateListRoutes from '@/features/CandidateList/routes'
 import candidateProfileRoutes from '@/features/candidateProfile/routes'
 import ngosPartnerRoutes from '@/features/ngosPartner/routes'
 import informationSessionRoutes from '@/features/InformationSession/routes'

@@ -54,6 +54,7 @@ function handleSave() {
   const score = form.value.examScore === '' ? undefined : Number(form.value.examScore)
   emit('save', {
     ...form.value,
+    candidateCode: '',
     age,
     roles: [],
     requirements: [],
@@ -171,10 +172,11 @@ function handleSave() {
                 />
               </div>
               <BaseInput
-                v-model="form.examScore"
+                :model-value="String(form.examScore)"
                 label="Exam Score"
                 type="number"
                 placeholder="0-100"
+                @update:model-value="form.examScore = $event"
               />
             </div>
           </div>

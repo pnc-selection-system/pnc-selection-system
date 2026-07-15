@@ -78,7 +78,7 @@ function saveConfig() {
       saveSuccess.value = false
     }, 3000)
   } else if (!result.success && result.errors) {
-    saveError.value = Object.values(result.errors)[0]
+    saveError.value = Object.values(result.errors)[0] ?? null
   }
 }
 
