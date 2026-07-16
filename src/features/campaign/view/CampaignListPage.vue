@@ -50,6 +50,7 @@ function closeFormModal() {
 function viewCampaign(campaign: Campaign) {
   router.push({ name: 'campaign-detail', params: { id: campaign.id } })
 }
+
 </script>
 
 <template>
@@ -73,72 +74,72 @@ function viewCampaign(campaign: Campaign) {
 
       <template v-else>
         <CampaignToolbar
-        v-model:year-filter="yearFilter"
-        v-model:status-filter="statusFilter"
-        :year-options="yearOptions"
-        @create="openCreateModal"
-      />
+          v-model:year-filter="yearFilter"
+          v-model:status-filter="statusFilter"
+          :year-options="yearOptions"
+          @create="openCreateModal"
+        />
 
-      <DataTableWrapper
-        :data="filteredCampaigns"
-        :loading="loading"
-        empty-text="No campaign found"
-        empty-description="Try adjusting your search or filter criteria"
-      >
-        <el-table-column label="Campaign" min-width="100">
-          <template #default="{ row }">
-            <p class="text-xs" :class="row.status === CampaignStatus.Active ? 'font-bold text-slate-900' : 'text-slate-900'">
-              {{ row.name }}
-            </p>
-          </template>
-        </el-table-column>
-        <el-table-column prop="year" label="Year" width="150" />
-        <el-table-column label="Start Date" width="160">
-          <template #default="{ row }">
-            <span class="text-xs text-slate-700">{{ formatDateShort(row.start_date) }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="End Date" width="160">
-          <template #default="{ row }">
-            <span class="text-xs text-slate-700">{{ formatDateShort(row.end_date) }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="condidate_total" label="Candidates" width="150" />
-        <el-table-column label="Status" width="120">
-          <template #default="{ row }">
-            <BaseBadge :type="row.status === CampaignStatus.Active ? 'primary' : 'info'" size="small">
-              {{ statusLabels[row.status] }}
-            </BaseBadge>
-          </template>
-        </el-table-column>
-        <el-table-column label="Action" width="200" align="center">
-          <template #default="{ row }">
-            <div class="inline-flex items-center gap-0.5">
-              <BaseButton
-                variant="secondary"
-                class="!w-auto !rounded-md !px-1.5 !py-1 !border-blue-200 !bg-blue-50 !text-blue-600 hover:!bg-blue-100 hover:!text-blue-800 active:!scale-95"
-                title="View campaign"
-                @click.stop="viewCampaign(row)"
-              >
-                <BaseIcon :size="12">
-                  <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z" />
-                  <circle cx="12" cy="12" r="3" />
-                </BaseIcon>
-              </BaseButton>
-              <BaseButton
-                variant="secondary"
-                class="!w-auto !rounded-md !px-1.5 !py-1 hover:!bg-slate-100 active:!scale-95"
-                title="Edit campaign"
-                @click.stop="openEditModal(row)"
-              >
-                <BaseIcon :size="12">
-                  <path d="M17 3a2.85 2.85 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
-                </BaseIcon>
-              </BaseButton>
-            </div>
-          </template>
-        </el-table-column>
-      </DataTableWrapper>
+        <DataTableWrapper
+          :data="filteredCampaigns"
+          :loading="loading"
+          empty-text="No campaign found"
+          empty-description="Try adjusting your search or filter criteria"
+        >
+          <el-table-column label="Campaign" min-width="100">
+            <template #default="{ row }">
+              <p class="text-xs" :class="row.status === CampaignStatus.Active ? 'font-bold text-slate-900' : 'text-slate-900'">
+                {{ row.name }}
+              </p>
+            </template>
+          </el-table-column>
+          <el-table-column prop="year" label="Year" width="150" />
+          <el-table-column label="Start Date" width="160">
+            <template #default="{ row }">
+              <span class="text-xs text-slate-700">{{ formatDateShort(row.start_date) }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="End Date" width="160">
+            <template #default="{ row }">
+              <span class="text-xs text-slate-700">{{ formatDateShort(row.end_date) }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="condidate_total" label="Candidates" width="150" />
+          <el-table-column label="Status" width="120">
+            <template #default="{ row }">
+              <BaseBadge :type="row.status === CampaignStatus.Active ? 'primary' : 'info'" size="small">
+                {{ statusLabels[row.status] }}
+              </BaseBadge>
+            </template>
+          </el-table-column>
+          <el-table-column label="Action" width="200" align="center">
+            <template #default="{ row }">
+              <div class="inline-flex items-center gap-0.5">
+                <BaseButton
+                  variant="secondary"
+                  class="!w-auto !rounded-md !px-1.5 !py-1 !border-blue-200 !bg-blue-50 !text-blue-600 hover:!bg-blue-100 hover:!text-blue-800 active:!scale-95"
+                  title="View campaign"
+                  @click.stop="viewCampaign(row)"
+                >
+                  <BaseIcon :size="12">
+                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </BaseIcon>
+                </BaseButton>
+                <BaseButton
+                  variant="secondary"
+                  class="!w-auto !rounded-md !px-1.5 !py-1 hover:!bg-slate-100 active:!scale-95"
+                  title="Edit campaign"
+                  @click.stop="openEditModal(row)"
+                >
+                  <BaseIcon :size="12">
+                    <path d="M17 3a2.85 2.85 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
+                  </BaseIcon>
+                </BaseButton>
+              </div>
+            </template>
+          </el-table-column>
+        </DataTableWrapper>
       </template>
 
     </div>

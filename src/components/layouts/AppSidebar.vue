@@ -113,7 +113,7 @@ import SidebarMenuItem from "@/components/layouts/SidebarMenuItem.vue"
           Decision
         </p>
         <SidebarMenuItem title="Voting & Selection" to="/decision/voting-selection" badge="CMT" />
-        <SidebarMenuItem title="Reports & Exports" />
+        <SidebarMenuItem title="Reports & Exports" to="/reports" badge="OFF" />
       </div>
     </div>
     <!-- Footer -->
