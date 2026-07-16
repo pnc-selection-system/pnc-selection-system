@@ -1,4 +1,5 @@
 import type { RouteRecordRaw } from 'vue-router'
+
 const routes: RouteRecordRaw[] = [
   {
     path: '/ngos-partners',
@@ -7,11 +8,8 @@ const routes: RouteRecordRaw[] = [
       {
         path: '',
         name: 'ngos-partners',
+        meta: { requiresAuth: true },
         component: () => import('./view/NGOsPartnersView.vue'),
-        meta: {
-          title: 'NGOs & Partners',
-          requiresAuth: true,
-        },
       },
     ],
   },
