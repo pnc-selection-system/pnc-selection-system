@@ -152,8 +152,8 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-50 p-6" style="pointer-events: auto;">
-    <div class="mx-auto max-w-6xl space-y-4" style="pointer-events: auto;">
+  <div class="min-h-screen p-6" style="pointer-events: auto;">
+    <div class="mx-auto max-w-[1200px] space-y-4" style="pointer-events: auto;">
       <PageHeader v-if="meta" :meta="meta" />
 
       <AssessmentTabs v-model="activeTab" />
