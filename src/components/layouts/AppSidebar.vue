@@ -112,7 +112,7 @@ import SidebarMenuItem from "@/components/layouts/SidebarMenuItem.vue"
         <p class="text-[8px] tracking-[2px] text-gray-500 uppercase mb-1.5 font-medium">
           Decision
         </p>
-        <SidebarMenuItem title="Voting & Selection" badge="CMT" />
+        <SidebarMenuItem title="Voting & Selection" to="/decision/voting-selection" badge="CMT" />
         <SidebarMenuItem title="Reports & Exports" />
       </div>
     </div>
