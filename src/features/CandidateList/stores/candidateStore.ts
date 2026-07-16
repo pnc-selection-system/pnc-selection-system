@@ -1,27 +1,25 @@
 import { defineStore } from 'pinia'
 import type { Candidate } from '../types/candidate'
-
-const mockCandidates: Candidate[] = [
-  { id: 1, candidate_no: 'C-001', name: 'Sok Dara', province: 'Phnom Penh', ngo: 'NGO A', exam_score: 85, exam_result: 'Pass', status: 'Assessed' },
-  { id: 2, candidate_no: 'C-002', name: 'Chan Bopha', province: 'Siem Reap', ngo: 'NGO B', exam_score: 45, exam_result: 'Fail', status: 'Exam Done' },
-  { id: 3, candidate_no: 'C-003', name: 'Pich Sophea', province: 'Battambang', ngo: 'NGO A', exam_score: null, exam_result: null, status: 'Investigating' },
-  { id: 4, candidate_no: 'C-004', name: 'Rin Makara', province: 'Kampong Cham', ngo: 'NGO C', exam_score: 72, exam_result: 'Pass', status: 'Assessed' },
-  { id: 5, candidate_no: 'C-005', name: 'Vuth Sreyleak', province: 'Phnom Penh', ngo: 'NGO B', exam_score: 60, exam_result: 'Pass', status: 'Exam Done' },
-  { id: 6, candidate_no: 'C-006', name: 'Heng Vibol', province: 'Siem Reap', ngo: 'NGO A', exam_score: 38, exam_result: 'Fail', status: 'Exam Done' },
-  { id: 7, candidate_no: 'C-007', name: 'Lim Chanthy', province: 'Battambang', ngo: 'NGO C', exam_score: null, exam_result: null, status: 'Investigating' },
-  { id: 8, candidate_no: 'C-008', name: 'Noun Piseth', province: 'Phnom Penh', ngo: 'NGO A', exam_score: 91, exam_result: 'Pass', status: 'Assessed' },
-]
+import { apiCandidateToFrontend, frontendFormToApiPayload, hasCampaignCache, hasNgoCache, hasProvinceCache, setCampaignNameCache, setNgoNameCache, setProvinceNameCache, splitFullName } from '../utils/mapper'
+import * as candidateService from '../services/candidateService'
+import { fetchCampaigns } from '@/features/campaign/services/campaign'
+import { fetchProvinces } from '../services/provinceService'
+import { fetchPartners } from '@/features/ngosPartner/service/service'
+import { getErrorMessage } from '@/utils/error'
 
 export const useCandidateStore = defineStore('candidate', {
   state: () => ({
     loading: false,
+    saving: false,
+    error: null as string | null,
+    allCandidates: [] as Candidate[],
     candidates: [] as Candidate[],
     page: 1,
     perPage: 10,
     total: 0,
     search: '',
-    province: '',
-    ngo: '',
+    province_id: null as number | null,
+    ngo_id: null as number | null,
     status: '',
     examResult: '',
   }),
@@ -29,65 +27,182 @@ export const useCandidateStore = defineStore('candidate', {
   getters: {
     totalPages: (state) => Math.ceil(state.total / state.perPage),
 
-    filteredCandidates: (state) => {
-      return mockCandidates.filter((c) => {
-        const q = state.search.toLowerCase()
-        const matchSearch = !q || c.name.toLowerCase().includes(q) || c.candidate_no.toLowerCase().includes(q)
-        const matchProvince = !state.province || c.province === state.province
-        const matchNgo = !state.ngo || c.ngo === state.ngo
+    /** Client-side filtered list based on all filter criteria */
+    filteredCandidates(state) {
+      const all = state.allCandidates
+      const q = state.search.toLowerCase()
+      return all.filter((c) => {
+        const matchSearch =
+          !q ||
+          c.fullName.toLowerCase().includes(q) ||
+          c.fullName_KH.toLowerCase().includes(q) ||
+          c.candidate_no.toLowerCase().includes(q)
+        const matchProvince = !state.province_id || c.province_id === state.province_id
+        const matchNgo = !state.ngo_id || c.ngo_id === state.ngo_id
         const matchStatus = !state.status || c.status === state.status
-        const matchExam = !state.examResult || c.exam_result === state.examResult
-        return matchSearch && matchProvince && matchNgo && matchStatus && matchExam
+        const matchExamResult = !state.examResult || c.exam_result === state.examResult
+        return matchSearch && matchProvince && matchNgo && matchStatus && matchExamResult
       })
     },
   },
 
   actions: {
-    fetchCandidates() {
+    /**
+     * Fetch campaigns and populate the campaign name cache for NGO display
+     */
+    async loadCampaignNames() {
+      // Skip if already cached to avoid redundant API calls
+      if (hasCampaignCache()) return
+      try {
+        const campaigns = await fetchCampaigns()
+        const cache: Record<number, string> = {}
+        campaigns.forEach((c) => {
+          cache[c.id] = c.name
+        })
+        setCampaignNameCache(cache)
+      } catch {
+        // Campaign names are optional; silently fail
+      }
+    },
+
+    async loadProvinceNames() {
+      // Skip if already cached
+      if (hasProvinceCache()) return
+      try {
+        const provinces = await fetchProvinces()
+        const cache: Record<number, string> = {}
+        provinces.forEach((p) => {
+          cache[p.id] = p.name
+        })
+        setProvinceNameCache(cache)
+      } catch {
+        // Province names are optional; silently fail
+      }
+    },
+
+    async loadNgoNames() {
+      // Skip if already cached
+      if (hasNgoCache()) return
+      try {
+        const partners = await fetchPartners()
+        const cache: Record<number, string> = {}
+        partners.forEach((p) => {
+          cache[p.id] = p.name
+        })
+        setNgoNameCache(cache)
+      } catch {
+        // NGO names are optional; silently fail
+      }
+    },
+
+    /**
+     * Apply client-side filters and paginate
+     */
+    applyFilters() {
       const filtered = this.filteredCandidates
       this.total = filtered.length
       const start = (this.page - 1) * this.perPage
       this.candidates = filtered.slice(start, start + this.perPage)
     },
 
+    async fetchCandidates() {
+      this.loading = true
+      this.error = null
+      try {
+        // Load all lookup data in parallel (first load only)
+        await Promise.all([
+          this.loadCampaignNames(),
+          this.loadProvinceNames(),
+          this.loadNgoNames(),
+        ])
+
+        // Fetch all candidates (large per_page to get everything)
+        const { candidates: apiCandidates } = await candidateService.fetchCandidates({ per_page: 10000 })
+
+        this.allCandidates = apiCandidates.map(apiCandidateToFrontend)
+        this.applyFilters()
+      } catch (err) {
+        this.error = getErrorMessage(err, 'Failed to load candidates')
+      } finally {
+        this.loading = false
+      }
+    },
+
     setPage(page: number) {
       this.page = page
-      this.fetchCandidates()
+      this.applyFilters()
     },
 
-    addCandidate(candidate: { name: string; province: string; ngo: string }) {
-      const nextId = mockCandidates.length > 0 ? Math.max(...mockCandidates.map(c => c.id)) + 1 : 1
-      const nextNo = `C-${String(nextId).padStart(3, '0')}`
-      mockCandidates.push({
-        id: nextId,
-        candidate_no: nextNo,
-        name: candidate.name,
-        province: candidate.province,
-        ngo: candidate.ngo,
-        exam_score: null,
-        exam_result: null,
-        status: 'Registered',
-      })
-      this.fetchCandidates()
+    async addCandidate(payload: {
+      firstName: string
+      lastName: string
+      firstNameKH: string
+      lastNameKH: string
+      gender: 'Male' | 'Female'
+      dateOfBirth: string
+      phone: string
+      schoolName: string
+      province_id: number
+      campaign_id: number | null
+      ngo_id: number | null
+      status: string
+    }) {
+      this.saving = true
+      this.error = null
+      try {
+        const apiPayload = frontendFormToApiPayload(payload)
+        await candidateService.createCandidate(apiPayload)
+        await this.fetchCandidates()
+      } catch (err) {
+        this.error = getErrorMessage(err, 'Failed to create candidate')
+        throw err
+      } finally {
+        this.saving = false
+      }
     },
 
-    importCandidates(newCandidates: Array<{ name: string; province: string; ngo: string }>) {
-      const startId = mockCandidates.length > 0 ? Math.max(...mockCandidates.map(c => c.id)) + 1 : 1
-      newCandidates.forEach((c, idx) => {
-        const id = startId + idx
-        const nextNo = `C-${String(id).padStart(3, '0')}`
-        mockCandidates.push({
-          id,
-          candidate_no: nextNo,
-          name: c.name,
-          province: c.province,
-          ngo: c.ngo,
-          exam_score: null,
-          exam_result: null,
-          status: 'Registered',
-        })
-      })
-      this.fetchCandidates()
+    async updateCandidateStatus(id: number, newStatus: string) {
+      this.error = null
+      try {
+        await candidateService.updateCandidateStatus(id, newStatus)
+        // Update in allCandidates too
+        const idx = this.allCandidates.findIndex(c => c.id === id)
+        if (idx !== -1) {
+          this.allCandidates[idx].status = newStatus
+        }
+        this.applyFilters()
+      } catch (err) {
+        this.error = getErrorMessage(err, 'Failed to update candidate status')
+        await this.fetchCandidates()
+      }
+    },
+
+    async importCandidates(newCandidates: Candidate[]) {
+      this.saving = true
+      this.error = null
+      try {
+        for (const candidate of newCandidates) {
+          const { firstName, lastName } = splitFullName(candidate.fullName)
+          await candidateService.createCandidate({
+            first_name: firstName,
+            last_name: lastName,
+            first_name_kh: candidate.fullName_KH || null,
+            gender: candidate.gender,
+            dob: candidate.dateOfBirth,
+            phone: candidate.phone || null,
+            school_name: candidate.schoolName || null,
+            campaign_id: candidate.campaign_id ?? null,
+            ngo_id: candidate.ngo_id ?? null,
+            province_id: candidate.province_id || 1,
+          })
+        }
+        await this.fetchCandidates()
+      } catch (err) {
+        this.error = getErrorMessage(err, 'Failed to import candidates')
+        throw err
+      } finally {
+        this.saving = false
+      }
     },
   },
 })

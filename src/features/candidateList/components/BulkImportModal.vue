@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+// TODO: Update Candidate import when implementing real file parsing
+// The Candidate type now includes campaign_id, province_id, gender as 'Male'|'Female', etc.
 import type { Candidate } from '../types/index'
 
 const props = defineProps<{

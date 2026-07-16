@@ -4,11 +4,11 @@ import { useCandidateStore } from '../stores/candidateStore'
 
 export function useCandidates() {
   const store = useCandidateStore()
-  const { candidates, loading, page, total, totalPages, search, province, ngo, status, examResult } = storeToRefs(store)
+  const { candidates, loading, page, total, totalPages, search, province_id, ngo_id, status, examResult } = storeToRefs(store)
 
-  watch([search, province, ngo, status, examResult], () => {
+  watch([search, province_id, ngo_id, status, examResult], () => {
     store.page = 1
-    store.fetchCandidates()
+    store.applyFilters()
   })
 
   return {
@@ -18,8 +18,8 @@ export function useCandidates() {
     total,
     totalPages,
     search,
-    province,
-    ngo,
+    province_id,
+    ngo_id,
     status,
     examResult,
     fetch: store.fetchCandidates,

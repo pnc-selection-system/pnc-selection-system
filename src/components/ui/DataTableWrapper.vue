@@ -90,24 +90,26 @@ function onCurrentChange(currentRow: any, oldCurrentRow: any) {
   --el-table-current-row-bg-color: #eff6ff;
   --el-table-header-text-color: #94a3b8;
   --el-table-text-color: #334155;
-  font-size: 12px;
+  font-size: 11px;
   border: none;
 }
 .el-table :deep(th.el-table__cell) {
-  font-size: 0.6rem;
-  font-weight: 600;
+  font-size: 0.5rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 10px 16px;
+  letter-spacing: 0.04em;
+  padding: 6px 8px;
   border-bottom: 1px solid #e2e8f0;
+  white-space: nowrap;
 }
 .el-table :deep(td.el-table__cell) {
-  padding: 8px 16px;
+  padding: 5px 8px;
   border-bottom: 1px solid #e2e8f0;
+  font-size: 11px;
 }
 .el-table :deep(.el-table__body tr) {
   border-bottom: 1px solid #f1f5f9;
-  transition: background-color 0.15s ease;
+  transition: background-color 0.12s ease;
   cursor: pointer;
 }
 
@@ -116,6 +118,10 @@ function onCurrentChange(currentRow: any, oldCurrentRow: any) {
 }
 
 .el-table :deep(.cell) {
-  line-height: 1.4;
+  line-height: 1.3;
+}
+
+.el-table :deep(.el-table__body-wrapper) {
+  overflow-x: hidden;
 }
 </style>

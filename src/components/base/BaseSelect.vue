@@ -44,7 +44,7 @@ function handleChange(value: string | number) {
       <el-select
         :id="id || name"
         :model-value="modelValue"
-        :placeholder="placeholder || 'Select...'"
+        :placeholder="placeholder || 'Select..'"
         :disabled="disabled"
         :clearable="clearable"
         class="w-full base-select-el"

@@ -6,12 +6,20 @@
         @import="showImportModal = true"
       />
 
+      <div v-if="store.error" class="rounded-lg bg-red-50 p-3 text-sm text-red-700">
+        {{ store.error }}
+      </div>
+
       <div class="flex flex-col gap-3">
         <CandidateSearch v-model="search" />
         <CandidateFilter @filter="onFilter" />
       </div>
 
-      <CandidateTable :candidates="candidates" :loading="loading" />
+      <CandidateTable
+        :candidates="candidates"
+        :loading="loading"
+        @update-status="handleStatusUpdate"
+      />
       <BasePagination
         :current-page="page"
         :total="total"
@@ -38,7 +46,6 @@
 import { ref, onMounted } from 'vue'
 import { useCandidates } from '../composables/useCandidates'
 import { useCandidateStore } from '../stores/candidateStore'
-import type { Candidate } from '../types/index'
 import CandidateHeader from '../components/CandidateHeader.vue'
 import CandidateSearch from '../components/CandidateSearch.vue'
 import CandidateFilter from '../components/CandidateFilter.vue'
@@ -47,37 +54,52 @@ import CandidateFormModal from '../components/CandidateFormModal.vue'
 import BulkImportModal from '../components/BulkImportModal.vue'
 import BasePagination from '@/components/base/BasePagination.vue'
 
-const { candidates, loading, page, total, search, province, ngo, status, examResult, fetch, setPage } = useCandidates()
+const { candidates, loading, page, total, search, province_id, ngo_id, status, examResult, fetch, setPage } = useCandidates()
 const store = useCandidateStore()
 
 const showFormModal = ref(false)
 const showImportModal = ref(false)
 
-const onFilter = (filters: { province: string; ngo: string; status: string; examResult: string }) => {
-  province.value = filters.province
-  ngo.value = filters.ngo
+const onFilter = (filters: { province_id: number | null; ngo_id: number | null; status: string; examResult: string }) => {
+  province_id.value = filters.province_id
+  ngo_id.value = filters.ngo_id
   status.value = filters.status
   examResult.value = filters.examResult
 }
 
-function handleSaveCandidate(candidate: Omit<Candidate, 'id'>) {
-  store.addCandidate({
-    name: candidate.fullName,
-    province: candidate.province,
-    ngo: candidate.organization || '',
-  })
-  showFormModal.value = false
+async function handleSaveCandidate(payload: {
+  firstName: string
+  lastName: string
+  firstNameKH: string
+  lastNameKH: string
+  gender: 'Male' | 'Female'
+  dateOfBirth: string
+  phone: string
+  province_id: number
+  schoolName: string
+  campaign_id: number | null
+  ngo_id: number | null
+  status: string
+}) {
+  try {
+    await store.addCandidate(payload)
+    showFormModal.value = false
+  } catch {
+    // Error is handled in the store
+  }
 }
 
-function handleImportCandidates(newCandidates: Omit<Candidate, 'id'>[]) {
-  store.importCandidates(
-    newCandidates.map(c => ({
-      name: c.fullName,
-      province: c.province,
-      ngo: c.organization || '',
-    })),
-  )
-  showImportModal.value = false
+function handleStatusUpdate({ id, status }: { id: number; status: string }) {
+  store.updateCandidateStatus(id, status)
+}
+
+async function handleImportCandidates(newCandidates: any[]) {
+  try {
+    await store.importCandidates(newCandidates as any)
+    showImportModal.value = false
+  } catch {
+    // Error is handled in the store
+  }
 }
 
 onMounted(fetch)
