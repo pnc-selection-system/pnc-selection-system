@@ -1,14 +1,15 @@
 import { authRoutes } from '@/features/auth/routes'
 import dashboardRoutes from '@/features/dashboard/routes'
 import campaignRoutes from '@/features/campaign/routes'
-import candidateListRoutes from '@/features/candidateList/routes'
+import candidateListRoutes from '@/features/CandidateList/routes'
 import candidateProfileRoutes from '@/features/candidateProfile/routes'
 import ngosPartnerRoutes from '@/features/ngosPartner/routes'
-import ExamConfiguration from '@/features/exam/routes'
-import ImportWizardView from '@/features/importWizard/routes'
+import examRoutes from '@/features/exam/routes'
+import importWizardRoutes from '@/features/importWizard/routes'
 import resultAnalyticRoutes from '@/features/resultAnalytic/routes'
 import informationSessionRoutes from '@/features/InformationSession/routes'
 import interestAssessmentRoutes from '@/features/InterestAssessment/routes'
+import homeInvestionRoutes from '@/features/HomeInvestion/view/routes'
 
 export const routes = [
   ...authRoutes,
@@ -18,9 +19,10 @@ export const routes = [
   ...candidateProfileRoutes,
   ...informationSessionRoutes,
   ...ngosPartnerRoutes,
-  ...ExamConfiguration,
-  ...ImportWizardView,
+  ...examRoutes,
+  ...importWizardRoutes,
   ...resultAnalyticRoutes,
   ...interestAssessmentRoutes,
+  ...homeInvestionRoutes,
 ]
 

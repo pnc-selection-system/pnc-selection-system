@@ -8,7 +8,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: '',
         name: 'import-wizard',
-        component: () => import('../importWizard/view/ImportWizardView.vue'),
+        component: () => import('./view/ImportWizardView.vue'),
       },
     ],
   },

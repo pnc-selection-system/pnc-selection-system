@@ -105,7 +105,7 @@ import SidebarMenuItem from "@/components/layouts/SidebarMenuItem.vue"
           Evaluation
         </p>
         <SidebarMenuItem title="Interest Assessment" to="/evaluation/interest" />
-        <SidebarMenuItem title="Home Investigation" badge="INV" />
+        <SidebarMenuItem title="Home Investigation" to="/evaluation/home-investigation" badge="INV" />
       </div>
       <!-- DECISION -->
       <div class="px-3 mt-3 pb-4">
