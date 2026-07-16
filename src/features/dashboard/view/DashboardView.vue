@@ -86,7 +86,7 @@ useDebouncedWatch(filters, loadData, 400, true)
 
       <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <ProvinceChart :data="data.provinces" />
-        <YearChart :data="data.yearOverYear" :tag="data.yearOverYearTag" />
+        <YearChart :data="data.yearOverYear" :tag="data.yearOverYearTag || ''" />
       </div>
     </div>
   </div>

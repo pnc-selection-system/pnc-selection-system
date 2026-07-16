@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-import { login as loginRequest, logout as logoutRequest } from '../servers/authService'
+import { login as loginRequest, logout as logoutRequest } from '../service/authService'
 import { getCookie, removeCookie, setCookie, TOKEN_COOKIE, USER_COOKIE } from '@/utils/cookie'
 import type { AuthUser, LoginPayload } from '../types/auth'
 
@@ -37,8 +37,8 @@ export const useAuthStore = defineStore('auth', () => {
 
       return response
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Invalid email or password'
-      error.value = message
+      const rawMessage = err instanceof Error ? err.message : 'Invalid email or password'
+      error.value = rawMessage.replace(/[\n\r\t]/g, ' ')
       throw err
     } finally {
       loading.value = false

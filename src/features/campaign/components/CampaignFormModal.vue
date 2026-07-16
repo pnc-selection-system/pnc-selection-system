@@ -107,7 +107,7 @@ function closeModal() {
     destroy-on-close
     @update:model-value="closeModal"
   >
-    <form @submit.prevent="saveCampaign">
+    <form @submit.prevent="saveCampaign" class="space-y-5" id="campaign-form">
       <div class="space-y-5">
         <BaseInput
           v-model="form.name"
@@ -184,12 +184,12 @@ function closeModal() {
           Cancel
         </BaseButton>
         <BaseButton
-          type="submit"
+          type="button"
           variant="primary"
+          @click="saveCampaign"
           class="!w-auto !rounded !px-4 !py-2 text-sm font-medium"
           :loading="saving"
           :disabled="saving"
-          @click="saveCampaign"
         >
           {{ isEditing ? 'Save Changes' : 'Create Campaign' }}
         </BaseButton>

@@ -9,10 +9,10 @@ import CampaignFormModal from '../components/CampaignFormModal.vue'
 
 import BaseButton from '@/components/base/BaseButton.vue'
 import BaseBadge from '@/components/base/BaseBadge.vue'
-import BaseIcon from '@/components/base/BaseIcon.vue'
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 import ErrorAlert from '@/components/ui/ErrorAlert.vue'
 import DataTableWrapper from '@/components/ui/DataTableWrapper.vue'
+import FormAction from '@/components/ui/FormAction.vue'
 import { formatDateShort } from '@/utils/date'
 import { CampaignStatus } from '@/enums'
 
@@ -112,31 +112,12 @@ function viewCampaign(campaign: Campaign) {
             </BaseBadge>
           </template>
         </el-table-column>
-        <el-table-column label="Action" width="200" align="center">
+        <el-table-column label="Actions" width="160" fixed="right">
           <template #default="{ row }">
-            <div class="inline-flex items-center gap-0.5">
-              <BaseButton
-                variant="secondary"
-                class="!w-auto !rounded-md !px-1.5 !py-1 !border-blue-200 !bg-blue-50 !text-blue-600 hover:!bg-blue-100 hover:!text-blue-800 active:!scale-95"
-                title="View campaign"
-                @click.stop="viewCampaign(row)"
-              >
-                <BaseIcon :size="12">
-                  <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z" />
-                  <circle cx="12" cy="12" r="3" />
-                </BaseIcon>
-              </BaseButton>
-              <BaseButton
-                variant="secondary"
-                class="!w-auto !rounded-md !px-1.5 !py-1 hover:!bg-slate-100 active:!scale-95"
-                title="Edit campaign"
-                @click.stop="openEditModal(row)"
-              >
-                <BaseIcon :size="12">
-                  <path d="M17 3a2.85 2.85 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
-                </BaseIcon>
-              </BaseButton>
-            </div>
+            <FormAction
+              @edit="openEditModal(row)"
+              @view="viewCampaign(row)"
+            />
           </template>
         </el-table-column>
       </DataTableWrapper>

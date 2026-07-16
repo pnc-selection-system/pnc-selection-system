@@ -35,6 +35,7 @@ declare module 'vue' {
     ElTag: typeof import('element-plus/es')['ElTag']
     EmptyState: typeof import('./src/components/ui/EmptyState.vue')['default']
     ErrorAlert: typeof import('./src/components/ui/ErrorAlert.vue')['default']
+    FormAction: typeof import('./src/components/ui/FormAction.vue')['default']
     LoadingSpinner: typeof import('./src/components/ui/LoadingSpinner.vue')['default']
     PageHeader: typeof import('./src/components/ui/PageHeader.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']

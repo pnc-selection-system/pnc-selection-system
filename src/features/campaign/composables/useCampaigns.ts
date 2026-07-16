@@ -15,11 +15,13 @@ const yearFilter = ref<string>('all')
 const showInfoBox = ref(true)
 
 const yearOptions = computed(() => {
+  if (!Array.isArray(campaigns.value)) return []
   const years = new Set(campaigns.value.map((c) => c.year.toString()))
   return Array.from(years).sort().reverse()
 })
 
 const filteredCampaigns = computed(() => {
+  if (!Array.isArray(campaigns.value)) return []
   return campaigns.value.filter((c) => {
     const q = searchQuery.value.toLowerCase()
     const matchesSearch = !q || c.name.toLowerCase().includes(q)
@@ -46,7 +48,9 @@ export function useCampaigns() {
     deleting.value = true
     try {
       await campaignService.deleteCampaign(id)
-      campaigns.value = campaigns.value.filter((c) => c.id !== id)
+      if (Array.isArray(campaigns.value)) {
+        campaigns.value = campaigns.value.filter((c) => c.id !== id)
+      }
     } catch (err) {
       error.value = getErrorMessage(err, 'Failed to delete campaign')
     } finally {
@@ -58,9 +62,11 @@ export function useCampaigns() {
     saving.value = true
     try {
       const updated = await campaignService.updateCampaign(id, payload)
-      const idx = campaigns.value.findIndex((c) => c.id === id)
-      if (idx !== -1) {
-        campaigns.value[idx] = updated
+      if (Array.isArray(campaigns.value)) {
+        const idx = campaigns.value.findIndex((c) => c.id === id)
+        if (idx !== -1) {
+          campaigns.value[idx] = updated
+        }
       }
     } catch (err) {
       error.value = getErrorMessage(err, 'Failed to update campaign')
@@ -73,7 +79,11 @@ export function useCampaigns() {
     saving.value = true
     try {
       const created = await campaignService.createCampaign(payload)
-      campaigns.value.unshift(created)
+      if (Array.isArray(campaigns.value)) {
+        campaigns.value.unshift(created)
+      } else {
+        campaigns.value = [created]
+      }
     } catch (err) {
       error.value = getErrorMessage(err, 'Failed to create campaign')
     } finally {
@@ -82,6 +92,7 @@ export function useCampaigns() {
   }
 
   function getStatusCount(status: Campaign['status'] | 'all') {
+    if (!Array.isArray(campaigns.value)) return 0
     if (status === 'all') return campaigns.value.length
     return campaigns.value.filter((c) => c.status === status).length
   }

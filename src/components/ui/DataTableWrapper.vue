@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import EmptyState from './EmptyState.vue'
+import LoadingSpinner from './LoadingSpinner.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -32,18 +33,18 @@ function onCurrentChange(currentRow: any, oldCurrentRow: any) {
 </script>
 
 <template>
-  <div
-    v-if="bordered"
-    class="overflow-hidden rounded border border-slate-200 bg-white relative"
-  >
-    <div v-if="!data.length" class="flex justify-center items-center py-16">
+  <div class="overflow-hidden rounded border border-slate-200 bg-white">
+    <div v-if="loading && !data.length" class="flex justify-center py-12">
+      <LoadingSpinner />
+    </div>
+    <div v-else-if="!data.length && !loading" class="flex justify-center items-center py-16">
       <EmptyState
         :title="emptyText || 'No data found'"
         :description="emptyDescription || ''"
       />
     </div>
     <el-table
-      v-else
+      v-if="data.length"
       :data="data"
       :highlight-current-row="highlightCurrent"
       :row-key="rowKey"
@@ -56,29 +57,6 @@ function onCurrentChange(currentRow: any, oldCurrentRow: any) {
       <slot />
     </el-table>
   </div>
-
-  <!-- Unbordered (nested) mode -->
-  <template v-else>
-    <div v-if="!data.length" class="flex justify-center items-center py-16">
-      <EmptyState
-        :title="emptyText || 'No data found'"
-        :description="emptyDescription || ''"
-      />
-    </div>
-    <el-table
-      v-else
-      :data="data"
-      :highlight-current-row="highlightCurrent"
-      :row-key="rowKey"
-      :current-row-key="currentRowKey"
-      size="small"
-      style="width: 100%"
-      @row-click="onRowClick"
-      @current-change="onCurrentChange"
-    >
-      <slot />
-    </el-table>
-  </template>
 </template>
 
 <style scoped>
@@ -112,11 +90,9 @@ function onCurrentChange(currentRow: any, oldCurrentRow: any) {
   transition: background-color 0.12s ease;
   cursor: pointer;
 }
-
 .el-table :deep(.el-table__body tr:last-child) {
   border-bottom: none;
 }
-
 .el-table :deep(.cell) {
   line-height: 1.3;
 }

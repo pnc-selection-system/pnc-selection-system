@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import BaseInput from '@/components/base/BaseInput.vue'
 import BaseSelect from '@/components/base/BaseSelect.vue'
+import BaseModal from '@/components/base/BaseModal.vue'
+import BaseButton from '@/components/base/BaseButton.vue'
 import { fetchProvinces } from '../services/provinceService'
 import { fetchCampaigns } from '@/features/campaign/services/campaign'
 import { fetchPartners } from '@/features/ngosPartner/service/service'
@@ -10,11 +12,11 @@ import type { Campaign } from '@/features/campaign/types'
 import type { NgoPartner } from '@/features/ngosPartner/types/partner'
 
 const props = defineProps<{
-  visible: boolean
+  modelValue?: boolean
 }>()
 
 const emit = defineEmits<{
-  (e: 'close'): void
+  (e: 'update:modelValue', value: boolean): void
   (e: 'save', payload: {
     firstName: string
     lastName: string
@@ -30,6 +32,11 @@ const emit = defineEmits<{
     status: string
   }): void
 }>()
+
+const proxyVisible = computed({
+  get: () => props.modelValue ?? false,
+  set: (val) => emit('update:modelValue', val),
+})
 
 const provinces = ref<ProvinceData[]>([])
 const campaigns = ref<Campaign[]>([])
@@ -72,7 +79,7 @@ async function loadOptions() {
 }
 
 watch(
-  () => props.visible,
+  () => props.modelValue,
   (val) => {
     if (val) {
       form.value = {
@@ -116,173 +123,137 @@ function handleSave() {
     ngo_id: form.value.ngo_id,
     status: form.value.status,
   })
-  emit('close')
+  emit('update:modelValue', false)
 }
 </script>
 
 <template>
-  <teleport to="body">
-    <div
-      v-if="visible"
-      class="fixed inset-0 z-50 flex items-center justify-center"
-    >
-      <!-- Backdrop -->
-      <div
-        class="absolute inset-0 bg-black/50"
-        @click="emit('close')"
+  <BaseModal v-model="proxyVisible" title="New Candidate" width="480px">
+    <div class="space-y-3">
+      <!-- Full Name -->
+      <p class="text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400">Full Name</p>
+      <div class="grid grid-cols-2 gap-3">
+        <BaseInput
+          v-model="form.firstName"
+          label="First Name *"
+          placeholder="First name"
+        />
+        <BaseInput
+          v-model="form.lastName"
+          label="Last Name"
+          placeholder="Last name"
+        />
+      </div>
+
+      <!-- Name (KH) -->
+      <p class="text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400">Name (KH)</p>
+      <div class="grid grid-cols-2 gap-3">
+        <BaseInput
+          v-model="form.firstNameKH"
+          label="First Name (KH)"
+          placeholder="ឈ្មោះ"
+        />
+        <BaseInput
+          v-model="form.lastNameKH"
+          label="Last Name (KH)"
+          placeholder="ត្រកូល"
+        />
+      </div>
+
+      <!-- Gender + DOB -->
+      <div class="grid grid-cols-2 gap-3">
+        <BaseSelect
+          v-model="form.gender"
+          label="Gender *"
+          :options="[
+            { value: 'Male', label: 'Male' },
+            { value: 'Female', label: 'Female' },
+          ]"
+        />
+        <BaseInput
+          v-model="form.dateOfBirth"
+          label="Date of Birth"
+          type="date"
+        />
+      </div>
+
+      <!-- Province + School -->
+      <div class="grid grid-cols-2 gap-3">
+        <BaseSelect
+          v-model="form.province_id"
+          label="Province *"
+          :options="provinces.map(p => ({ value: p.id, label: p.name }))"
+          :disabled="loadingOptions && provinces.length === 0"
+        />
+        <BaseInput
+          v-model="form.schoolName"
+          label="School"
+          placeholder="School name"
+        />
+      </div>
+
+      <!-- Phone -->
+      <BaseInput
+        v-model="form.phone"
+        label="Phone"
+        placeholder="+855 ..."
       />
 
-      <!-- Modal -->
-      <div class="relative w-full max-w-[480px] rounded-xl bg-white shadow-2xl">
-        <!-- Header -->
-        <div class="flex items-center justify-between border-b border-slate-200 px-5 py-3">
-          <h2 class="text-base font-semibold text-slate-900">New Candidate</h2>
-          <button
-            class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
-            @click="emit('close')"
-          >
-            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-
-        <!-- Body -->
-        <div class="max-h-[65vh] space-y-3 overflow-y-auto px-5 py-3">
-          <!-- Row 1: Full Name (as in table column "Full Name") -->
-          <p class="text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400">Full Name</p>
-          <div class="grid grid-cols-2 gap-3">
-            <BaseInput
-              v-model="form.firstName"
-              label="First Name *"
-              placeholder="First name"
-            />
-            <BaseInput
-              v-model="form.lastName"
-              label="Last Name"
-              placeholder="Last name"
-            />
-          </div>
-
-          <!-- Row 2: Name (KH) (as in table column "Name (KH)") -->
-          <p class="text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400">Name (KH)</p>
-          <div class="grid grid-cols-2 gap-3">
-            <BaseInput
-              v-model="form.firstNameKH"
-              label="First Name (KH)"
-              placeholder="ឈ្មោះ"
-            />
-            <BaseInput
-              v-model="form.lastNameKH"
-              label="Last Name (KH)"
-              placeholder="ត្រកូល"
-            />
-          </div>
-
-          <!-- Row 3: Gender + DOB (as in table columns "Gender", "DOB") -->
-          <div class="grid grid-cols-2 gap-3">
-            <div>
-              <BaseSelect
-                v-model="form.gender"
-                label="Gender *"
-                :options="[
-                  { value: 'Male', label: 'Male' },
-                  { value: 'Female', label: 'Female' },
-                ]"
-              />
-            </div>
-            <BaseInput
-              v-model="form.dateOfBirth"
-              label="Date of Birth"
-              type="date"
-            />
-          </div>
-
-          <!-- Row 4: Province + School (as in table columns "Province", "School") -->
-          <div class="grid grid-cols-2 gap-3">
-            <div>
-              <BaseSelect
-                v-model="form.province_id"
-                label="Province *"
-                :options="provinces.map(p => ({ value: p.id, label: p.name }))"
-                :disabled="loadingOptions && provinces.length === 0"
-              />
-            </div>
-            <BaseInput
-              v-model="form.schoolName"
-              label="School"
-              placeholder="School name"
-            />
-          </div>
-
-          <!-- Row 5: Phone (as in table column "Phone") -->
-          <BaseInput
-            v-model="form.phone"
-            label="Phone"
-            placeholder="+855 ..."
-          />
-
-          <!-- Row 6: NGO + Campaign (as in table columns "NGO", "Campaign") -->
-          <p class="text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400">Organization</p>
-          <div class="grid grid-cols-2 gap-3">
-            <div>
-              <BaseSelect
-                v-model="form.ngo_id"
-                label="NGO"
-                :options="[
-                  { value: null, label: 'None' },
-                  ...ngos.map(n => ({ value: n.id, label: n.name })),
-                ]"
-                :disabled="loadingOptions && ngos.length === 0"
-              />
-            </div>
-            <div>
-              <BaseSelect
-                v-model="form.campaign_id"
-                label="Campaign"
-                :options="[
-                  { value: null, label: 'None' },
-                  ...campaigns.map(c => ({ value: c.id, label: c.name })),
-                ]"
-                :disabled="loadingOptions && campaigns.length === 0"
-              />
-            </div>
-          </div>
-
-          <!-- Row 6: Status (as in table column "Status") -->
-          <div>
-            <BaseSelect
-              v-model="form.status"
-              label="Status"
-              :options="[
-                { value: 'Register', label: 'Register' },
-                { value: 'Investigating', label: 'Investigating' },
-                { value: 'Assessed', label: 'Assessed' },
-                { value: 'Approved', label: 'Approved' },
-                { value: 'Rejected', label: 'Rejected' },
-                { value: 'On Hold', label: 'On Hold' },
-              ]"
-            />
-          </div>
-        </div>
-
-        <!-- Footer -->
-        <div class="flex items-center justify-end gap-2 border-t border-slate-200 px-5 py-3">
-          <button
-            class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-50"
-            @click="emit('close')"
-          >
-            Cancel
-          </button>
-          <button
-            class="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-            :disabled="!form.firstName.trim() || loadingOptions"
-            @click="handleSave"
-          >
-            {{ loadingOptions ? 'Loading...' : 'Create Candidate' }}
-          </button>
-        </div>
+      <!-- Organization -->
+      <p class="text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400">Organization</p>
+      <div class="grid grid-cols-2 gap-3">
+        <BaseSelect
+          v-model="form.ngo_id"
+          label="NGO"
+          :options="[
+            { value: null, label: 'None' },
+            ...ngos.map(n => ({ value: n.id, label: n.name })),
+          ]"
+          :disabled="loadingOptions && ngos.length === 0"
+        />
+        <BaseSelect
+          v-model="form.campaign_id"
+          label="Campaign"
+          :options="[
+            { value: null, label: 'None' },
+            ...campaigns.map(c => ({ value: c.id, label: c.name })),
+          ]"
+          :disabled="loadingOptions && campaigns.length === 0"
+        />
       </div>
+
+      <!-- Status -->
+      <BaseSelect
+        v-model="form.status"
+        label="Status"
+        :options="[
+          { value: 'Register', label: 'Register' },
+          { value: 'Investigating', label: 'Investigating' },
+          { value: 'Assessed', label: 'Assessed' },
+          { value: 'Approved', label: 'Approved' },
+          { value: 'Rejected', label: 'Rejected' },
+          { value: 'On Hold', label: 'On Hold' },
+        ]"
+      />
     </div>
-  </teleport>
+
+    <template #footer>
+      <div class="flex items-center justify-end gap-2">
+        <BaseButton
+          variant="secondary"
+          class="!w-auto"
+          @click="emit('update:modelValue', false)"
+        >
+          Cancel
+        </BaseButton>
+        <BaseButton
+          class="!w-auto"
+          :disabled="!form.firstName.trim() || loadingOptions"
+          @click="handleSave"
+        >
+          {{ loadingOptions ? 'Loading...' : 'Create Candidate' }}
+        </BaseButton>
+      </div>
+    </template>
+  </BaseModal>
 </template>

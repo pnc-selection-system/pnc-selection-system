@@ -1,16 +1,23 @@
+export interface LocationOption {
+  id: number
+  name: string
+}
+
 export interface SessionFilters {
   province: string
-  school: string
   dateRange: string
+  partnerType?: string
 }
+
 export interface SessionFilterOptions {
-  provinces: string[]
-  schools: string[]
+  provinces: LocationOption[]
   dateRanges: string[]
   campaignYears: string[]
+  partnerTypes: string[]
 }
+
 export const DEFAULT_SESSION_FILTERS: SessionFilters = {
   province: '',
-  school: '',
   dateRange: '',
+  partnerType: '',
 }

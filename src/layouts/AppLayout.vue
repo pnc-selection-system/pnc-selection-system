@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { defineAsyncComponent } from 'vue'
-const AppHeader = defineAsyncComponent(() => import('@/components/layouts/AppHeader.vue'))
-const AppSidebar = defineAsyncComponent(() => import('@/components/layouts/AppSidebar.vue'))
+import AppHeader from '@/components/layouts/AppHeader.vue'
+import AppSidebar from '@/components/layouts/AppSidebar.vue'
 </script>
 <template>
   <div class="flex h-screen bg-slate-100 overflow-hidden font-sans antialiased text-slate-900">
