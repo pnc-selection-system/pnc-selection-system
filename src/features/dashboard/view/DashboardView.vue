@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from "vue";
+import { onMounted, ref } from "vue";
 import DashboardCard from "../components/DashboardCard.vue";
 import DashboardFilter from "../components/DashboardFilter.vue";
 import FunnelChart from "../components/FunnelChart.vue";
@@ -9,9 +9,12 @@ import YearChart from "../components/YearChart.vue";
 import { fetchDashboardData, fetchFilterOptions } from "../service/service.ts";
 import type { DashboardData } from "../types/dashboard.ts";
 import { DEFAULT_FILTERS, type DashboardFilters, type FilterOptions } from "../types/filter.ts";
+import { useDebouncedWatch } from '@/utils/useDebouncedWatch'
 
 const filters = ref<DashboardFilters>({ ...DEFAULT_FILTERS });
 const filterOptions = ref<FilterOptions>({ campaigns: [], provinces: [], statuses: [] });
+const loading = ref(false)
+const error = ref<string | null>(null)
 const data = ref<DashboardData>({
   stats: [],
   funnel: [],
@@ -21,7 +24,16 @@ const data = ref<DashboardData>({
 });
 
 async function loadData() {
-  data.value = await fetchDashboardData(filters.value);
+  loading.value = true
+  error.value = null
+  try {
+    data.value = await fetchDashboardData(filters.value);
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : 'Failed to load dashboard data'
+    console.error('Dashboard data fetch failed:', err)
+  } finally {
+    loading.value = false
+  }
 }
 
 function handleExport() {
@@ -36,11 +48,15 @@ function handleExport() {
 }
 
 onMounted(async () => {
-  const [opts] = await Promise.all([fetchFilterOptions(), loadData()]);
-  filterOptions.value = opts;
+  try {
+    const [opts] = await Promise.all([fetchFilterOptions(), loadData()]);
+    filterOptions.value = opts;
+  } catch (err) {
+    console.error('Failed to load initial dashboard data:', err)
+  }
 });
 
-watch(filters, loadData, { deep: true, immediate: false });
+useDebouncedWatch(filters, loadData, 400, true)
 </script>
 
 <template>

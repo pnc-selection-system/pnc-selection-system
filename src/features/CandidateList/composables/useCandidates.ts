@@ -1,6 +1,6 @@
-import { watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useCandidateStore } from '../stores/candidateStore'
+import { useDebouncedWatch } from '@/utils/useDebouncedWatch'
 
 export function useCandidates() {
   const store = useCandidateStore()

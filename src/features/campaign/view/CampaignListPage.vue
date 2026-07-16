@@ -50,6 +50,7 @@ function closeFormModal() {
 function viewCampaign(campaign: Campaign) {
   router.push({ name: 'campaign-detail', params: { id: campaign.id } })
 }
+
 </script>
 
 <template>
@@ -73,11 +74,11 @@ function viewCampaign(campaign: Campaign) {
 
       <template v-else>
         <CampaignToolbar
-        v-model:year-filter="yearFilter"
-        v-model:status-filter="statusFilter"
-        :year-options="yearOptions"
-        @create="openCreateModal"
-      />
+          v-model:year-filter="yearFilter"
+          v-model:status-filter="statusFilter"
+          :year-options="yearOptions"
+          @create="openCreateModal"
+        />
 
       <DataTableWrapper
         :data="filteredCampaigns"

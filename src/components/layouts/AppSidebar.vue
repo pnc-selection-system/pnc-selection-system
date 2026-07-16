@@ -97,23 +97,23 @@ import SidebarMenuItem from "@/components/layouts/SidebarMenuItem.vue"
         </p>
         <SidebarMenuItem title="Exam Configuration" to="/exams" badge="MGR" />
         <SidebarMenuItem title="Import Wizard" to="/exam/import-wizard" />
-        <SidebarMenuItem title="Results & Analytics" />
+        <SidebarMenuItem title="Results & Analytics" to="/exam/results" />
       </div>
       <!-- EVALUATION -->
       <div class="px-3 mt-2">
         <p class="text-[8px] tracking-[2px] text-gray-500 uppercase mb-1 font-medium">
           Evaluation
         </p>
-        <SidebarMenuItem title="Interest Assessment" />
-        <SidebarMenuItem title="Home Investigation" badge="INV" />
+        <SidebarMenuItem title="Interest Assessment" to="/evaluation/interest" />
+        <SidebarMenuItem title="Home Investigation" to="/evaluation/home-investigation" badge="INV" />
       </div>
       <!-- DECISION -->
       <div class="px-3 mt-3 pb-4">
         <p class="text-[8px] tracking-[2px] text-gray-500 uppercase mb-1.5 font-medium">
           Decision
         </p>
-        <SidebarMenuItem title="Voting & Selection" badge="CMT" />
-        <SidebarMenuItem title="Reports & Exports" />
+        <SidebarMenuItem title="Voting & Selection" to="/decision/voting-selection" badge="CMT" />
+        <SidebarMenuItem title="Reports & Exports" to="/reports" badge="OFF" />
       </div>
     </div>
     <!-- Footer -->

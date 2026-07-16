@@ -1,15 +1,20 @@
 import type { RouteRecordRaw } from 'vue-router'
+import AppLayout from '@/layouts/AppLayout.vue'
+import InformationSessionView from './view/InformationSessionView.vue'
 
 const routes: RouteRecordRaw[] = [
   {
     path: '/outreach/information-sessions',
-    component: () => import('@/layouts/AppLayout.vue'),
+    component: AppLayout,
     children: [
       {
         path: '',
         name: 'information-sessions',
-        meta: { requiresAuth: true },
-        component: () => import('./view/InformationSessionView.vue'),
+        component: InformationSessionView,
+        meta: {
+          title: 'Information Sessions',
+          requiresAuth: true,
+        },
       },
     ],
   },
