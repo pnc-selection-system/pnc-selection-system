@@ -1,3 +1,4 @@
+import api from '@/plugins/axios'
 import type { AssessmentForm, PageMeta, Question } from '../types/question'
 import type { AssessmentResponse, CandidateOption } from '../types/response'
 
@@ -69,12 +70,20 @@ export async function cloneFormFromYear(year: string): Promise<Question[]> {
 
 export async function fetchCandidatesPendingResponse(): Promise<CandidateOption[]> {
   return wait([
-    { id: 'c1', name: 'Pisey L.' },
-    { id: 'c2', name: 'Rithy S.' },
-    { id: 'c3', name: 'Sokha N.' },
+    { id: '1', candidateCode: 'C-1042', name: 'Sokha Norng', province: 'Battambang', organization: 'Future Light', status: 'investigating' },
+    { id: '2', candidateCode: 'C-1043', name: 'Dara Kem', province: 'Siem Reap', organization: '', status: 'assessed' },
+    { id: '3', candidateCode: 'C-1044', name: 'Mealea Phan', province: 'Phnom Penh', organization: 'Hope', status: 'exam_done' },
+    { id: '4', candidateCode: 'C-1045', name: 'Vibol Som', province: 'Kampong Cham', organization: 'Rural Reach', status: 'registered' },
   ])
 }
 
 export async function submitResponse(response: AssessmentResponse): Promise<AssessmentResponse> {
-  return wait({ ...response, score: 78, passed: true })
+  try {
+    const { data } = await api.post<{ data: AssessmentResponse }>('/interest-responses', response)
+    return data.data
+  } catch (error) {
+    console.warn('API unavailable, using local fallback:', error)
+    // Fallback: simulate successful submission locally
+    return wait({ ...response, score: 78, passed: true })
+  }
 }

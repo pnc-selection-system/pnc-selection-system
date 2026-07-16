@@ -5,7 +5,11 @@ export interface QuestionAnswer {
 
 export interface CandidateOption {
   id: string
+  candidateCode: string
   name: string
+  province?: string
+  organization?: string
+  status?: string
 }
 
 export interface AssessmentResponse {

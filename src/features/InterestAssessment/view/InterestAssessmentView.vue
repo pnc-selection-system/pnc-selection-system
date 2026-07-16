@@ -31,7 +31,6 @@ const selectedScales = ref<Record<string, number>>({})
 
 const isSaving = ref(false)
 const isSubmitting = ref(false)
-const submissionResult = ref<AssessmentResponse | null>(null)
 const formName = computed(() => store.activeForm?.name ?? '')
 
 function addQuestion(type: QuestionType) {
@@ -104,16 +103,12 @@ async function handleSave() {
 async function handleSubmitResponse(response: AssessmentResponse) {
   isSubmitting.value = true
   try {
-    const result = await submitResponse(response)
-    submissionResult.value = result
+    await submitResponse(response)
     ElMessage.success('Response recorded successfully!')
+    window.location.reload()
   } finally {
     isSubmitting.value = false
   }
-}
-
-function handleRecordAnother() {
-  submissionResult.value = null
 }
 
 onMounted(async () => {
@@ -188,14 +183,11 @@ onMounted(async () => {
       </template>
 
       <RecordResponseForm
-        v-else-if="activeTab === 'record' && store.activeForm"
-        :key="activeTab + String(!!submissionResult)"
+        v-if="activeTab === 'record' && store.activeForm"
         :form="store.activeForm"
         :candidates="candidates"
         :submitting="isSubmitting"
-        :submission-result="submissionResult"
         @submit="handleSubmitResponse"
-        @record-another="handleRecordAnother"
       />
     </div>
   </div>
