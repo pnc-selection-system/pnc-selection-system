@@ -8,3 +8,27 @@
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+.el-button {
+  min-width: 0 !important;
+}
+
+.el-button--small {
+  min-width: 0 !important;
+  width: 100% !important;
+}
+
+.equal-width-btn.el-button {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+.equal-width-btn.el-button .el-button__inner {
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+.el-button__inner {
+  min-width: 0 !important;
+}

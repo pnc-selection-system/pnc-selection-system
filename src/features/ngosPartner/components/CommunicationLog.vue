@@ -29,9 +29,7 @@ function formatDate(iso: string) {
       <p class="font-mono text-[9px] uppercase tracking-[0.1em] text-slate-400">
         Communication log
       </p>
-    </div>
-    <div class="pb-2">
-      <BaseButton variant="secondary" class="!h-auto !w-full !border-dashed !py-2.5 !text-[13px]" @click="emit('logEntry')">+ Log entry</BaseButton>
+      <BaseButton variant="secondary" size="small" @click="emit('logEntry')">+ Add</BaseButton>
     </div>
     <EmptyState
       v-if="entries.length === 0"
