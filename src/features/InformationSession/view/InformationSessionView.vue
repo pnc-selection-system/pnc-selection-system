@@ -81,7 +81,16 @@ async function handleSave() {
     form.value = emptyForm()
     isFormOpen.value = false
   } catch (err: any) {
-    ElMessage.error(err?.response?.data?.message || err?.message || 'Failed to save session')
+    // Show field-level validation errors from the backend
+    const responseData = err?.response?.data
+    if (responseData?.errors) {
+      const fieldErrors = Object.entries(responseData.errors)
+        .map(([field, msgs]) => `${field}: ${(msgs as string[]).join(', ')}`)
+        .join('; ')
+      ElMessage.error(fieldErrors || responseData.message || 'Failed to save session')
+    } else {
+      ElMessage.error(responseData?.message || err?.message || 'Failed to save session')
+    }
   } finally {
     isSaving.value = false
   }

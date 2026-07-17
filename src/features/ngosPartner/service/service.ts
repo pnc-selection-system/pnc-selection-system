@@ -28,7 +28,10 @@ export async function addLogEntry(
 
 export async function fetchPartners(): Promise<NgoPartner[]> {
   const response = await api.get<ApiResponse<NgoPartner[]>>('/ngo-partners')
-  return response.data.data
+  const payload = response.data.data ?? response.data
+  if (Array.isArray(payload)) return payload
+  if (payload && typeof payload === 'object' && Array.isArray((payload as any).data)) return (payload as any).data
+  return []
 }
 
 export async function addPartner(formData: NgoPartnerFormData): Promise<NgoPartner> {
@@ -49,7 +52,10 @@ export async function deletePartner(id: number): Promise<void> {
 
 export async function fetchContactPersons(partnerId: number): Promise<ContactPerson[]> {
   const response = await api.get<ApiResponse<ContactPerson[]>>(`/ngo-partners/${partnerId}/contact-persons`)
-  return response.data.data
+  const payload = response.data.data ?? response.data
+  if (Array.isArray(payload)) return payload
+  if (payload && typeof payload === 'object' && Array.isArray((payload as any).data)) return (payload as any).data
+  return []
 }
 
 export async function addContactPerson(partnerId: number, formData: ContactPersonFormData): Promise<ContactPerson> {
@@ -70,5 +76,8 @@ export async function deleteContactPerson(partnerId: number, contactId: number):
 
 export async function fetchPartnerCandidates(partnerId: number): Promise<unknown[]> {
   const response = await api.get<ApiResponse<unknown[]>>(`/ngo-partners/${partnerId}/candidates`)
-  return response.data.data
+  const payload = response.data.data ?? response.data
+  if (Array.isArray(payload)) return payload
+  if (payload && typeof payload === 'object' && Array.isArray((payload as any).data)) return (payload as any).data
+  return []
 }

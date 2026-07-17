@@ -103,8 +103,8 @@ async function loadOptions() {
       fetchProvinces(),
       fetchPartners(),
     ])
-    provinces.value = provinceData
-    ngos.value = ngoData
+    provinces.value = Array.isArray(provinceData) ? provinceData : []
+    ngos.value = Array.isArray(ngoData) ? ngoData : []
   } catch {
     // Silently fail
   } finally {

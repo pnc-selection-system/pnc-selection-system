@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
+import PageHeader from '@/components/ui/PageHeader.vue'
+import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 import PartnerList from '../components/PartnerList.vue'
 import PartnerDetailHeader from '../components/PartnerDetailHeader.vue'
 import ContactPersonList from '../components/ContactPersonList.vue'
@@ -30,6 +32,9 @@ const loading = ref(true)
 const error = ref<string | null>(null)
 const contactError = ref<string | null>(null)
 const partnerError = ref<string | null>(null)
+
+// Filter out any null items that could crash the template rendering
+const validPartners = computed(() => Array.isArray(partners.value) ? partners.value.filter(Boolean) : [])
 
 onMounted(async () => {
   try {
@@ -93,7 +98,7 @@ async function handleAddPartner(formData: NgoPartnerFormData) {
   try {
     partnerError.value = null
     const created = await addPartner(formData)
-    partners.value = [...partners.value, created]
+    partners.value = [...(Array.isArray(partners.value) ? partners.value : []), created]
     showAddPartner.value = false
   } catch (err) {
     partnerError.value = extractApiError(err, 'Failed to add partner')
@@ -160,7 +165,7 @@ async function loadLogEntries(partnerId: number) {
           <LoadingSpinner v-if="loading" class="py-16" />
           <PartnerList
             v-else
-            :partners="partners"
+            :partners="validPartners"
             :selected-id="selectedPartner?.id ?? null"
             @select="handleSelectPartner"
             @add="showAddPartner = true"

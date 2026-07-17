@@ -49,32 +49,32 @@ const emit = defineEmits<{
       </thead>
       <tbody>
         <tr
-          v-for="partner in partners"
-          :key="partner.id"
+          v-for="(partner, index) in partners"
+          :key="partner?.id ?? index"
           class="group cursor-pointer border-b border-slate-50 last:border-0 transition-colors"
           :class="[
-            partner.id === selectedId 
+            partner?.id === selectedId 
               ? 'bg-blue-50/60' 
               : 'hover:bg-slate-50/80'
           ]"
           @click="emit('select', partner)"
         >
           <td class="px-4 py-2.5 text-[#2D3748] text-[13px] transition-colors group-hover:text-blue-600">
-            {{ partner.name }}
+            {{ partner?.name ?? '-' }}
           </td>
           <td class="px-4 py-2.5 text-slate-500 text-[12px]">
-            {{ partner.type }}
+            {{ partner?.type ?? '-' }}
           </td>
           <td class="px-4 py-2.5">
             <span
               class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium"
-              :class="partner.status === 'Active' ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500'"
+              :class="partner?.status === 'Active' ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500'"
             >
               <span
                 class="h-1.5 w-1.5 rounded-full"
-                :class="partner.status === 'Active' ? 'bg-emerald-500' : 'bg-slate-400'"
+                :class="partner?.status === 'Active' ? 'bg-emerald-500' : 'bg-slate-400'"
               />
-              {{ partner.status }}
+              {{ partner?.status ?? '-' }}
             </span>
           </td>
         </tr>

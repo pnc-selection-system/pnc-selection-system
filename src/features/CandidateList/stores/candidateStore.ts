@@ -86,9 +86,11 @@ export const useCandidateStore = defineStore('candidate', {
       try {
         const partners = await fetchPartners()
         const cache: Record<number, string> = {}
-        partners.forEach((p) => {
-          cache[p.id] = p.name
-        })
+        if (Array.isArray(partners)) {
+          partners.forEach((p) => {
+            cache[p.id] = p.name
+          })
+        }
         setNgoNameCache(cache)
       } catch {
         // NGO names are optional; silently fail

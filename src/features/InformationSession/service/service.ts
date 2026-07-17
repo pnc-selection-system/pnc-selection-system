@@ -68,6 +68,18 @@ export interface PaginatedResult<T> {
   perPage: number
 }
 
+/** Flatten nested location objects into flat string labels for display */
+function flattenLocationLabels(session: Session): Session {
+  if (session.village && typeof session.village !== 'string') {
+    const v = session.village as any
+    session.province = v?.commune?.district?.province?.name ?? session.province
+    session.district = v?.commune?.district?.name ?? session.district
+    session.commune  = v?.commune?.name ?? session.commune
+    session.village  = v?.name ?? session.village
+  }
+  return session
+}
+
 export async function fetchSessions(
   filters: SessionFilters,
   page: number = 1,
@@ -86,8 +98,9 @@ export async function fetchSessions(
     const response = await api.get('/info-sessions', { params })
     // Laravel returns paginated: { success, data: { current_page, data: [sessions], total, last_page, per_page, ... } }
     const paginated = response.data.data ?? response.data
+    const rawData: Session[] = paginated.data ?? paginated ?? []
     return {
-      data: paginated.data ?? paginated ?? [],
+      data: rawData.map(flattenLocationLabels),
       total: paginated.total ?? 0,
       currentPage: paginated.current_page ?? page,
       lastPage: paginated.last_page ?? 1,
@@ -122,8 +135,12 @@ export async function saveSession(form: SessionFormData): Promise<Session> {
       ngo_name: form.ngoName || null,
     }
 
-    if (form.hostBy?.trim()) {
-      payload.hosts = [{ host_name: form.hostBy.trim() }]
+    // Always send hosts array — backend requires the key to be present
+    const hostName = form.hostBy?.trim()
+    if (hostName) {
+      payload.hosts = [{ host_name: hostName }]
+    } else {
+      payload.hosts = []
     }
 
     if (form.id) {
@@ -144,12 +161,7 @@ export async function saveSession(form: SessionFormData): Promise<Session> {
 export async function fetchSessionById(id: number): Promise<Session> {
   const { data } = await api.get(`/info-sessions/${id}`)
   const session = data.data ?? data
-  // flatten nested location labels
-  session.province = session.village?.commune?.district?.province?.name ?? session.province
-  session.district = session.village?.commune?.district?.name ?? session.district
-  session.commune  = session.village?.commune?.name ?? session.commune
-  session.village  = session.village?.name ?? session.village
-  return session
+  return flattenLocationLabels(session)
 }
 
 export async function deleteSession(id: number): Promise<void> {
