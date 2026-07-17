@@ -111,24 +111,28 @@ export function useInfoSessions() {
     }).catch(() => {})
   }
 
-  // Create: optimistically prepend, then confirm with real data
+  // Create: save, then fetch full session with flattened location labels
   async function createSession(form: SessionFormData): Promise<Session> {
     const saved = await saveSession(form)
     pageCache.clear()
-    sessions.value = [saved, ...sessions.value].slice(0, 10)
+    const full = await getSession(saved.id)
+    const session = full ?? saved
+    sessions.value = [session, ...sessions.value].slice(0, 10)
     total.value += 1
-    detailCache.set(saved.id, saved)
-    return saved
+    detailCache.set(session.id, session)
+    return session
   }
 
-  // Edit: optimistically update in-place, then confirm with real data
+  // Edit: save, then fetch full session with flattened location labels
   async function updateSession(form: SessionFormData): Promise<Session> {
     const saved = await saveSession(form)
     pageCache.clear()
-    const idx = sessions.value.findIndex(s => s.id === saved.id)
-    if (idx !== -1) sessions.value[idx] = saved
-    detailCache.set(saved.id, saved)
-    return saved
+    const full = await getSession(saved.id)
+    const session = full ?? saved
+    const idx = sessions.value.findIndex(s => s.id === session.id)
+    if (idx !== -1) sessions.value[idx] = session
+    detailCache.set(session.id, session)
+    return session
   }
 
   async function getSession(id: number): Promise<Session | null> {

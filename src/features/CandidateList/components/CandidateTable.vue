@@ -2,6 +2,7 @@
   <DataTableWrapper
     :data="candidates"
     :loading="loading"
+    row-key="id"
     empty-text="No candidates found"
     empty-description="Try adjusting your search or filter criteria"
   >

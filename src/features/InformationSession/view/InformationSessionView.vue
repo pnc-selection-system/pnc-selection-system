@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch, onMounted } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import SessionFilters from '../components/SessionFilters.vue'
 import SessionTable from '../components/SessionTable.vue'
 import SessionFormPanel from '../components/SessionFormPanel.vue'
@@ -8,6 +8,7 @@ import { EMPTY_SESSION_FORM, type Session, type SessionFormData } from '../types
 import BasePagination from '@/components/base/BasePagination.vue'
 import BaseModal from '@/components/base/BaseModal.vue'
 import { ElMessage } from 'element-plus'
+import { useDebouncedWatch } from '@/utils/useDebouncedWatch'
 
 const {
   sessions,
@@ -107,11 +108,7 @@ const modalTitle = computed(() =>
   form.value.id ? 'Edit Information Session' : 'New Information Session'
 )
 
-let filterDebounce: ReturnType<typeof setTimeout>
-watch(filters, () => {
-  clearTimeout(filterDebounce)
-  filterDebounce = setTimeout(() => applyFilters(), 300)
-}, { deep: true })
+useDebouncedWatch(filters, applyFilters, 300, true)
 </script>
 
 <template>

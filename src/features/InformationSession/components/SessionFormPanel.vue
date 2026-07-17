@@ -326,18 +326,32 @@ function inputClasses(field: string): string {
       </div>
     </div>
 
-    <!-- School -->
-    <div class="space-y-1.5">
-      <label class="text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400">SCHOOL *</label>
-      <input
-        type="text"
-        :value="modelValue.school"
-        :class="inputClasses('school')"
-        @input="update('school', ($event.target as HTMLInputElement).value)"
-        @blur="markTouched('school')"
-        placeholder="Enter school name"
-      />
-      <p v-if="hasError('school')" class="mt-1 text-xs text-red-500">{{ fieldError('school') }}</p>
+    <!-- School and Host By -->
+    <div class="grid grid-cols-2 gap-4">
+      <div class="space-y-1.5">
+        <label class="text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400">SCHOOL *</label>
+        <input
+          type="text"
+          :value="modelValue.school"
+          :class="inputClasses('school')"
+          @input="update('school', ($event.target as HTMLInputElement).value)"
+          @blur="markTouched('school')"
+          placeholder="Enter school name"
+        />
+        <p v-if="hasError('school')" class="mt-1 text-xs text-red-500">{{ fieldError('school') }}</p>
+      </div>
+      <div class="space-y-1.5">
+        <label class="text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400">HOST BY *</label>
+        <input
+          type="text"
+          :value="modelValue.hostBy"
+          :class="inputClasses('hostBy')"
+          @input="update('hostBy', ($event.target as HTMLInputElement).value)"
+          @blur="markTouched('hostBy')"
+          placeholder="Enter host name"
+        />
+        <p v-if="hasError('hostBy')" class="mt-1 text-xs text-red-500">{{ fieldError('hostBy') }}</p>
+      </div>
     </div>
 
     <!-- Attendance -->
@@ -407,20 +421,6 @@ function inputClasses(field: string): string {
         placeholder="Enter NGO name"
       />
       <p v-if="hasError('ngoName')" class="mt-1 text-xs text-red-500">{{ fieldError('ngoName') }}</p>
-    </div>
-
-    <!-- Host By -->
-    <div class="space-y-1.5">
-      <label class="text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400">HOST BY *</label>
-      <input
-        type="text"
-        :value="modelValue.hostBy"
-        :class="inputClasses('hostBy')"
-        @input="update('hostBy', ($event.target as HTMLInputElement).value)"
-        @blur="markTouched('hostBy')"
-        placeholder="Enter host name"
-      />
-      <p v-if="hasError('hostBy')" class="mt-1 text-xs text-red-500">{{ fieldError('hostBy') }}</p>
     </div>
 
     <!-- Validation summary -->

@@ -6,17 +6,17 @@ import { fetchCampaigns } from '@/features/campaign/services/campaign'
 import { fetchProvinces } from '../services/provinceService'
 import { fetchPartners } from '@/features/ngosPartner/service/service'
 import { getErrorMessage } from '@/utils/error'
+import { ref, shallowRef } from 'vue'
 
 export const useCandidateStore = defineStore('candidate', {
   state: () => ({
     loading: false,
     saving: false,
     error: null as string | null,
-    allCandidates: [] as Candidate[],
-    candidates: [] as Candidate[],
-    page: 1,
-    perPage: 10,
+    candidates: shallowRef<Candidate[]>([]),
     total: 0,
+    page: 1,
+    perPage: 50,
     search: '',
     province_id: null as number | null,
     ngo_id: null as number | null,
@@ -26,32 +26,10 @@ export const useCandidateStore = defineStore('candidate', {
 
   getters: {
     totalPages: (state) => Math.ceil(state.total / state.perPage),
-
-    /** Client-side filtered list based on all filter criteria */
-    filteredCandidates(state) {
-      const all = state.allCandidates
-      const q = state.search.toLowerCase()
-      return all.filter((c) => {
-        const matchSearch =
-          !q ||
-          c.fullName.toLowerCase().includes(q) ||
-          c.fullName_KH.toLowerCase().includes(q) ||
-          c.candidate_no.toLowerCase().includes(q)
-        const matchProvince = !state.province_id || c.province_id === state.province_id
-        const matchNgo = !state.ngo_id || c.ngo_id === state.ngo_id
-        const matchStatus = !state.status || c.status === state.status
-        const matchExamResult = !state.examResult || c.exam_result === state.examResult
-        return matchSearch && matchProvince && matchNgo && matchStatus && matchExamResult
-      })
-    },
   },
 
   actions: {
-    /**
-     * Fetch campaigns and populate the campaign name cache for NGO display
-     */
     async loadCampaignNames() {
-      // Skip if already cached to avoid redundant API calls
       if (hasCampaignCache()) return
       try {
         const campaigns = await fetchCampaigns()
@@ -66,7 +44,6 @@ export const useCandidateStore = defineStore('candidate', {
     },
 
     async loadProvinceNames() {
-      // Skip if already cached
       if (hasProvinceCache()) return
       try {
         const provinces = await fetchProvinces()
@@ -81,7 +58,6 @@ export const useCandidateStore = defineStore('candidate', {
     },
 
     async loadNgoNames() {
-      // Skip if already cached
       if (hasNgoCache()) return
       try {
         const partners = await fetchPartners()
@@ -97,32 +73,33 @@ export const useCandidateStore = defineStore('candidate', {
       }
     },
 
-    /**
-     * Apply client-side filters and paginate
-     */
-    applyFilters() {
-      const filtered = this.filteredCandidates
-      this.total = filtered.length
-      const start = (this.page - 1) * this.perPage
-      this.candidates = filtered.slice(start, start + this.perPage)
+    async applyFilters() {
+      this.page = 1
+      await this.fetchCandidates()
     },
 
     async fetchCandidates() {
       this.loading = true
       this.error = null
       try {
-        // Load all lookup data in parallel (first load only)
         await Promise.all([
           this.loadCampaignNames(),
           this.loadProvinceNames(),
           this.loadNgoNames(),
         ])
 
-        // Fetch all candidates (large per_page to get everything)
-        const { candidates: apiCandidates } = await candidateService.fetchCandidates({ per_page: 10000 })
+        const { candidates: apiCandidates, meta } = await candidateService.fetchCandidates({
+          page: this.page,
+          per_page: this.perPage,
+          search: this.search || undefined,
+          province_id: this.province_id ?? undefined,
+          ngo_id: this.ngo_id ?? undefined,
+          status: this.status || undefined,
+          exam_result: this.examResult || undefined,
+        })
 
-        this.allCandidates = apiCandidates.map(apiCandidateToFrontend)
-        this.applyFilters()
+        this.candidates = apiCandidates.map(apiCandidateToFrontend)
+        this.total = meta?.total ?? apiCandidates.length
       } catch (err) {
         this.error = getErrorMessage(err, 'Failed to load candidates')
       } finally {
@@ -132,7 +109,7 @@ export const useCandidateStore = defineStore('candidate', {
 
     setPage(page: number) {
       this.page = page
-      this.applyFilters()
+      this.fetchCandidates()
     },
 
     async addCandidate(payload: {
@@ -143,8 +120,8 @@ export const useCandidateStore = defineStore('candidate', {
       gender: 'Male' | 'Female'
       dateOfBirth: string
       phone: string
-      schoolName: string
       province_id: number
+      schoolName: string
       campaign_id: number | null
       ngo_id: number | null
       status: string
@@ -167,12 +144,12 @@ export const useCandidateStore = defineStore('candidate', {
       this.error = null
       try {
         await candidateService.updateCandidateStatus(id, newStatus)
-        // Update in allCandidates too
-        const idx = this.allCandidates.findIndex(c => c.id === id)
+        const idx = this.candidates.findIndex(c => c.id === id)
         if (idx !== -1) {
-          this.allCandidates[idx].status = newStatus
+          this.candidates = this.candidates.map(c =>
+            c.id === id ? { ...c, status: newStatus } : c
+          )
         }
-        this.applyFilters()
       } catch (err) {
         this.error = getErrorMessage(err, 'Failed to update candidate status')
         await this.fetchCandidates()

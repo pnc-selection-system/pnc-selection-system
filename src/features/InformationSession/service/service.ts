@@ -69,7 +69,7 @@ export interface PaginatedResult<T> {
 }
 
 /** Flatten nested location objects into flat string labels for display */
-function flattenLocationLabels(session: Session): Session {
+export function flattenLocationLabels(session: Session): Session {
   if (session.village && typeof session.village !== 'string') {
     const v = session.village as any
     session.province = v?.commune?.district?.province?.name ?? session.province
@@ -146,11 +146,13 @@ export async function saveSession(form: SessionFormData): Promise<Session> {
     if (form.id) {
       const response = await api.put(`/info-sessions/${form.id}`, payload)
       const result = response.data.data
-      return result?.data ?? result ?? response.data
+      const session = result?.data ?? result ?? response.data
+      return flattenLocationLabels(session as Session)
     } else {
       const response = await api.post('/info-sessions', payload)
       const result = response.data.data
-      return result?.data ?? result ?? response.data
+      const session = result?.data ?? result ?? response.data
+      return flattenLocationLabels(session as Session)
     }
   } catch (error: any) {
     console.error('[saveSession] Error:', error?.response?.data?.message || error?.message)

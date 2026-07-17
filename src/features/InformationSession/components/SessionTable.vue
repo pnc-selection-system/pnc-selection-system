@@ -59,9 +59,14 @@ function viewDetail(session: Session) {
         <span class="text-xs text-slate-700">{{ formatDateShort(row.session_date) }}</span>
       </template>
     </el-table-column>
-    <el-table-column label="Province / School" min-width="220">
+    <el-table-column label="Province" min-width="140">
       <template #default="{ row }">
-        <span class="text-xs text-slate-700">{{ row.province || row.village }} · {{ row.school_name }}</span>
+        <span class="text-xs text-slate-700">{{ row.province || row.village }}</span>
+      </template>
+    </el-table-column>
+    <el-table-column label="Host Name" min-width="160">
+      <template #default="{ row }">
+        <span class="text-xs text-slate-700">{{ row.hosts?.[0]?.host_name || '-' }}</span>
       </template>
     </el-table-column>
     <el-table-column label="Attendance" width="130">

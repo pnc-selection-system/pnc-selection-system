@@ -23,7 +23,7 @@
       <BasePagination
         :current-page="page"
         :total="total"
-        :page-size="10"
+        :page-size="perPage"
         @update:current-page="setPage"
       />
     </div>
@@ -41,7 +41,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import { useCandidates } from '../composables/useCandidates'
 import { useCandidateStore } from '../stores/candidateStore'
 import CandidateHeader from '../components/CandidateHeader.vue'
@@ -52,7 +52,7 @@ import CandidateFormModal from '../components/CandidateFormModal.vue'
 import BulkImportModal from '../components/BulkImportModal.vue'
 import BasePagination from '@/components/base/BasePagination.vue'
 
-const { candidates, loading, page, total, search, province_id, ngo_id, status, examResult, fetch, setPage } = useCandidates()
+const { candidates, loading, page, total, totalPages, search, province_id, ngo_id, status, examResult, perPage, fetch, setPage } = useCandidates()
 const store = useCandidateStore()
 
 const showFormModal = ref(false)
@@ -99,6 +99,4 @@ async function handleImportCandidates(newCandidates: any[]) {
     // Error is handled in the store
   }
 }
-
-onMounted(fetch)
 </script>
