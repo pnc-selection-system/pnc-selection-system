@@ -1,15 +1,16 @@
 <script setup lang="ts">
 defineProps<{
-  modelValue: 'builder' | 'record'
+  modelValue: 'builder' | 'record' | 'results'
 }>()
 
 defineEmits<{
-  'update:modelValue': [value: 'builder' | 'record']
+  'update:modelValue': [value: 'builder' | 'record' | 'results']
 }>()
 
-const tabs: { key: 'builder' | 'record'; label: string }[] = [
+const tabs: { key: 'builder' | 'record' | 'results'; label: string }[] = [
   { key: 'builder', label: 'Form builder' },
   { key: 'record', label: 'Record response' },
+  { key: 'results', label: 'Results' },
 ]
 </script>
 
