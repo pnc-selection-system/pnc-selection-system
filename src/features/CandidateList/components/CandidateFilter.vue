@@ -9,7 +9,7 @@
         :loading="loadingOptions"
         @change="emitFilter()"
       >
-        <el-option :value="null" label="All" />
+        <el-option value="" label="All" />
         <el-option
           v-for="p in provinces"
           :key="p.id"
@@ -27,7 +27,7 @@
         :loading="loadingOptions"
         @change="emitFilter()"
       >
-        <el-option :value="null" label="All" />
+        <el-option value="" label="All" />
         <el-option
           v-for="n in ngos"
           :key="n.id"
@@ -116,8 +116,8 @@ onMounted(loadOptions)
 
 function emitFilter() {
   emit('filter', {
-    province_id: localProvinceId.value,
-    ngo_id: localNgoId.value,
+    province_id: localProvinceId.value || null,
+    ngo_id: localNgoId.value || null,
     status: localStatus.value,
     examResult: localExamResult.value,
   })

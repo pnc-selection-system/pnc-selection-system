@@ -35,7 +35,7 @@ const provinceOptions = computed((): SelectOption[] => [
           :options="provinceOptions"
           placeholder="Province"
           clearable
-          @update:model-value="(v: string | number) => update('province', v as string)"
+           @update:model-value="(v) => update('province', v as string)"
         />
       </div>
 
@@ -45,7 +45,7 @@ const provinceOptions = computed((): SelectOption[] => [
           :options="[{ value: '', label: 'Date: All' }, ...options.dateRanges.filter(d => d !== 'All').map(d => ({ value: d, label: d }))]"
           placeholder="Date range"
           clearable
-          @update:model-value="(v: string | number) => update('dateRange', v as string)"
+           @update:model-value="(v) => update('dateRange', v as string)"
         />
       </div>
 
@@ -55,7 +55,7 @@ const provinceOptions = computed((): SelectOption[] => [
           :options="[{ value: '', label: 'Partner: All' }, ...options.partnerTypes.map(p => ({ value: p, label: p }))]"
           placeholder="Partner Type"
           clearable
-          @update:model-value="(v: string | number) => update('partnerType', v as string)"
+           @update:model-value="(v) => update('partnerType', v as string)"
         />
       </div>
 

@@ -105,6 +105,7 @@ function viewCampaign(campaign: Campaign) {
           </template>
         </el-table-column>
         <el-table-column prop="condidate_total" label="Candidates" width="150" />
+        <el-table-column prop="province_total" label="Provinces" width="120" />
         <el-table-column label="Status" width="120">
           <template #default="{ row }">
             <BaseBadge :type="row.status === CampaignStatus.Active ? 'primary' : 'info'" size="small">

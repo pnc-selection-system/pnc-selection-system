@@ -12,7 +12,6 @@ const error = ref<string | null>(null)
 const searchQuery = ref('')
 const statusFilter = ref<string>('all')
 const yearFilter = ref<string>('all')
-const showInfoBox = ref(true)
 
 const yearOptions = computed(() => {
   if (!Array.isArray(campaigns.value)) return []
@@ -91,16 +90,6 @@ export function useCampaigns() {
     }
   }
 
-  function getStatusCount(status: Campaign['status'] | 'all') {
-    if (!Array.isArray(campaigns.value)) return 0
-    if (status === 'all') return campaigns.value.length
-    return campaigns.value.filter((c) => c.status === status).length
-  }
-
-  function dismissInfoBox() {
-    showInfoBox.value = false
-  }
-
   return {
     saving,
     deleting,
@@ -111,13 +100,10 @@ export function useCampaigns() {
     statusFilter,
     yearFilter,
     yearOptions,
-    showInfoBox,
     filteredCampaigns,
     loadCampaigns,
     deleteCampaign,
     updateCampaign,
     addCampaign,
-    getStatusCount,
-    dismissInfoBox,
   }
 }

@@ -8,19 +8,21 @@ export interface SelectOption {
 }
 
 const props = defineProps<{
-  modelValue?: string | number
+  modelValue?: string | number | (string | number)[]
   options?: SelectOption[] | string[]
   label?: string
   placeholder?: string
   disabled?: boolean
   clearable?: boolean
+  multiple?: boolean
+  loading?: boolean
   name?: string
   id?: string
 }>()
 
 const emit = defineEmits<{
-  (e: 'update:modelValue', value: string | number): void
-  (e: 'change', value: string | number): void
+  (e: 'update:modelValue', value: string | number | (string | number)[]): void
+  (e: 'change', value: string | number | (string | number)[]): void
 }>()
 
 const normalizedOptions = computed<SelectOption[]>(() => {
@@ -33,9 +35,9 @@ const normalizedOptions = computed<SelectOption[]>(() => {
   })
 })
 
-function handleChange(value: string | number) {
-  emit('update:modelValue', value)
-  emit('change', value)
+function handleChange(value: unknown) {
+  emit('update:modelValue', value as string | number | (string | number)[])
+  emit('change', value as string | number | (string | number)[])
 }
 </script>
 
@@ -49,6 +51,8 @@ function handleChange(value: string | number) {
         :placeholder="placeholder || 'Select..'"
         :disabled="disabled"
         :clearable="clearable"
+        :multiple="multiple"
+        :loading="loading"
         class="w-full base-select-el"
         @update:model-value="handleChange"
       >

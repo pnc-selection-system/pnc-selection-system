@@ -2,7 +2,7 @@
 import { computed, ref, watch, reactive } from 'vue'
 import BaseSelect from '@/components/base/BaseSelect.vue'
 import BaseButton from '@/components/base/BaseButton.vue'
-import { fetchDistricts, fetchCommunes, fetchVillages } from '../service/service'
+import { fetchDistricts } from '../service/service'
 import type { SessionFormData } from '../types/session'
 import type { LocationOption, SessionFilterOptions } from '../types/filter'
 
@@ -21,15 +21,11 @@ const emit = defineEmits<{
 }>()
 
 const districts = ref<LocationOption[]>([])
-const communes = ref<LocationOption[]>([])
-const villages = ref<LocationOption[]>([])
 
 // --- Track which fields the user has interacted with ---
 const touched = reactive<Record<string, boolean>>({
   campaign_id: false,
   date: false,
-  time: false,
-  village_id: false,
   school: false,
   expectedAttendance: false,
   attendanceCount: false,
@@ -62,18 +58,6 @@ function validateSessionForm(): Record<string, string> {
     errs.date = 'Session date is required'
   } else if (!/^\d{4}-\d{2}-\d{2}$/.test(d.date)) {
     errs.date = 'Invalid date format'
-  }
-
-  // time
-  if (!d.time?.trim()) {
-    errs.time = 'Session time is required'
-  } else if (!/^([01]\d|2[0-3]):([0-5]\d)$/.test(d.time)) {
-    errs.time = 'Invalid time format (HH:MM required)'
-  }
-
-  // village_id (required on create)
-  if (!d.id && !d.village_id) {
-    errs.village_id = 'Village is required'
   }
 
   // school
@@ -149,48 +133,15 @@ const provinceOptions = computed(() =>
 const districtOptions = computed(() =>
   districts.value.map(d => ({ value: d.id, label: d.name }))
 )
-const communeOptions = computed(() =>
-  communes.value.map(c => ({ value: c.id, label: c.name }))
-)
-const villageOptions = computed(() =>
-  villages.value.map(v => ({ value: v.id, label: v.name }))
-)
 
 watch(() => props.modelValue.province_id, async (id) => {
   districts.value = []
-  communes.value = []
-  villages.value = []
   if (id) {
     try {
       districts.value = await fetchDistricts(id)
       console.log(`Loaded ${districts.value.length} districts for province ${id}`)
     } catch (e) {
       console.error('Failed to load districts:', e)
-    }
-  }
-}, { immediate: true })
-
-watch(() => props.modelValue.district_id, async (id) => {
-  communes.value = []
-  villages.value = []
-  if (id) {
-    try {
-      communes.value = await fetchCommunes(id)
-      console.log(`Loaded ${communes.value.length} communes for district ${id}`)
-    } catch (e) {
-      console.error('Failed to load communes:', e)
-    }
-  }
-}, { immediate: true })
-
-watch(() => props.modelValue.commune_id, async (id) => {
-  villages.value = []
-  if (id) {
-    try {
-      villages.value = await fetchVillages(id)
-      console.log(`Loaded ${villages.value.length} villages for commune ${id}`)
-    } catch (e) {
-      console.error('Failed to load villages:', e)
     }
   }
 }, { immediate: true })
@@ -206,10 +157,6 @@ function onProvinceChange(v: number) {
 function onDistrictChange(v: number) {
   markTouched('district_id')
   emit('update:modelValue', { ...props.modelValue, district_id: v, commune_id: null, village_id: null })
-}
-function onCommuneChange(v: number) {
-  markTouched('commune_id')
-  emit('update:modelValue', { ...props.modelValue, commune_id: v, village_id: null })
 }
 
 function onSave() {
@@ -244,13 +191,13 @@ function inputClasses(field: string): string {
           :model-value="modelValue.campaign_id ?? ''"
           :options="(campaigns || []).map(c => ({ value: c.id, label: `${c.name} (${c.year})` }))"
           placeholder="Select campaign"
-          @update:model-value="(v: string | number) => { markTouched('campaign_id'); update('campaign_id', Number(v)) }"
+           @update:model-value="(v) => { markTouched('campaign_id'); update('campaign_id', Number(v)) }"
         />
       </div>
       <p v-if="hasError('campaign_id')" class="mt-1 text-xs text-red-500">{{ fieldError('campaign_id') }}</p>
     </div>
 
-    <!-- Date and Time -->
+    <!-- Date -->
     <div class="grid grid-cols-2 gap-4">
       <div class="space-y-1.5">
         <label class="text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400">DATE *</label>
@@ -263,17 +210,6 @@ function inputClasses(field: string): string {
         />
         <p v-if="hasError('date')" class="mt-1 text-xs text-red-500">{{ fieldError('date') }}</p>
       </div>
-      <div class="space-y-1.5">
-        <label class="text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400">TIME *</label>
-        <input
-          type="time"
-          :value="modelValue.time"
-          :class="inputClasses('time')"
-          @change="update('time', ($event.target as HTMLInputElement).value)"
-          @blur="markTouched('time')"
-        />
-        <p v-if="hasError('time')" class="mt-1 text-xs text-red-500">{{ fieldError('time') }}</p>
-      </div>
     </div>
 
     <!-- Province and District -->
@@ -284,7 +220,7 @@ function inputClasses(field: string): string {
           :model-value="modelValue.province_id ?? ''"
           :options="provinceOptions"
           placeholder="Province"
-          @update:model-value="(v: string | number) => onProvinceChange(Number(v))"
+           @update:model-value="(v) => onProvinceChange(Number(v))"
         />
       </div>
       <div class="space-y-1.5">
@@ -294,35 +230,8 @@ function inputClasses(field: string): string {
           :options="districtOptions"
           placeholder="District"
           :disabled="!modelValue.province_id"
-          @update:model-value="(v: string | number) => onDistrictChange(Number(v))"
+           @update:model-value="(v) => onDistrictChange(Number(v))"
         />
-      </div>
-    </div>
-
-    <!-- Commune and Village -->
-    <div class="grid grid-cols-2 gap-4">
-      <div class="space-y-1.5">
-        <label class="text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400">COMMUNE</label>
-        <BaseSelect
-          :model-value="modelValue.commune_id ?? ''"
-          :options="communeOptions"
-          placeholder="Commune"
-          :disabled="!modelValue.district_id"
-          @update:model-value="(v: string | number) => onCommuneChange(Number(v))"
-        />
-      </div>
-      <div class="space-y-1.5">
-        <label class="text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400">VILLAGE *</label>
-        <div :class="hasError('village_id') ? 'base-select-error' : ''">
-          <BaseSelect
-            :model-value="modelValue.village_id ?? ''"
-            :options="villageOptions"
-            placeholder="Village"
-            :disabled="!modelValue.commune_id"
-            @update:model-value="(v: string | number) => { markTouched('village_id'); update('village_id', Number(v)) }"
-          />
-        </div>
-        <p v-if="hasError('village_id')" class="mt-1 text-xs text-red-500">{{ fieldError('village_id') }}</p>
       </div>
     </div>
 

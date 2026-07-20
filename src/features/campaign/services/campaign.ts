@@ -4,7 +4,6 @@ import type { Campaign, CampaignApiResponse, CampaignPayload } from '../types'
 export async function fetchCampaigns(): Promise<Campaign[]> {
   try {
     const response = await api.get('/selection-campaigns')
-    // Laravel returns paginated: { success, data: { current_page, data: [campaigns], ... } }
     const result = response.data.data
     return Array.isArray(result) ? result : (result?.data ?? [])
   } catch (error) {
