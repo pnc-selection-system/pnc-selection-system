@@ -1,40 +1,9 @@
 import api from '@/plugins/axios'
 import type { AssessmentForm, PageMeta, Question } from '../types/question'
-import type { AssessmentResponse, CandidateOption } from '../types/response'
-
-const DELAY = 400
-
-function wait<T>(value: T, ms = DELAY): Promise<T> {
-  return new Promise((resolve) => setTimeout(() => resolve(value), ms))
-}
-
-const LOCAL_STORAGE_KEY = 'pnc_active_form'
-
-const INITIAL_FORM: AssessmentForm = {
-  id: 'f1',
-  name: 'Motivation 2026',
-  campaign: '2026',
-  passThreshold: 60,
-  questions: [
-    { id: 'q1', order: 1, title: 'Why this programme?', type: 'short_text', weight: 2 },
-    { id: 'q2', order: 2, title: 'Commitment level', type: 'scale_1_5', weight: 3 },
-  ],
-}
-
-let activeForm: AssessmentForm = (() => {
-  try {
-    const saved = localStorage.getItem(LOCAL_STORAGE_KEY)
-    if (saved) {
-      return JSON.parse(saved)
-    }
-  } catch (e) {
-    console.error('Failed to load activeForm from localStorage', e)
-  }
-  return INITIAL_FORM
-})()
+import type { AssessmentResponse, CandidateOption, CandidateResult } from '../types/response'
 
 export async function fetchPageMeta(): Promise<PageMeta> {
-  return wait({
+  return {
     breadcrumb: ['Evaluation', 'Interest Assessment'],
     title: 'Interest assessment',
     roles: [
@@ -42,48 +11,103 @@ export async function fetchPageMeta(): Promise<PageMeta> {
       { role: 'Officer', action: 'record' },
     ],
     reqRange: ['FR-AS-1', 'FR-AS-6'],
-  })
+  }
 }
 
 export async function fetchActiveForm(): Promise<AssessmentForm> {
-  return wait(JSON.parse(JSON.stringify(activeForm)))
+  const { data: listData } = await api.get<{ data: any[] }>('/assessment-forms')
+  const forms = listData.data
+  if (!forms || forms.length === 0) throw new Error('No assessment form found')
+  const form = forms[0]
+
+  const { data: qData } = await api.get<{ data: any[] }>(`/assessment-forms/${form.id}/questions`)
+  const questions = (qData.data ?? []).map((q: any) => ({
+    id: String(q.id),
+    key: q.key,
+    order: q.order ?? 0,
+    title: q.label,
+    type: q.type,
+    weight: q.weight ?? 1,
+    options: q.options ?? undefined,
+    pointMap: q.point_map ?? undefined,
+  }))
+
+  return {
+    id: String(form.id),
+    campaignId: form.campaign_id,
+    name: form.name,
+    campaign: form.campaign ?? '',
+    passThreshold: form.pass_threshold ?? 60,
+    questions,
+  }
+}
+
+function toKey(title: string, index: number): string {
+  const base = title.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') || `question_${index}`
+  return base
 }
 
 export async function saveForm(form: AssessmentForm): Promise<AssessmentForm> {
-  activeForm = JSON.parse(JSON.stringify(form))
-  try {
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(activeForm))
-  } catch (e) {
-    console.error('Failed to save activeForm to localStorage', e)
+  const fields = form.questions.map((q, i) => ({
+    key: q.key || toKey(q.title, i),
+    label: q.title,
+    type: q.type,
+    weight: q.weight,
+    options: q.options,
+    point_map: q.pointMap,
+    rules: { required: true },
+  }))
+
+  const payload = {
+    campaign_id: form.campaignId ?? 1,
+    name: form.name,
+    pass_threshold: form.passThreshold,
+    schema: { fields },
   }
-  return wait(JSON.parse(JSON.stringify(activeForm)))
+
+  const isNew = !form.id || form.id === ''
+  if (isNew) {
+    const { data } = await api.post<{ data: any }>('/assessment-forms', payload)
+    return { ...form, id: String(data.data.id) }
+  } else {
+    await api.put(`/assessment-forms/${form.id}`, payload)
+    return form
+  }
 }
 
-export async function cloneFormFromYear(year: string): Promise<Question[]> {
-  // Pretend last year's form had an extra screening question.
-  return wait([
-    { id: 'q1', order: 1, title: 'Why this programme?', type: 'short_text', weight: 2 },
-    { id: 'q2', order: 2, title: 'Commitment level', type: 'scale_1_5', weight: 3 },
-    { id: 'q3', order: 3, title: 'Available on weekends?', type: 'single_choice', weight: 1, options: ['Yes', 'No'] },
-  ])
+export async function cloneFormFromYear(_year: string): Promise<Question[]> {
+  return []
 }
 
 export async function fetchCandidatesPendingResponse(): Promise<CandidateOption[]> {
-  return wait([
-    { id: '1', candidateCode: 'C-1042', name: 'Sokha Norng', province: 'Battambang', organization: 'Future Light', status: 'investigating' },
-    { id: '2', candidateCode: 'C-1043', name: 'Dara Kem', province: 'Siem Reap', organization: '', status: 'assessed' },
-    { id: '3', candidateCode: 'C-1044', name: 'Mealea Phan', province: 'Phnom Penh', organization: 'Hope', status: 'exam_done' },
-    { id: '4', candidateCode: 'C-1045', name: 'Vibol Som', province: 'Kampong Cham', organization: 'Rural Reach', status: 'registered' },
-  ])
+  const { data } = await api.get<{ data: any[] }>('/candidates')
+  return (data.data ?? []).map((c: any) => ({
+    id: String(c.id),
+    candidateCode: c.code ?? `C-${String(c.id).padStart(4, '0')}`,
+    name: c.full_name ?? `${c.first_name} ${c.last_name}`,
+    province: c.province?.name ?? c.province ?? '',
+    organization: c.ngo?.name ?? '',
+    status: c.status ?? '',
+  }))
+}
+
+export async function fetchAllResponses(): Promise<CandidateResult[]> {
+  const { data } = await api.get<{ data: CandidateResult[] }>('/assessment-responses')
+  return data.data ?? []
 }
 
 export async function submitResponse(response: AssessmentResponse): Promise<AssessmentResponse> {
-  try {
-    const { data } = await api.post<{ data: AssessmentResponse }>('/interest-responses', response)
-    return data.data
-  } catch (error) {
-    console.warn('API unavailable, using local fallback:', error)
-    // Fallback: simulate successful submission locally
-    return wait({ ...response, score: 78, passed: true })
+  const payload = {
+    candidate_id: Number(response.candidateId),
+    answers: response.answers.map((a) => ({
+      question_id: Number(a.questionId),
+      answer: Array.isArray(a.value) ? a.value.join(',') : String(a.value),
+    })),
+  }
+  const { data } = await api.post<{ data: any }>('/assessment-responses/submit', payload)
+  return {
+    ...response,
+    score: data.data?.total_score,
+    passed: data.data?.passed,
   }
 }
