@@ -51,3 +51,40 @@ export interface CandidateApiPayload {
   phone?: string | null
   status?: string
 }
+
+/** Preview row returned after uploading an import file */
+export interface ImportPreviewRow {
+  row: number
+  first_name: string
+  last_name: string
+  first_name_kh: string | null
+  last_name_kh: string | null
+  gender: 'Male' | 'Female' | ''
+  dob: string
+  phone: string | null
+  province_name: string
+  school_name: string
+  ngo_name: string
+  status: string
+  valid: boolean
+  errors: string[]
+}
+
+/** Response from POST /candidates/import/upload */
+export interface ImportUploadResponse {
+  import_file_id: number
+  file_name: string
+  total_rows: number
+  valid_rows: number
+  preview: ImportPreviewRow[]
+  errors: string[]
+  detected_columns: string[]
+  auto_mapping: Record<string, string>
+}
+
+/** Response from POST /candidates/import/confirm */
+export interface ImportConfirmResponse {
+  imported: number
+  skipped: number
+  errors: string[]
+}

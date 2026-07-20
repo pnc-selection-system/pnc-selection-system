@@ -45,7 +45,7 @@
         @change="emitFilter()"
       >
         <el-option value="" label="All" />
-        <el-option value="Register" label="Register" />
+        <el-option value="Registered" label="Registered" />
         <el-option value="Investigating" label="Investigating" />
         <el-option value="Assessed" label="Assessed" />
         <el-option value="Approved" label="Approved" />
