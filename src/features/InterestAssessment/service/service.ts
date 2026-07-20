@@ -111,3 +111,58 @@ export async function submitResponse(response: AssessmentResponse): Promise<Asse
     passed: data.data?.passed,
   }
 }
+
+export function exportAssessmentResults(results: CandidateResult[]): void {
+  // Build dynamic headers from answer labels
+  const answerLabels = new Set<string>()
+  results.forEach((r) => r.answers.forEach((a) => answerLabels.add(a.label)))
+  const sortedLabels = Array.from(answerLabels)
+
+  const headers = [
+    'Candidate Code',
+    'Candidate Name',
+    'Province',
+    'Status',
+    'Form',
+    ...sortedLabels,
+    'Total Score',
+    'Threshold',
+    'Result',
+    'Submitted At',
+  ]
+
+  const csvRows = [headers.join(',')]
+
+  results.forEach((row) => {
+    // Build answer map for easy lookup
+    const answerMap: Record<string, string> = {}
+    row.answers.forEach((a) => {
+      answerMap[a.label] = a.answer ?? ''
+    })
+
+    const values = [
+      `"${row.candidate_code}"`,
+      `"${row.candidate_name}"`,
+      `"${row.province ?? ''}"`,
+      `"${row.status ?? ''}"`,
+      `"${row.form_name}"`,
+      ...sortedLabels.map((label) => `"${(answerMap[label] ?? '').replace(/"/g, '""')}"`),
+      row.total_score,
+      row.pass_threshold,
+      row.passed ? 'Passed' : 'Failed',
+      `"${row.submitted_at}"`,
+    ]
+    csvRows.push(values.join(','))
+  })
+
+  const csvContent = csvRows.join('\n')
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.setAttribute('href', url)
+  link.setAttribute('download', `assessment-results-${new Date().toISOString().split('T')[0]}.csv`)
+  link.style.visibility = 'hidden'
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+}

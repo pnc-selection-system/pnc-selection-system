@@ -4,6 +4,10 @@ import type { CandidateResult } from '../types/response'
 
 const props = defineProps<{ results: CandidateResult[] }>()
 
+const emit = defineEmits<{
+  export: []
+}>()
+
 const expanded = ref<number | null>(null)
 const search = ref('')
 
@@ -31,12 +35,25 @@ function toggle(id: number) {
         <p class="text-sm font-semibold text-slate-800">Assessment Results</p>
         <p class="mt-0.5 text-xs text-slate-400">{{ results.length }} response{{ results.length !== 1 ? 's' : '' }} submitted</p>
       </div>
-      <input
-        v-model="search"
-        type="text"
-        placeholder="Search candidate..."
-        class="rounded-lg border border-slate-200 px-3 py-1.5 text-sm text-slate-700 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
-      />
+      <div class="flex items-center gap-2">
+        <button
+          type="button"
+          @click="emit('export')"
+          class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 hover:border-slate-300"
+        >
+          <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none">
+            <path d="M10 3v10m0 0-3.5-3.5M10 13l3.5-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M4 15.5h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+          </svg>
+          Export CSV
+        </button>
+        <input
+          v-model="search"
+          type="text"
+          placeholder="Search candidate..."
+          class="rounded-lg border border-slate-200 px-3 py-1.5 text-sm text-slate-700 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+        />
+      </div>
     </div>
 
     <!-- Empty -->

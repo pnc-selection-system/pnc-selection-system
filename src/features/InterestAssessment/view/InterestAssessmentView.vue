@@ -9,7 +9,7 @@ import RecordResponseForm from '../Components/RecordResponseForm.vue'
 import InterestAssessmentSkeleton from '../Components/InterestAssessmentSkeleton.vue'
 import ResponseResultsTable from '../Components/ResponseResultsTable.vue'
 import { useAssessmentFormStore } from '../store/useAssessmentFormStore'
-import { cloneFormFromYear, fetchAllResponses, fetchCandidatesPendingResponse, fetchPageMeta, submitResponse } from '../service/service'
+import { cloneFormFromYear, exportAssessmentResults, fetchAllResponses, fetchCandidatesPendingResponse, fetchPageMeta, submitResponse } from '../service/service'
 import type { PageMeta, Question, QuestionType } from '../types/question'
 import type { AssessmentResponse, CandidateOption, CandidateResult } from '../types/response'
 
@@ -114,6 +114,15 @@ async function handleSubmitResponse(response: AssessmentResponse) {
   }
 }
 
+function handleExportResults() {
+  if (results.value.length === 0) {
+    ElMessage.warning('No results to export')
+    return
+  }
+  exportAssessmentResults(results.value)
+  ElMessage.success('Results exported successfully!')
+}
+
 onMounted(async () => {
   console.log('InterestAssessment: Starting to load...')
   
@@ -197,6 +206,7 @@ onMounted(async () => {
       <ResponseResultsTable
         v-if="activeTab === 'results'"
         :results="results"
+        @export="handleExportResults"
       />
     </div>
   </div>
