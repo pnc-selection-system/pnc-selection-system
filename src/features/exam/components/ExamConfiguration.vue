@@ -3,6 +3,7 @@ import { ref, computed, watch } from 'vue'
 import { useExamConfig, defaultExamConfig } from '../service/useExamConfig'
 import { useSubjects } from '../service/useSubjects'
 import BaseButton from '@/components/base/BaseButton.vue'
+import ExamConfigPreview from './ExamConfigPreview.vue'
 
 const { config, isSaving, lastSavedFormatted, saveConfiguration, resetConfiguration, validateConfiguration } = useExamConfig()
 const { isValidWeight } = useSubjects()
@@ -173,24 +174,12 @@ function resetConfig() {
       </table>
     </div>
 
-    <!-- Live Preview -->
-    <div class="border-t border-slate-100 px-6 py-4">
-      <h4 class="mb-2 text-[11px] font-medium uppercase tracking-wider text-slate-400">Live Preview</h4>
-      <div class="rounded border border-slate-100 bg-slate-50 px-4 py-3 text-sm text-slate-600">
-        Sample {{ sampleScores.join(' / ') }} → weighted
-        <span class="font-medium text-slate-800">{{ weightedScore }}</span>
-        →
-        <span
-          class="ml-1 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
-          :style="{
-            backgroundColor: previewResultColor.bg,
-            color: previewResultColor.text,
-          }"
-        >
-          {{ previewResult }}
-        </span>
-      </div>
-    </div>
+    <ExamConfigPreview
+      :sample-scores="sampleScores"
+      :weighted-score="weightedScore"
+      :preview-result="previewResult"
+      :preview-result-color="previewResultColor"
+    />
 
     <!-- Feedback Messages -->
     <div v-if="saveSuccess || saveError" class="border-t border-slate-100 px-6 py-3">
@@ -204,7 +193,7 @@ function resetConfig() {
       >
         <div
           v-if="saveSuccess"
-          class="flex items-center gap-2 rounded-lg bg-emerald-50 px-4 py-2.5 text-sm text-emerald-700"
+          class="flex items-center gap-2 rounded bg-emerald-50 px-4 py-2.5 text-sm text-emerald-700"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
@@ -214,7 +203,7 @@ function resetConfig() {
         </div>
         <div
           v-else-if="saveError"
-          class="flex items-center gap-2 rounded-lg bg-rose-50 px-4 py-2.5 text-sm text-rose-700"
+          class="flex items-center gap-2 rounded bg-rose-50 px-4 py-2.5 text-sm text-rose-700"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="10" />

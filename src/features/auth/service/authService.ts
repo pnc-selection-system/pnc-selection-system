@@ -15,6 +15,7 @@ export async function login(data: LoginPayload): Promise<AuthResponse> {
     return {
       user: response.data.user,
       token: response.data.access_token,
+      refreshToken: response.data.refresh_token,
       tokenType: response.data.token_type,
       expiresIn: response.data.expires_in,
     }
@@ -28,6 +29,25 @@ export async function login(data: LoginPayload): Promise<AuthResponse> {
           : axiosError.message) ??
         DEFAULT_ERROR_MESSAGE,
     )
+  }
+}
+
+export async function refreshToken(refreshTokenValue: string): Promise<AuthResponse> {
+  // The backend expects the refresh token in the request body
+  const { data: response } = await api.post<AuthApiResponse>('auth/refresh', {
+    refresh_token: refreshTokenValue,
+  })
+
+  if (!response.success) {
+    throw new Error(response.message ?? 'Failed to refresh token')
+  }
+
+  return {
+    user: response.data.user,
+    token: response.data.access_token,
+    refreshToken: response.data.refresh_token,
+    tokenType: response.data.token_type,
+    expiresIn: response.data.expires_in,
   }
 }
 

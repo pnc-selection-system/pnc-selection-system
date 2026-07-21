@@ -1,12 +1,24 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-import { login as loginRequest, logout as logoutRequest } from '../service/authService'
-import { getCookie, removeCookie, setCookie, TOKEN_COOKIE, USER_COOKIE } from '@/utils/cookie'
+import {
+  login as loginRequest,
+  logout as logoutRequest,
+  refreshToken as refreshTokenRequest,
+} from '../service/authService'
+import {
+  getCookie,
+  removeCookie,
+  setCookie,
+  REFRESH_TOKEN_COOKIE,
+  TOKEN_COOKIE,
+  USER_COOKIE,
+} from '@/utils/cookie'
 import type { AuthUser, LoginPayload } from '../types/auth'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<AuthUser | null>(null)
   const token = ref<string | null>(getCookie(TOKEN_COOKIE))
+  const refreshTokenValue = ref<string | null>(getCookie(REFRESH_TOKEN_COOKIE))
   const loading = ref(false)
   const error = ref<string | null>(null)
 
@@ -31,8 +43,10 @@ export const useAuthStore = defineStore('auth', () => {
       const response = await loginRequest(payload)
       user.value = response.user
       token.value = response.token
+      refreshTokenValue.value = response.refreshToken
 
       setCookie(TOKEN_COOKIE, response.token, 7)
+      setCookie(REFRESH_TOKEN_COOKIE, response.refreshToken, 14)
       setCookie(USER_COOKIE, JSON.stringify(response.user), 7)
 
       return response
@@ -42,6 +56,25 @@ export const useAuthStore = defineStore('auth', () => {
       throw err
     } finally {
       loading.value = false
+    }
+  }
+
+  async function refreshToken(): Promise<boolean> {
+    if (!refreshTokenValue.value) {
+      return false
+    }
+
+    try {
+      const response = await refreshTokenRequest(refreshTokenValue.value)
+      token.value = response.token
+      refreshTokenValue.value = response.refreshToken
+
+      setCookie(TOKEN_COOKIE, response.token, 7)
+      setCookie(REFRESH_TOKEN_COOKIE, response.refreshToken, 14)
+
+      return true
+    } catch {
+      return false
     }
   }
 
@@ -56,9 +89,11 @@ export const useAuthStore = defineStore('auth', () => {
 
     user.value = null
     token.value = null
+    refreshTokenValue.value = null
     error.value = null
 
     removeCookie(TOKEN_COOKIE)
+    removeCookie(REFRESH_TOKEN_COOKIE)
     removeCookie(USER_COOKIE)
   }
 
@@ -69,6 +104,7 @@ export const useAuthStore = defineStore('auth', () => {
     error,
     isAuthenticated,
     login,
+    refreshToken,
     logout,
   }
 })

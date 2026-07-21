@@ -266,6 +266,7 @@ function closeModal() {
               type="date"
               name="start_date"
               :min="isEditing ? undefined : today"
+              :max="isEditing ? undefined : (form.end_date || undefined)"
             />
             <p v-if="errors.start_date" class="mt-1 text-xs text-red-500">{{ errors.start_date }}</p>
           </div>

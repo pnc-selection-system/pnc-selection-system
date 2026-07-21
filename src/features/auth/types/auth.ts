@@ -18,12 +18,14 @@ export interface AuthApiResponse {
     user: AuthUser
     token_type: string
     access_token: string
+    refresh_token: string
   }
 }
 
 export interface AuthResponse {
   user: AuthUser
   token: string
+  refreshToken: string
   tokenType: string
   expiresIn: number
 }

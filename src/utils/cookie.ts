@@ -1,4 +1,5 @@
 export const TOKEN_COOKIE = 'auth_token'
+export const REFRESH_TOKEN_COOKIE = 'auth_refresh_token'
 export const USER_COOKIE = 'auth_user'
 
 const COOKIE_PATH = '/'
