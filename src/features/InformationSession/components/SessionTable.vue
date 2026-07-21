@@ -61,7 +61,12 @@ function viewDetail(session: Session) {
     </el-table-column>
     <el-table-column label="Province" min-width="140">
       <template #default="{ row }">
-        <span class="text-xs text-slate-700">{{ row.province || row.village }}</span>
+        <span class="text-xs text-slate-700">{{ row.province || '—' }}</span>
+      </template>
+    </el-table-column>
+    <el-table-column label="Venue" min-width="160">
+      <template #default="{ row }">
+        <span class="text-xs text-slate-700">{{ row.venue || '—' }}</span>
       </template>
     </el-table-column>
     <el-table-column label="Host Name" min-width="160">

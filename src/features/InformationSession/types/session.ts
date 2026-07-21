@@ -9,14 +9,17 @@ export interface Session {
   province_id?: number
   district_id?: number
   commune_id?: number
-  village_id: number
+  village_id?: number
   school_name: string
   session_date: string
-  session_time: string
+  venue: string | null
   expected_attendance: number
   attendance_count: number | null
   partner_type: string | null
-  ngo_name: string | null
+  partner_name: string | null
+  location: string | null
+  department: string | null
+  generation: string | null
   hosts: SessionHost[]
   // location labels from API (optional, for display)
   province?: string
@@ -28,34 +31,44 @@ export interface Session {
 export interface SessionFormData {
   id: number | null
   date: string
-  time: string
   province_id: number | null
   district_id: number | null
   commune_id: number | null
   village_id: number | null
   school: string
+  venue: string
   attendanceCount: number
   expectedAttendance: number
-  partnerType: 'NGO' | 'Officer' | ''
-  ngoName: string
-  hostBy: string
+  partnerType: 'School' | 'Alumni' | 'NGO' | 'Officer' | ''
+  partnerName: string
+  location: string
+  department: string
+  generation: string
+  hosts: { name: string }[]
+  createdBy: { name: string }[]
+  createByInput: string
   campaign_id: number | null
 }
 
 export const EMPTY_SESSION_FORM: SessionFormData = {
   id: null,
   date: '',
-  time: '',
   province_id: null,
   district_id: null,
   commune_id: null,
   village_id: null,
   school: '',
+  venue: '',
   attendanceCount: 0,
-  expectedAttendance: 0,
+  expectedAttendance: 1,
   partnerType: '',
-  ngoName: '',
-  hostBy: '',
+  partnerName: '',
+  location: '',
+  department: '',
+  generation: '',
+  hosts: [],
+  createdBy: [],
+  createByInput: '',
   campaign_id: null,
 }
 

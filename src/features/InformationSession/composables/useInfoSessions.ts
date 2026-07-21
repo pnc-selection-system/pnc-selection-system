@@ -19,7 +19,7 @@ const detailCache = new Map<number, Session>()
 const pageCache = new Map<string, Session[]>()
 
 function pageCacheKey(page: number) {
-  return `${page}|${filters.value.province}|${filters.value.partnerType}|${filters.value.dateRange}`
+  return `${page}|${filters.value.province}|${filters.value.partnerType}|${filters.value.campaignYear}|${filters.value.startDate}|${filters.value.endDate}`
 }
 
 export function useInfoSessions() {
@@ -42,6 +42,20 @@ export function useInfoSessions() {
     }
   }
 
+  async function _refreshCampaigns() {
+    try {
+      const data = await fetchCampaigns()
+      campaigns.value = data
+      const years = [...new Set(data.map(c => String(c.year)))].sort().reverse()
+      const campaignDates = data.map(c => ({
+        year: c.year,
+        start_date: c.start_date?.split('T')[0] ?? '',
+        end_date: c.end_date?.split('T')[0] ?? '',
+      }))
+      filterOptions.value = { ...filterOptions.value, campaignYears: years, campaignDates }
+    } catch {}
+  }
+
   async function bootstrap() {
     if (!isBootstrapped.value) {
       isLoading.value = true
@@ -51,11 +65,7 @@ export function useInfoSessions() {
             const totalPages = Math.ceil(result.total / 10)
             _prefetchNext(1, totalPages)
           }),
-          fetchCampaigns().then(data => {
-            campaigns.value = data
-            const years = [...new Set(data.map(c => String(c.year)))].sort().reverse()
-            filterOptions.value = { ...filterOptions.value, campaignYears: years }
-          }).catch(() => {}),
+          _refreshCampaigns(),
           fetchProvinces().then(provinces => {
             filterOptions.value = { ...filterOptions.value, provinces }
           }).catch(() => {}),
@@ -66,7 +76,8 @@ export function useInfoSessions() {
       }
       return
     }
-    // Subsequent visits: data already visible, silently refresh in background
+    // Subsequent visits: refresh campaigns & sessions silently in background
+    _refreshCampaigns()
     _fetchSessions().then(result => {
       const totalPages = Math.ceil(result.total / 10)
       _prefetchNext(currentPage.value, totalPages)
@@ -111,28 +122,27 @@ export function useInfoSessions() {
     }).catch(() => {})
   }
 
-  // Create: save, then fetch full session with flattened location labels
+  // Create: save via API, then prepend the returned session immediately to
+  // the table. No background re-fetch is done because fetchSessions silently
+  // returns empty data on failure, which would overwrite the table with nothing.
+  // The session will appear fresly on next page load or filter change.
   async function createSession(form: SessionFormData): Promise<Session> {
     const saved = await saveSession(form)
-    pageCache.clear()
-    const full = await getSession(saved.id)
-    const session = full ?? saved
-    sessions.value = [session, ...sessions.value].slice(0, 10)
+    sessions.value = [saved, ...sessions.value].slice(0, 10)
     total.value += 1
-    detailCache.set(session.id, session)
-    return session
+    pageCache.clear()
+    currentPage.value = 1
+    return saved
   }
 
-  // Edit: save, then fetch full session with flattened location labels
+  // Edit: save via API, then update the session in-place immediately.
+  // Same reasoning as createSession — no background re-fetch to avoid
+  // overwriting the table with empty data if the API call fails.
   async function updateSession(form: SessionFormData): Promise<Session> {
     const saved = await saveSession(form)
+    sessions.value = sessions.value.map(s => s.id === saved.id ? saved : s)
     pageCache.clear()
-    const full = await getSession(saved.id)
-    const session = full ?? saved
-    const idx = sessions.value.findIndex(s => s.id === session.id)
-    if (idx !== -1) sessions.value[idx] = session
-    detailCache.set(session.id, session)
-    return session
+    return saved
   }
 
   async function getSession(id: number): Promise<Session | null> {
