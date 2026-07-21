@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue'
+import { ref, computed, watch, type Ref } from 'vue'
 import * as examThresholdService from './examThresholdService'
 
 export interface ExamConfig {
@@ -15,18 +15,27 @@ const defaultConfig: ExamConfig = {
 
 export const defaultExamConfig: ExamConfig = { ...defaultConfig }
 
-export function useExamConfig(campaignId?: number | null) {
+export function useExamConfig(campaignIdRef: Ref<number | null>) {
   const config = ref<ExamConfig>({ ...defaultConfig })
   const isSaving = ref(false)
   const lastSaved = ref<Date | null>(null)
   const loading = ref(false)
   const error = ref<string | null>(null)
 
+  // Watch for campaignId changes and reload configuration
+  watch(campaignIdRef, (newCampaignId) => {
+    if (newCampaignId) {
+      loadConfiguration()
+    } else {
+      config.value = { ...defaultConfig }
+    }
+  }, { immediate: true })
+
   /**
    * Load configuration from API
    */
   async function loadConfiguration() {
-    if (!campaignId) {
+    if (!campaignIdRef.value) {
       config.value = { ...defaultConfig }
       return
     }
@@ -35,12 +44,12 @@ export function useExamConfig(campaignId?: number | null) {
       loading.value = true
       error.value = null
 
-      const thresholds = await examThresholdService.fetchCampaignThresholds(campaignId)
+      const thresholds = await examThresholdService.fetchCampaignThresholds(campaignIdRef.value)
 
       if (thresholds.overall) {
         config.value = {
-          overallPassMark: Number(thresholds.overall.pass_score),
-          perSubjectMin: Number(thresholds.overall.pass_score), // Using same value for now, can be separate
+          overallPassMark: Number(thresholds.overall.overall_pass_mark),
+          perSubjectMin: Number(thresholds.overall.per_subject_min),
           mustPassEverySubject: thresholds.overall.must_pass_every_subject,
         }
       } else {
@@ -86,7 +95,8 @@ export function useExamConfig(campaignId?: number | null) {
    * Save configuration to API
    */
   async function saveConfiguration(cfg: ExamConfig): Promise<{ success: boolean; errors?: Record<string, string> }> {
-    if (!campaignId) {
+    if (!campaignIdRef.value) {
+      console.warn('No campaign selected, cannot save configuration')
       return { success: false, errors: { general: 'No campaign selected' } }
     }
 
@@ -99,8 +109,9 @@ export function useExamConfig(campaignId?: number | null) {
       isSaving.value = true
       error.value = null
 
-      await examThresholdService.saveOverallThreshold(campaignId, {
-        pass_score: cfg.overallPassMark,
+      await examThresholdService.saveOverallThreshold(campaignIdRef.value, {
+        overall_pass_mark: cfg.overallPassMark,
+        per_subject_min: cfg.perSubjectMin,
         must_pass_every_subject: cfg.mustPassEverySubject,
       })
 
@@ -135,11 +146,6 @@ export function useExamConfig(campaignId?: number | null) {
     if (!lastSaved.value) return null
     return lastSaved.value.toLocaleTimeString()
   })
-
-  // Load configuration on mount if campaignId is provided
-  if (campaignId) {
-    loadConfiguration()
-  }
 
   return {
     config,

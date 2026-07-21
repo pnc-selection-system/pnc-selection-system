@@ -97,7 +97,8 @@ async function handleModalSave(data: { name: string; maxScore: number; weight: n
     } else {
       await addSubject(data)
     }
-    await loadSubjects()
+    // Force an API re-fetch to bypass the in-memory cache
+    await loadSubjects(true)
     closeModal()
   } catch (err: any) {
     saveError.value = err?.message || 'An unexpected error occurred'

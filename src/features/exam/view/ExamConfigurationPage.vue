@@ -25,15 +25,22 @@ watch(
     const activeCampaign = list.find(c => c.status === CampaignStatus.Active)
     if (activeCampaign) {
       selectedCampaignId.value = activeCampaign.id
+      console.log('Auto-selected campaign ID:', activeCampaign.id)
     } else {
       const first = list[0]
       if (first) {
         selectedCampaignId.value = first.id
+        console.log('Auto-selected first campaign ID:', first.id)
       }
     }
   },
   { immediate: true },
 )
+
+// Watch selectedCampaignId changes
+watch(selectedCampaignId, (id) => {
+  console.log('selectedCampaignId changed:', id)
+})
 </script>
 
 <template>
