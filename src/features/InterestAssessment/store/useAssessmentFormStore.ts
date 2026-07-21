@@ -22,6 +22,7 @@ export const useAssessmentFormStore = defineStore('assessmentForm', {
 
     async save(form: AssessmentForm) {
       this.activeForm = await saveFormRequest(form)
+      this.loaded = false  // force re-fetch on next load
     },
   },
 })

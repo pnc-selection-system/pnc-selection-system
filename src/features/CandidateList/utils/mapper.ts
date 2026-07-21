@@ -59,6 +59,14 @@ export function setNgoNameCache(cache: Record<number, string>) {
 }
 
 /**
+ * Normalize status value to ensure consistency.
+ * Converts legacy "Register" (missing 'd') to "Registered".
+ */
+export function normalizeStatus(status: string): string {
+  return status === 'Register' ? 'Registered' : status
+}
+
+/**
  * Convert backend API candidate data to frontend Candidate format
  */
 export function apiCandidateToFrontend(apiCandidate: CandidateApiData): Candidate {
@@ -78,7 +86,7 @@ export function apiCandidateToFrontend(apiCandidate: CandidateApiData): Candidat
     schoolName: apiCandidate.school_name || '',
     province: provinceNameCache[apiCandidate.province_id] || apiCandidate.province || '',
     ngo: apiCandidate.ngo_id ? ngoNameCache[apiCandidate.ngo_id] || '' : '',
-    status: apiCandidate.status,
+    status: normalizeStatus(apiCandidate.status),
     exam_score: null,
     exam_result: null,
   }
@@ -113,7 +121,7 @@ export function frontendFormToApiPayload(form: {
     gender: form.gender,
     dob: form.dateOfBirth,
     phone: form.phone || null,
-    status: form.status,
+    status: normalizeStatus(form.status),
   }
 }
 

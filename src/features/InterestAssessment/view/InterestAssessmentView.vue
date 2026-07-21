@@ -7,12 +7,13 @@ import QuestionPalette from '../Components/QuestionPalette.vue'
 import FormCanvas from '../Components/FormCanvas.vue'
 import RecordResponseForm from '../Components/RecordResponseForm.vue'
 import InterestAssessmentSkeleton from '../Components/InterestAssessmentSkeleton.vue'
+import ResponseResultsTable from '../Components/ResponseResultsTable.vue'
 import { useAssessmentFormStore } from '../store/useAssessmentFormStore'
-import { cloneFormFromYear, fetchCandidatesPendingResponse, fetchPageMeta, submitResponse } from '../service/service'
+import { cloneFormFromYear, fetchAllResponses, fetchCandidatesPendingResponse, fetchPageMeta, submitResponse } from '../service/service'
 import type { PageMeta, Question, QuestionType } from '../types/question'
-import type { AssessmentResponse, CandidateOption } from '../types/response'
+import type { AssessmentResponse, CandidateOption, CandidateResult } from '../types/response'
 
-type AssessmentTab = 'builder' | 'record'
+type AssessmentTab = 'builder' | 'record' | 'results'
 
 const store = useAssessmentFormStore()
 
@@ -20,6 +21,7 @@ const loading = ref(true)
 const meta = ref<PageMeta | null>(null)
 const activeTab = ref<AssessmentTab>('builder')
 const candidates = ref<CandidateOption[]>([])
+const results = ref<CandidateResult[]>([])
 
 // Local builder draft - only committed to the store on "Save form"
 const draftQuestions = ref<Question[]>([])
@@ -105,7 +107,8 @@ async function handleSubmitResponse(response: AssessmentResponse) {
   try {
     await submitResponse(response)
     ElMessage.success('Response recorded successfully!')
-    window.location.reload()
+    results.value = await fetchAllResponses()
+    activeTab.value = 'results'
   } finally {
     isSubmitting.value = false
   }
@@ -141,6 +144,7 @@ onMounted(async () => {
       draftThreshold.value = store.activeForm.passThreshold
     }
     candidates.value = await fetchCandidatesPendingResponse()
+    results.value = await fetchAllResponses()
     console.log('InterestAssessment: All data loaded, setting loading to false')
   } catch (error) {
     console.error('InterestAssessment: Failed to load:', error)
@@ -188,6 +192,11 @@ onMounted(async () => {
         :candidates="candidates"
         :submitting="isSubmitting"
         @submit="handleSubmitResponse"
+      />
+
+      <ResponseResultsTable
+        v-if="activeTab === 'results'"
+        :results="results"
       />
     </div>
   </div>

@@ -10,6 +10,7 @@ import AddPartnerModel from '../components/AddPartnerModel.vue'
 import AddContactModel from '../components/AddContactModel.vue'
 import AddLogEntryModel from '../components/AddLogEntryModel.vue'
 import { getErrorMessage, isAxiosError } from '@/utils/error'
+import { getCachedPartners } from '@/composables/useRoutePrefetch'
 import {
   fetchPartners,
   addPartner,
@@ -18,6 +19,7 @@ import {
   addLogEntry,
   fetchCommunicationLog,
 } from '../service/service'
+import { saveLogo } from '../composables/usePartnerLogos'
 import type { NgoPartner, NgoPartnerFormData, ContactPerson, ContactPersonFormData } from '../types/partner'
 import type { CommunicationLogEntry } from '../types/communication'
 
@@ -40,7 +42,14 @@ onMounted(async () => {
   try {
     loading.value = true
     error.value = null
-    partners.value = await fetchPartners()
+
+    // Use pre-fetched data from route beforeEnter guard if available
+    const cached = getCachedPartners()
+    if (cached) {
+      partners.value = cached
+    } else {
+      partners.value = await fetchPartners()
+    }
 
     // Auto-select the first partner if available.
     // The watch on selectedPartner will handle loading contacts and logs.
@@ -94,10 +103,11 @@ function extractApiError(err: unknown, fallback: string): string {
   return getErrorMessage(err, fallback)
 }
 
-async function handleAddPartner(formData: NgoPartnerFormData) {
+async function handleAddPartner(formData: NgoPartnerFormData, logoBase64: string | null) {
   try {
     partnerError.value = null
     const created = await addPartner(formData)
+    if (logoBase64) saveLogo(created.id, logoBase64)
     partners.value = [...(Array.isArray(partners.value) ? partners.value : []), created]
     showAddPartner.value = false
   } catch (err) {
@@ -195,7 +205,7 @@ async function loadLogEntries(partnerId: number) {
         :open="showAddPartner"
         :api-error="partnerError"
         @update:open="showAddPartner = $event; partnerError = null"
-        @submit="handleAddPartner"
+        @submit="(fd, logo) => handleAddPartner(fd, logo)"
       />
       <AddContactModel
         v-if="selectedPartner"
