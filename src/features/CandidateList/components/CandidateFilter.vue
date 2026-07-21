@@ -9,7 +9,7 @@
         :loading="loadingOptions"
         @change="emitFilter()"
       >
-        <el-option :value="null" label="All" />
+        <el-option value="" label="All" />
         <el-option
           v-for="p in provinces"
           :key="p.id"
@@ -27,7 +27,7 @@
         :loading="loadingOptions"
         @change="emitFilter()"
       >
-        <el-option :value="null" label="All" />
+        <el-option value="" label="All" />
         <el-option
           v-for="n in ngos"
           :key="n.id"
@@ -77,8 +77,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { fetchProvinces } from '../services/provinceService'
-import { fetchPartners } from '@/features/ngosPartner/service/service'
+import { getSharedProvinces, getSharedNgos, prefetchProvincesAndNgos } from '@/composables/useRoutePrefetch'
 import type { ProvinceData } from '../services/provinceService'
 import type { NgoPartner } from '@/features/ngosPartner/types/partner'
 
@@ -90,21 +89,28 @@ const provinces = ref<ProvinceData[]>([])
 const ngos = ref<NgoPartner[]>([])
 const loadingOptions = ref(false)
 
-const localProvinceId = ref<number | null>(null)
-const localNgoId = ref<number | null>(null)
+const localProvinceId = ref('')
+const localNgoId = ref('')
 const localStatus = ref('')
 const localExamResult = ref('')
 
 async function loadOptions() {
+  // Use shared cache from route pre-fetch first to avoid duplicate API calls
+  const sharedProvinces = getSharedProvinces()
+  const sharedNgos = getSharedNgos()
+  if (sharedProvinces && sharedNgos) {
+    provinces.value = sharedProvinces
+    ngos.value = Array.isArray(sharedNgos) ? sharedNgos : []
+    return
+  }
+
   if (provinces.value.length > 0) return
   loadingOptions.value = true
   try {
-    const [provinceData, ngoData] = await Promise.all([
-      fetchProvinces(),
-      fetchPartners(),
-    ])
-    provinces.value = Array.isArray(provinceData) ? provinceData : []
-    ngos.value = Array.isArray(ngoData) ? ngoData : []
+    // Use the deduplicated pre-fetch promise so we never double-fetch
+    await prefetchProvincesAndNgos()
+    provinces.value = getSharedProvinces() ?? []
+    ngos.value = getSharedNgos() ?? []
   } catch {
     // Silently fail
   } finally {
@@ -116,16 +122,16 @@ onMounted(loadOptions)
 
 function emitFilter() {
   emit('filter', {
-    province_id: localProvinceId.value,
-    ngo_id: localNgoId.value,
+    province_id: localProvinceId.value || null,
+    ngo_id: localNgoId.value || null,
     status: localStatus.value,
     examResult: localExamResult.value,
   })
 }
 
 function resetFilters() {
-  localProvinceId.value = null
-  localNgoId.value = null
+  localProvinceId.value = ''
+  localNgoId.value = ''
   localStatus.value = ''
   localExamResult.value = ''
   emitFilter()
