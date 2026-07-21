@@ -1,13 +1,23 @@
 import { ref, computed, watch, unref } from 'vue'
-import type { ExamSubjectApiData } from '../types'
+import type { ExamSubjectApiData, RuleApiData } from '../types'
 import * as examSubjectService from './examSubjectService'
 import { useCacheFetch } from '@/composables/useCacheFetch'
+
+export interface Rule {
+  id?: number
+  name: string
+  desc?: string | null
+  sign: '+' | '-' | '*' | '%'
+  value: number
+  status?: 'active' | 'inactive'
+}
 
 export interface Subject {
   id: number
   name: string
   maxScore: number
   weight: number
+  rules?: Rule[]
 }
 
 export interface UseSubjectsOptions {
@@ -37,7 +47,7 @@ export function useSubjects(options?: UseSubjectsOptions) {
 
   // Sync cache data into the local mutable ref (useCacheFetch returns readonly refs)
   watch(cachedData, (val) => {
-    subjects.value = val ?? []
+    subjects.value = val ? [...val] as Subject[] : []
   }, { immediate: true })
 
   watch(cacheLoading, (val) => { loading.value = val }, { immediate: true })
@@ -57,31 +67,13 @@ export function useSubjects(options?: UseSubjectsOptions) {
   }
 
   /**
-   * Validate that subject name is a valid string (non-empty, alphanumeric with spaces)
+   * Validate that subject name is not empty
    */
   function isValidName(name: string): { valid: boolean; error?: string } {
     const trimmed = name.trim()
 
     if (!trimmed) {
       return { valid: false, error: 'Subject name is required' }
-    }
-
-    if (typeof trimmed !== 'string') {
-      return { valid: false, error: 'Subject name must be a string' }
-    }
-
-    // Only allow letters, spaces, and common characters (no numbers/digits)
-    const nameRegex = /^[a-zA-Z\s\-_&]+$/
-    if (!nameRegex.test(trimmed)) {
-      return { valid: false, error: 'Subject name can only contain letters, spaces, hyphens, and underscores (no numbers)' }
-    }
-
-    if (trimmed.length < 2) {
-      return { valid: false, error: 'Subject name must be at least 2 characters' }
-    }
-
-    if (trimmed.length > 50) {
-      return { valid: false, error: 'Subject name must be less than 50 characters' }
     }
 
     return { valid: true }
@@ -169,6 +161,7 @@ export function useSubjects(options?: UseSubjectsOptions) {
         name: subject.name.trim(),
         max_score: subject.maxScore,
         weight: subject.weight,
+        rules: subject.rules?.map(mapRuleToApi),
       })
       subjects.value.push(mapApiToSubject(created))
     } catch (err: any) {
@@ -188,6 +181,7 @@ export function useSubjects(options?: UseSubjectsOptions) {
         name: updated.name.trim(),
         max_score: updated.maxScore,
         weight: updated.weight,
+        rules: updated.rules?.map(mapRuleToApi),
       })
       const idx = subjects.value.findIndex((s) => s.id === updated.id)
       if (idx !== -1) {
@@ -241,5 +235,34 @@ function mapApiToSubject(apiSubject: ExamSubjectApiData): Subject {
     name: apiSubject.name,
     maxScore: Number(apiSubject.max_score),
     weight: Number(apiSubject.weight),
+    rules: apiSubject.rules?.map(mapApiToRule),
+  }
+}
+
+/**
+ * Map API snake_case rule data to frontend camelCase Rule
+ */
+function mapApiToRule(apiRule: RuleApiData): Rule {
+  return {
+    id: apiRule.id,
+    name: apiRule.name,
+    desc: apiRule.desc,
+    sign: apiRule.sign,
+    value: Number(apiRule.value),
+    status: apiRule.status,
+  }
+}
+
+/**
+ * Map frontend camelCase Rule to API snake_case RuleApiPayload
+ */
+function mapRuleToApi(rule: Rule) {
+  return {
+    id: rule.id,
+    name: rule.name,
+    desc: rule.desc,
+    sign: rule.sign,
+    value: rule.value,
+    status: rule.status || 'active',
   }
 }

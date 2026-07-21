@@ -3,10 +3,15 @@ import { ref, computed, watch } from 'vue'
 import { useExamConfig, defaultExamConfig } from '../service/useExamConfig'
 import { useSubjects } from '../service/useSubjects'
 import BaseButton from '@/components/base/BaseButton.vue'
+import BaseInput from '@/components/base/BaseInput.vue'
 import ExamConfigPreview from './ExamConfigPreview.vue'
 
-const { config, isSaving, lastSavedFormatted, saveConfiguration, resetConfiguration, validateConfiguration } = useExamConfig()
-const { isValidWeight } = useSubjects()
+const props = defineProps<{
+  campaignId: number | null
+}>()
+
+const { config, isSaving, lastSavedFormatted, saveConfiguration, resetConfiguration, validateConfiguration, loading, error: configError } = useExamConfig(props.campaignId)
+const { isValidWeight } = useSubjects({ campaignId: props.campaignId })
 
 const overallPassMark = ref(config.value.overallPassMark)
 const perSubjectMin = ref(config.value.perSubjectMin)
@@ -27,13 +32,13 @@ watch(config, (newConfig) => {
 const sampleScores = ref([78, 71, 80, 30])
 
 const weightedScore = computed(() => {
-  const sum = sampleScores.value.reduce((a, b) => a + b, 0)
+  const sum = sampleScores.value.reduce((a: number, b: number) => a + b, 0)
   return (sum / sampleScores.value.length).toFixed(1)
 })
 
 const previewResult = computed(() => {
   const score = parseFloat(weightedScore.value)
-  if (mustPassEverySubject.value && sampleScores.value.some((s) => s < perSubjectMin.value)) {
+  if (mustPassEverySubject.value && sampleScores.value.some((s: number) => s < perSubjectMin.value)) {
     return 'FAIL'
   }
   return score >= overallPassMark.value ? 'PASS' : 'FAIL'
@@ -55,7 +60,7 @@ function validate(): boolean {
   return result.valid
 }
 
-function saveConfig() {
+async function saveConfig() {
   saveSuccess.value = false
   saveError.value = null
 
@@ -67,7 +72,7 @@ function saveConfig() {
     return
   }
 
-  const result = saveConfiguration({
+  const result = await saveConfiguration({
     overallPassMark: overallPassMark.value,
     perSubjectMin: perSubjectMin.value,
     mustPassEverySubject: mustPassEverySubject.value,
@@ -121,20 +126,16 @@ function resetConfig() {
           <tr class="border-b border-slate-100 transition-colors duration-150 hover:bg-blue-50/30">
             <td class="px-4 py-2 text-xs text-slate-600">Overall Pass Mark</td>
             <td class="px-4 py-2">
-              <div class="inline-flex items-center">
-                <input
-                  v-model.number="overallPassMark"
+              <div class="inline-flex items-center gap-1.5">
+                <BaseInput
+                  :model-value="String(overallPassMark)"
                   type="number"
                   min="0"
                   max="100"
-                  :class="[
-                    'w-16 rounded border bg-white px-2.5 py-1 text-sm text-slate-800 outline-none transition',
-                    errors.overallPassMark
-                      ? 'border-rose-300 focus:border-rose-400 focus:ring-1 focus:ring-rose-100'
-                      : 'border-slate-200 focus:border-blue-400 focus:ring-1 focus:ring-blue-100',
-                  ]"
+                  class="!w-20"
+                  @update:model-value="overallPassMark = Number($event)"
                 />
-                <span class="ml-1.5 text-xs text-slate-400">%</span>
+                <span class="text-xs text-slate-400">%</span>
               </div>
               <p v-if="errors.overallPassMark" class="mt-1 text-xs text-rose-500">{{ errors.overallPassMark }}</p>
             </td>
@@ -142,32 +143,30 @@ function resetConfig() {
           <tr class="border-b border-slate-100 transition-colors duration-150 hover:bg-blue-50/30">
             <td class="px-4 py-2 text-xs text-slate-600">Per-Subject Minimum</td>
             <td class="px-4 py-2">
-              <div class="inline-flex items-center">
-                <input
-                  v-model.number="perSubjectMin"
+              <div class="inline-flex items-center gap-1.5">
+                <BaseInput
+                  :model-value="String(perSubjectMin)"
                   type="number"
                   min="0"
                   max="100"
-                  :class="[
-                    'w-16 rounded border bg-white px-2.5 py-1 text-sm text-slate-800 outline-none transition',
-                    errors.perSubjectMin
-                      ? 'border-rose-300 focus:border-rose-400 focus:ring-1 focus:ring-rose-100'
-                      : 'border-slate-200 focus:border-blue-400 focus:ring-1 focus:ring-blue-100',
-                  ]"
+                  class="!w-20"
+                  @update:model-value="perSubjectMin = Number($event)"
                 />
-                <span class="ml-1.5 text-xs text-slate-400">%</span>
+                <span class="text-xs text-slate-400">%</span>
               </div>
               <p v-if="errors.perSubjectMin" class="mt-1 text-xs text-rose-500">{{ errors.perSubjectMin }}</p>
             </td>
           </tr>
           <tr class="border-b-0 transition-colors duration-150 hover:bg-blue-50/30">
-            <td class="px-4 py-2 text-xs text-slate-600">Must Pass Every Subject</td>
-            <td class="px-4 py-2">
-              <input
-                v-model="mustPassEverySubject"
-                type="checkbox"
-                class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-              />
+            <td class="px-4 py-2" colspan="2">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input
+                  v-model="mustPassEverySubject"
+                  type="checkbox"
+                  class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                />
+                <span class="text-xs text-slate-600">Must Pass Every Subject</span>
+              </label>
             </td>
           </tr>
         </tbody>

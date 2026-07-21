@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import type { Subject } from '../service/useSubjects'
 import { useSubjects } from '../service/useSubjects'
 import BaseButton from '@/components/base/BaseButton.vue'
@@ -7,7 +8,6 @@ import BaseBadge from '@/components/base/BaseBadge.vue'
 import DataTableWrapper from '@/components/ui/DataTableWrapper.vue'
 import FormAction from '@/components/ui/FormAction.vue'
 import SubjectFormModal from './SubjectFormModal.vue'
-import SubjectViewModal from './SubjectViewModal.vue'
 import SubjectDeleteModal from './SubjectDeleteModal.vue'
 import SubjectsWeightFooter from './SubjectsWeightFooter.vue'
 
@@ -29,11 +29,11 @@ const {
   currentCampaignId,
 } = useSubjects()
 
+const router = useRouter()
+
 const showModal = ref(false)
-const showViewModal = ref(false)
 const showDeleteModal = ref(false)
 const editingSubject = ref<Subject | null>(null)
-const viewingSubject = ref<Subject | null>(null)
 const deletingSubject = ref<Subject | null>(null)
 const deleting = ref(false)
 const saving = ref(false)
@@ -54,9 +54,8 @@ function openEditModal(subject: Subject) {
   showModal.value = true
 }
 
-function openViewModal(subject: Subject) {
-  viewingSubject.value = { ...subject }
-  showViewModal.value = true
+function openViewPage(subject: Subject) {
+  router.push({ name: 'exam-subject-detail', params: { id: subject.id }, state: { campaignId: currentCampaignId.value } })
 }
 
 function openDeleteModal(subject: Subject) {
@@ -86,7 +85,7 @@ async function confirmDelete() {
   }
 }
 
-async function handleModalSave(data: { name: string; maxScore: number; weight: number }) {
+async function handleModalSave(data: { name: string; maxScore: number; weight: number; rules?: any[] }) {
   saving.value = true
   saveError.value = null
   try {
@@ -216,14 +215,12 @@ function getWeightBadgeType(weight: number): 'success' | 'warning' | 'info' | 'p
     >
       <el-table-column label="Subject" min-width="180">
         <template #default="{ row }">
-          <span class="text-xs font-medium text-slate-800">{{ row.name }}</span>
+          <span class="text-xs text-slate-800">{{ row.name }}</span>
         </template>
       </el-table-column>
       <el-table-column label="Max Score" width="120" align="center">
         <template #default="{ row }">
-          <span class="inline-flex items-center rounded-md bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200/60 tabular-nums">
-            {{ row.maxScore }}
-          </span>
+          <span class="text-xs text-slate-700 tabular-nums">{{ row.maxScore }}</span>
         </template>
       </el-table-column>
       <el-table-column label="Weight" width="130" align="center">
@@ -236,13 +233,23 @@ function getWeightBadgeType(weight: number): 'success' | 'warning' | 'info' | 'p
           </BaseBadge>
         </template>
       </el-table-column>
+      <el-table-column label="Deduction Rules" width="150" align="center">
+        <template #default="{ row }">
+          <span v-if="row.rules && row.rules.length > 0" class="inline-flex items-center rounded-md bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700 ring-1 ring-blue-200/60 tabular-nums">
+            {{ row.rules.length }} rule{{ row.rules.length !== 1 ? 's' : '' }}
+          </span>
+          <span v-else class="inline-flex items-center rounded-md bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-500 ring-1 ring-slate-200/60">
+            None
+          </span>
+        </template>
+      </el-table-column>
       <el-table-column label="Actions" width="170" fixed="right">
         <template #default="{ row }">
           <FormAction
             show-view
             show-edit
             show-delete
-            @view="openViewModal(row)"
+            @view="openViewPage(row)"
             @edit="openEditModal(row)"
             @delete="openDeleteModal(row)"
           />
@@ -265,11 +272,6 @@ function getWeightBadgeType(weight: number): 'success' | 'warning' | 'info' | 'p
     :server-error="saveError"
     @close="closeModal"
     @save="handleModalSave"
-  />
-
-  <SubjectViewModal
-    v-model="showViewModal"
-    :subject="viewingSubject"
   />
 
   <SubjectDeleteModal

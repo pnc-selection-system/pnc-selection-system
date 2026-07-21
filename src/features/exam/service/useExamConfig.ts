@@ -1,4 +1,5 @@
 import { ref, computed } from 'vue'
+import * as examThresholdService from './examThresholdService'
 
 export interface ExamConfig {
   overallPassMark: number
@@ -6,38 +7,54 @@ export interface ExamConfig {
   mustPassEverySubject: boolean
 }
 
-const STORAGE_KEY = 'exam-configuration'
-
 const defaultConfig: ExamConfig = {
   overallPassMark: 60,
   perSubjectMin: 40,
   mustPassEverySubject: false,
 }
 
-function loadFromStorage(): ExamConfig {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY)
-    if (stored) {
-      const parsed = JSON.parse(stored)
-      return {
-        overallPassMark: Number(parsed.overallPassMark) || defaultConfig.overallPassMark,
-        perSubjectMin: Number(parsed.perSubjectMin) || defaultConfig.perSubjectMin,
-        mustPassEverySubject: Boolean(parsed.mustPassEverySubject),
-      }
-    }
-  } catch (e) {
-    console.error('Failed to load exam configuration:', e)
-  }
-  return { ...defaultConfig }
-}
-
-const config = ref<ExamConfig>(loadFromStorage())
-const isSaving = ref(false)
-const lastSaved = ref<Date | null>(null)
-
 export const defaultExamConfig: ExamConfig = { ...defaultConfig }
 
-export function useExamConfig() {
+export function useExamConfig(campaignId?: number | null) {
+  const config = ref<ExamConfig>({ ...defaultConfig })
+  const isSaving = ref(false)
+  const lastSaved = ref<Date | null>(null)
+  const loading = ref(false)
+  const error = ref<string | null>(null)
+
+  /**
+   * Load configuration from API
+   */
+  async function loadConfiguration() {
+    if (!campaignId) {
+      config.value = { ...defaultConfig }
+      return
+    }
+
+    try {
+      loading.value = true
+      error.value = null
+
+      const thresholds = await examThresholdService.fetchCampaignThresholds(campaignId)
+
+      if (thresholds.overall) {
+        config.value = {
+          overallPassMark: Number(thresholds.overall.pass_score),
+          perSubjectMin: Number(thresholds.overall.pass_score), // Using same value for now, can be separate
+          mustPassEverySubject: thresholds.overall.must_pass_every_subject,
+        }
+      } else {
+        config.value = { ...defaultConfig }
+      }
+    } catch (e) {
+      console.error('Failed to load exam configuration:', e)
+      error.value = 'Failed to load configuration'
+      config.value = { ...defaultConfig }
+    } finally {
+      loading.value = false
+    }
+  }
+
   /**
    * Validate the configuration
    */
@@ -66,9 +83,13 @@ export function useExamConfig() {
   }
 
   /**
-   * Save configuration to localStorage
+   * Save configuration to API
    */
-  function saveConfiguration(cfg: ExamConfig): { success: boolean; errors?: Record<string, string> } {
+  async function saveConfiguration(cfg: ExamConfig): Promise<{ success: boolean; errors?: Record<string, string> }> {
+    if (!campaignId) {
+      return { success: false, errors: { general: 'No campaign selected' } }
+    }
+
     const validation = validateConfiguration(cfg)
     if (!validation.valid) {
       return { success: false, errors: validation.errors }
@@ -76,18 +97,23 @@ export function useExamConfig() {
 
     try {
       isSaving.value = true
-      
-      // Save to localStorage
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(cfg))
-      
+      error.value = null
+
+      await examThresholdService.saveOverallThreshold(campaignId, {
+        pass_score: cfg.overallPassMark,
+        must_pass_every_subject: cfg.mustPassEverySubject,
+      })
+
       // Update reactive state
       config.value = { ...cfg }
       lastSaved.value = new Date()
-      
+
       return { success: true }
-    } catch (e) {
+    } catch (e: any) {
       console.error('Failed to save exam configuration:', e)
-      return { success: false, errors: { general: 'Failed to save configuration' } }
+      const errorMessage = e?.response?.data?.message || e?.message || 'Failed to save configuration'
+      error.value = errorMessage
+      return { success: false, errors: { general: errorMessage } }
     } finally {
       isSaving.value = false
     }
@@ -98,8 +124,8 @@ export function useExamConfig() {
    */
   function resetConfiguration(): void {
     config.value = { ...defaultConfig }
-    localStorage.removeItem(STORAGE_KEY)
     lastSaved.value = null
+    error.value = null
   }
 
   /**
@@ -110,13 +136,21 @@ export function useExamConfig() {
     return lastSaved.value.toLocaleTimeString()
   })
 
+  // Load configuration on mount if campaignId is provided
+  if (campaignId) {
+    loadConfiguration()
+  }
+
   return {
     config,
     isSaving,
     lastSaved,
     lastSavedFormatted,
+    loading,
+    error,
     saveConfiguration,
     resetConfiguration,
     validateConfiguration,
+    loadConfiguration,
   }
 }

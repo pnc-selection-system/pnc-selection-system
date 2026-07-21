@@ -1,11 +1,12 @@
 <script setup lang="ts">
+import BaseInput from '@/components/base/BaseInput.vue'
+
 defineProps<{
   form: { name: string; maxScore: number; weight: number }
   errors: Record<string, string>
   nameStatus: 'empty' | 'valid' | 'invalid' | 'duplicate'
   nameStatusMessage: string
   saving: boolean
-  serverError?: string | null
 }>()
 
 const emit = defineEmits<{
@@ -16,33 +17,24 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <div class="space-y-5">
-    <!-- Server/Form Error -->
-    <div
-      v-if="serverError"
-      class="rounded border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-700"
-    >
-      {{ serverError }}
-    </div>
-
-    <!-- Subject Name -->
+  <div class="space-y-4">
+    <!-- Subject Name (custom: needs validation icon overlay) -->
     <div>
-      <label for="subjectName" class="mb-2 block text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400">
+      <label class="mb-1.5 block text-[0.6rem] font-semibold uppercase tracking-wider text-slate-500">
         Subject Name <span class="text-red-500">*</span>
       </label>
       <div class="relative">
         <input
-          id="subjectName"
           :value="form.name"
           type="text"
           :disabled="saving"
           :class="[
-            'w-full rounded border px-3 py-2 text-sm text-slate-700 outline-none transition placeholder:text-slate-400',
+            'w-full rounded border px-3.5 py-2.5 text-sm text-slate-700 outline-none transition-all placeholder:text-slate-400 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-500',
             errors.name
               ? 'border-red-300 bg-red-50/30 focus:border-red-400 focus:ring-2 focus:ring-red-100'
               : nameStatus === 'duplicate'
                 ? 'border-amber-300 bg-amber-50/30 focus:border-amber-400 focus:ring-2 focus:ring-amber-100'
-                : 'border-slate-300 focus:border-blue-400 focus:ring-2 focus:ring-blue-100',
+                : 'border-slate-300 bg-white focus:border-blue-400 focus:ring-2 focus:ring-blue-100',
           ]"
           placeholder="e.g., Mathematics, Physics"
           maxlength="50"
@@ -51,7 +43,7 @@ const emit = defineEmits<{
         <div
           v-if="form.name && !errors.name"
           :class="[
-            'absolute right-3 top-1/2 -translate-y-1/2',
+            'absolute right-3 top-1/2 -translate-y-1/2 transition-all duration-200',
             nameStatus === 'valid' ? 'text-emerald-500' : '',
             nameStatus === 'duplicate' ? 'text-amber-500' : '',
           ]"
@@ -87,60 +79,52 @@ const emit = defineEmits<{
           </svg>
         </div>
       </div>
-      <p v-if="errors.name" class="mt-1 text-xs text-red-500">{{ errors.name }}</p>
-      <p v-else-if="nameStatusMessage" class="mt-1 text-xs text-amber-600">{{ nameStatusMessage }}</p>
-      <p v-else class="mt-1 text-xs text-slate-400">Only letters, spaces, hyphens and underscores (no numbers)</p>
+      <p v-if="errors.name" class="mt-1.5 text-xs text-red-500">{{ errors.name }}</p>
+      <p v-else-if="nameStatusMessage" class="mt-1.5 text-xs text-amber-600">{{ nameStatusMessage }}</p>
     </div>
 
-    <!-- Max Score -->
-    <div>
-      <label for="maxScore" class="mb-2 block text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400">
-        Max Score <span class="text-red-500">*</span>
-      </label>
-      <input
-        id="maxScore"
-        :value="form.maxScore"
-        type="number"
-        min="1"
-        max="1000"
-        :disabled="saving"
-        :class="[
-          'w-full rounded border px-3 py-2 text-sm text-slate-700 outline-none transition',
-          errors.maxScore
-            ? 'border-red-300 focus:border-red-400 focus:ring-2 focus:ring-red-100'
-            : 'border-slate-300 focus:border-blue-400 focus:ring-2 focus:ring-blue-100',
-        ]"
-        placeholder="100"
-        @input="emit('update:maxScore', Number(($event.target as HTMLInputElement).value))"
-      />
-      <p v-if="errors.maxScore" class="mt-1 text-xs text-red-500">{{ errors.maxScore }}</p>
-    </div>
-
-    <!-- Weight -->
-    <div>
-      <label for="weight" class="mb-2 block text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400">
-        Weight <span class="text-red-500">*</span>
-      </label>
-      <div class="relative">
-        <input
-          id="weight"
-          :value="form.weight"
+    <!-- Max Score & Weight grid -->
+    <div class="grid grid-cols-2 gap-4">
+      <!-- Max Score -->
+      <div>
+        <BaseInput
+          :model-value="String(form.maxScore)"
+          label="Max Score *"
           type="number"
-          min="0"
-          max="100"
+          min="1"
+          max="1000"
+          placeholder="100"
           :disabled="saving"
-          :class="[
-            'w-full rounded border px-3 py-2 pr-8 text-sm text-slate-700 outline-none transition',
-            errors.weight
-              ? 'border-red-300 focus:border-red-400 focus:ring-2 focus:ring-red-100'
-              : 'border-slate-300 focus:border-blue-400 focus:ring-2 focus:ring-blue-100',
-          ]"
-          placeholder="0"
-          @input="emit('update:weight', Number(($event.target as HTMLInputElement).value))"
+          @update:model-value="emit('update:maxScore', Number($event))"
         />
-        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-400">%</span>
+        <p v-if="errors.maxScore" class="mt-1.5 text-xs text-red-500">{{ errors.maxScore }}</p>
       </div>
-      <p v-if="errors.weight" class="mt-1 text-xs text-red-500">{{ errors.weight }}</p>
+
+      <!-- Weight -->
+      <div>
+        <label class="mb-1.5 block text-[0.6rem] font-semibold uppercase tracking-wider text-slate-500">
+          Weight <span class="text-red-500">*</span>
+        </label>
+        <div class="relative">
+          <input
+            :value="form.weight"
+            type="number"
+            min="0"
+            max="100"
+            :disabled="saving"
+            :class="[
+              'w-full rounded border px-3.5 py-2.5 pr-8 text-sm text-slate-700 outline-none transition-all disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-500',
+              errors.weight
+                ? 'border-red-300 bg-red-50/30 focus:border-red-400 focus:ring-2 focus:ring-red-100'
+                : 'border-slate-300 bg-white focus:border-blue-400 focus:ring-2 focus:ring-blue-100',
+            ]"
+            placeholder="0"
+            @input="emit('update:weight', Number(($event.target as HTMLInputElement).value))"
+          />
+          <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-slate-400 pointer-events-none">%</span>
+        </div>
+        <p v-if="errors.weight" class="mt-1.5 text-xs text-red-500">{{ errors.weight }}</p>
+      </div>
     </div>
   </div>
 </template>

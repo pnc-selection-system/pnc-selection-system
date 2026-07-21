@@ -46,7 +46,7 @@ watch(
 
       <div class="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_400px] items-start">
         <SubjectsTable :campaign-id="selectedCampaignId" />
-        <ExamConfiguration />
+        <ExamConfiguration :campaign-id="selectedCampaignId" />
       </div>
     </div>
   </div>

@@ -20,6 +20,11 @@ const routes: RouteRecordRaw[] = [
           return true
         },
       },
+      {
+        path: ':id',
+        name: 'exam-subject-detail',
+        component: () => import('./view/SubjectDetailPage.vue'),
+      },
     ],
   },
 ]

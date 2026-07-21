@@ -8,14 +8,14 @@ defineProps<{
 </script>
 
 <template>
-  <div class="border-t border-slate-100 px-6 py-4">
-    <h4 class="mb-2 text-[11px] font-medium uppercase tracking-wider text-slate-400">Live Preview</h4>
-    <div class="rounded border border-slate-100 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+  <div class="flex items-center gap-3 border-t border-slate-100 px-5 py-2.5">
+    <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 shrink-0">Preview</span>
+    <span class="text-xs text-slate-500">
       Sample {{ sampleScores.join(' / ') }} → weighted
-      <span class="font-medium text-slate-800">{{ weightedScore }}</span>
+      <span class="font-medium text-slate-700">{{ weightedScore }}</span>
       →
       <span
-        class="ml-1 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
+        class="ml-1 inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-semibold"
         :style="{
           backgroundColor: previewResultColor.bg,
           color: previewResultColor.text,
@@ -23,6 +23,6 @@ defineProps<{
       >
         {{ previewResult }}
       </span>
-    </div>
+    </span>
   </div>
 </template>
