@@ -9,6 +9,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: '',
         name: 'interest-assessment',
+        meta: { requiresAuth: true, permission: 'assessment:view' },
         component: () => import('./view/InterestAssessmentView.vue'),
       },
     ],

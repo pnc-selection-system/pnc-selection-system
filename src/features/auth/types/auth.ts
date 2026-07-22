@@ -8,6 +8,10 @@ export interface AuthUser {
   email: string
   name: string
   role: string
+  role_id: number
+  permissions: string[]
+  phone?: string
+  active?: boolean
 }
 
 export interface AuthApiResponse {

@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import type { User } from '../../types/user'
+import DataTableWrapper from '@/components/ui/DataTableWrapper.vue'
+import BaseBadge from '@/components/base/BaseBadge.vue'
+import FormAction from '@/components/ui/FormAction.vue'
 
 defineProps<{
   users: User[]
@@ -9,86 +12,63 @@ defineProps<{
 
 const emit = defineEmits<{
   (e: 'edit', user: User): void
+  (e: 'view', user: User): void
   (e: 'delete', user: User): void
 }>()
 </script>
 
 <template>
-  <table class="user-table">
-    <thead>
-      <tr>
-        <th>Username</th>
-        <th>Full name</th>
-        <th>Email</th>
-        <th>Roles</th>
-        <th>Status</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-if="loading">
-        <td colspan="6">Loading…</td>
-      </tr>
-      <tr v-else-if="users.length === 0">
-        <td colspan="6">No users found</td>
-      </tr>
-      <tr v-for="user in users" :key="user.id">
-        <td>{{ user.username }}</td>
-        <td>{{ user.fullName }}</td>
-        <td>{{ user.email }}</td>
-        <td>
-          <span v-for="roleId in user.roleIds" :key="roleId" class="role-chip">
-            {{ roleNameFor ? roleNameFor(roleId) : roleId }}
-          </span>
-        </td>
-        <td>
-          <span :class="['status-badge', user.isActive ? 'active' : 'inactive']">
-            {{ user.isActive ? 'Active' : 'Inactive' }}
-          </span>
-        </td>
-        <td class="actions">
-          <button type="button" @click="emit('edit', user)">Edit</button>
-          <button type="button" @click="emit('delete', user)">Delete</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <DataTableWrapper
+    :data="users"
+    :loading="loading"
+    empty-text="No users found"
+    empty-description="Try adjusting your search criteria"
+  >
+    <el-table-column label="Username" min-width="120">
+      <template #default="{ row }">
+        <span class="text-xs font-medium text-slate-900">{{ row.username }}</span>
+      </template>
+    </el-table-column>
+    <el-table-column label="Full Name" min-width="150">
+      <template #default="{ row }">
+        <span class="text-xs text-slate-700">{{ row.fullName }}</span>
+      </template>
+    </el-table-column>
+    <el-table-column label="Email" min-width="180">
+      <template #default="{ row }">
+        <span class="text-xs text-slate-700">{{ row.email }}</span>
+      </template>
+    </el-table-column>
+    <el-table-column label="Roles" min-width="160">
+      <template #default="{ row }">
+        <span
+          v-for="roleId in row.roleIds"
+          :key="roleId"
+          class="inline-block bg-indigo-50 text-indigo-700 rounded px-2 py-0.5 text-[11px] mr-1"
+        >
+          {{ roleNameFor ? roleNameFor(roleId) : roleId }}
+        </span>
+      </template>
+    </el-table-column>
+    <el-table-column label="Status" width="110">
+      <template #default="{ row }">
+        <BaseBadge :type="row.isActive ? 'primary' : 'info'" size="small">
+          {{ row.isActive ? 'Active' : 'Inactive' }}
+        </BaseBadge>
+      </template>
+    </el-table-column>
+    <el-table-column label="Actions" width="160" fixed="right">
+      <template #default="{ row }">
+        <div class="flex items-center gap-1">
+          <FormAction @edit="emit('edit', row)" @view="emit('view', row)" />
+          <button
+            class="rounded px-2.5 py-1.5 text-[11px] font-medium text-red-500 transition hover:bg-red-50 hover:text-red-700"
+            @click.stop="emit('delete', row)"
+          >
+            Delete
+          </button>
+        </div>
+      </template>
+    </el-table-column>
+  </DataTableWrapper>
 </template>
-
-<style scoped>
-.user-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-.user-table th,
-.user-table td {
-  padding: 8px 12px;
-  border-bottom: 1px solid #e5e7eb;
-  text-align: left;
-}
-.role-chip {
-  display: inline-block;
-  background: #eef2ff;
-  color: #4338ca;
-  border-radius: 4px;
-  padding: 2px 6px;
-  margin-right: 4px;
-  font-size: 12px;
-}
-.status-badge {
-  padding: 2px 8px;
-  border-radius: 999px;
-  font-size: 12px;
-}
-.status-badge.active {
-  background: #dcfce7;
-  color: #166534;
-}
-.status-badge.inactive {
-  background: #fee2e2;
-  color: #991b1b;
-}
-.actions button {
-  margin-right: 6px;
-}
-</style>

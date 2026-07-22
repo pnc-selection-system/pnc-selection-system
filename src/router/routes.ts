@@ -12,6 +12,7 @@ import interestAssessmentRoutes from '@/features/InterestAssessment/routes'
 import homeInvestionRoutes from '@/features/HomeInvestion/view/routes'
 import votingRoutes from '@/features/Voting/view/routes'
 import reportExportRoutes from '@/features/reportExport/routes'
+import usersRolesRoutes from '@/features/users-roles/routes'
 
 export const routes = [
   ...authRoutes,
@@ -28,5 +29,6 @@ export const routes = [
   ...homeInvestionRoutes,
   ...votingRoutes,
   ...reportExportRoutes,
+  ...usersRolesRoutes,
 ]
 

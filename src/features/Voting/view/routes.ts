@@ -9,6 +9,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: '',
         name: 'voting-selection',
+        meta: { requiresAuth: true, permission: 'voting:view' },
         component: () => import('./VotingSelectionView.vue'),
       },
     ],

@@ -14,12 +14,13 @@ const routes: RouteRecordRaw[] = [
         meta: {
           title: 'Information Sessions',
           requiresAuth: true,
+          permission: 'sessions:view',
         },
       },
       {
         path: ':id',
         name: 'information-session-detail',
-        meta: { requiresAuth: true },
+        meta: { requiresAuth: true, permission: 'sessions:view' },
         component: () => import('./view/InformationSessionDetailPage.vue'),
       },
     ],

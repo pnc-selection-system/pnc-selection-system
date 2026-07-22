@@ -9,6 +9,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: '',
         name: 'results-analytics',
+        meta: { requiresAuth: true, permission: 'exam:results' },
         component: () => import('./view/ResultsAnalyticsView.vue'),
       },
     ],

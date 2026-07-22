@@ -1,8 +1,9 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-import { login as loginRequest, logout as logoutRequest } from '../service/authService'
+import { login as loginRequest, logout as logoutRequest, me } from '../service/authService'
 import { getCookie, removeCookie, setCookie, TOKEN_COOKIE, USER_COOKIE } from '@/utils/cookie'
 import type { AuthUser, LoginPayload } from '../types/auth'
+import api from '@/plugins/axios'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<AuthUser | null>(null)
@@ -29,12 +30,18 @@ export const useAuthStore = defineStore('auth', () => {
 
     try {
       const response = await loginRequest(payload)
-      user.value = response.user
       token.value = response.token
-
       setCookie(TOKEN_COOKIE, response.token, 7)
-      setCookie(USER_COOKIE, JSON.stringify(response.user), 7)
 
+      // Fetch full user profile with permissions from backend
+      try {
+        const { data } = await api.get('auth/profile')
+        user.value = data.user ?? data
+      } catch {
+        user.value = response.user
+      }
+
+      setCookie(USER_COOKIE, JSON.stringify(user.value), 7)
       return response
     } catch (err) {
       const rawMessage = err instanceof Error ? err.message : 'Invalid email or password'

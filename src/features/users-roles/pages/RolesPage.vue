@@ -1,27 +1,37 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
-import RoleTable from '../api/components/RoleTable.vue'
-import RoleDialog from '../api/components/RoleDialog.vue'
+import { ref, onMounted } from 'vue'
 import { useRoles } from '../api/composables/useRoles'
+import RoleDialog from '../api/components/RoleDialog.vue'
+import RoleTable from '../api/components/RoleTable.vue'
 import type { Role, RoleCreatePayload, RoleUpdatePayload } from '../types/role'
+import BaseButton from '@/components/base/BaseButton.vue'
+import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
+import ErrorAlert from '@/components/ui/ErrorAlert.vue'
 
-const { roles, loading, searchTerm, load, create, update, remove } = useRoles()
+const { roles, loading, error, searchTerm, load, create, update, remove } = useRoles()
 
 const dialogOpen = ref(false)
 const editingRole = ref<Role | null>(null)
 const submitting = ref(false)
+const viewOnly = ref(false)
 
-onMounted(async () => {
-  await load()
-})
+onMounted(() => load())
 
 function openCreate() {
   editingRole.value = null
+  viewOnly.value = false
   dialogOpen.value = true
 }
 
 function openEdit(role: Role) {
   editingRole.value = role
+  viewOnly.value = false
+  dialogOpen.value = true
+}
+
+function openView(role: Role) {
+  editingRole.value = role
+  viewOnly.value = true
   dialogOpen.value = true
 }
 
@@ -45,39 +55,57 @@ async function handleDelete(role: Role) {
     await remove(role.id)
   }
 }
-
-async function handleSearch() {
-  await load(searchTerm.value)
-}
 </script>
 
 <template>
-  <div class="p-6">
-    <div class="flex items-center justify-between mb-6">
-      <div>
-        <p class="text-sm text-gray-500 uppercase tracking-wide">Setup / Users & Roles</p>
-        <h1 class="text-3xl font-bold text-gray-900 mt-1">Roles</h1>
-      </div>
-      <div class="flex gap-3">
-        <input
-          v-model="searchTerm"
-          type="search"
-          placeholder="Search roles…"
-          class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          @keyup.enter="handleSearch"
-        />
-        <button type="button" @click="openCreate" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition">
-          + New Role
-        </button>
-      </div>
-    </div>
+  <div class="px-6 py-6">
+    <div class="mx-auto max-w-[1200px] space-y-4">
 
-    <RoleTable :roles="roles" :loading="loading" @edit="openEdit" @delete="handleDelete" />
+      <PageHeader breadcrumb="SETUP / USERS & ROLES" title="Roles" />
+
+      <div v-if="loading && roles.length === 0" class="flex justify-center py-12">
+        <LoadingSpinner />
+      </div>
+
+      <div v-else-if="error" class="mb-4">
+        <ErrorAlert :message="error" />
+        <div class="mt-3 flex justify-end">
+          <BaseButton @click="load()" variant="secondary" class="!w-auto !rounded !px-3 !py-1 text-sm">
+            Retry
+          </BaseButton>
+        </div>
+      </div>
+
+      <template v-else>
+        <div class="flex items-center justify-between">
+          <input
+            v-model="searchTerm"
+            type="search"
+            placeholder="Search roles…"
+            class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-72"
+            @keyup.enter="load(searchTerm)"
+          />
+          <BaseButton @click="openCreate" class="!w-auto !rounded-lg !px-4 !py-2 text-sm">
+            + New Role
+          </BaseButton>
+        </div>
+
+        <RoleTable
+          :roles="roles"
+          :loading="loading"
+          @edit="openEdit"
+          @view="openView"
+          @delete="handleDelete"
+        />
+      </template>
+
+    </div>
 
     <RoleDialog
       v-model="dialogOpen"
       :role="editingRole"
       :submitting="submitting"
+      :view-only="viewOnly"
       @submit="handleSubmit"
     />
   </div>

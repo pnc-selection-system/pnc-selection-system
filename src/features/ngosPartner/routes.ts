@@ -9,7 +9,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: '',
         name: 'ngos-partners',
-        meta: { requiresAuth: true },
+        meta: { requiresAuth: true, permission: 'ngos:view' },
         component: () => import('./view/NGOsPartnersView.vue'),
         beforeEnter: () => {
           // Fire-and-forget: navigation is instant, data loads in background

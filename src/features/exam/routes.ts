@@ -8,6 +8,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: '',
         name: 'exam-configuration',
+        meta: { requiresAuth: true, permission: 'exam:view' },
         component: () => import('./view/ExamConfigurationPage.vue'),
       },
     ],

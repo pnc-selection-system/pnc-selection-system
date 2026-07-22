@@ -9,6 +9,7 @@ export default [
       {
         path: '',
         name: 'CandidateList',
+        meta: { requiresAuth: true, permission: 'candidates:view' },
         component: () => import('./views/CandidateListView.vue'),
         beforeEnter: () => {
           // Fire-and-forget: navigation is instant, data loads in background

@@ -8,13 +8,13 @@ const routes: RouteRecordRaw[] = [
       {
         path: '',
         name: 'campaigns',
-        meta: { requiresAuth: true },
+        meta: { requiresAuth: true, permission: 'campaigns:view' },
         component: () => import('./view/CampaignListPage.vue'),
       },
       {
         path: ':id',
         name: 'campaign-detail',
-        meta: { requiresAuth: true },
+        meta: { requiresAuth: true, permission: 'campaigns:view' },
         component: () => import('./view/CampaignDetailPage.vue'),
       },
     ],
