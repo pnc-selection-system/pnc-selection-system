@@ -1,31 +1,40 @@
-import { ref, watch } from 'vue'
-import { useCandidateStore } from '../stores/candidateStore'
+import { computed } from 'vue'
 import { storeToRefs } from 'pinia'
+import { useCandidateStore } from '../stores/candidateStore'
+import { useDebouncedWatch } from '@/utils/useDebouncedWatch'
 
 export function useCandidates() {
   const store = useCandidateStore()
-  const { candidates, loading, page, total, totalPages } = storeToRefs(store)
+  const { candidates, loading, page, total, totalPages, search, province_id, ngo_id, status, examResult, perPage } = storeToRefs(store)
 
-  const search = ref('')
-  const province = ref('')
-  const ngo = ref('')
-  const status = ref('')
-  const examResult = ref('')
+  const filterKey = computed(
+    () => `${search.value}|${province_id.value}|${ngo_id.value}|${status.value}|${examResult.value}`
+  )
 
-  const fetch = () => {
-    store.fetchCandidates({
-      search: search.value || undefined,
-      province: province.value || undefined,
-      ngo: ngo.value || undefined,
-      status: status.value || undefined,
-      exam_result: examResult.value || undefined,
-    })
+  useDebouncedWatch(
+    filterKey,
+    () => {
+      store.applyFilters()
+    },
+    300,
+    false,
+    true,
+  )
+
+  return {
+    candidates,
+    loading,
+    page,
+    total,
+    totalPages,
+    search,
+    province_id,
+    ngo_id,
+    status,
+    examResult,
+    perPage,
+    fetch: store.fetchCandidates,
+    setPage: store.setPage,
+    setPerPage: store.setPerPage,
   }
-
-  watch([search, province, ngo, status, examResult], () => {
-    store.page = 1
-    fetch()
-  })
-
-  return { candidates, loading, page, total, totalPages, search, province, ngo, status, examResult, fetch, setPage: store.setPage }
 }

@@ -4,6 +4,7 @@ import BaseSelect from '@/components/base/BaseSelect.vue'
 import type { SelectOption } from '@/components/base/BaseSelect.vue'
 import BaseButton from '@/components/base/BaseButton.vue'
 
+
 const props = defineProps<{
   modelValue: DashboardFilters
   options: FilterOptions
@@ -32,7 +33,7 @@ function mapOptions(items: string[], prefix: string): SelectOption[] {
           :options="mapOptions(options.campaigns, 'Campaign')"
           placeholder="Select campaign"
           clearable
-          @update:model-value="update('campaign', $event)"
+          @update:model-value="update('campaign', $event as string)"
         />
       </div>
 
@@ -42,7 +43,7 @@ function mapOptions(items: string[], prefix: string): SelectOption[] {
           :options="mapOptions(options.provinces, 'Province')"
           placeholder="Select province"
           clearable
-          @update:model-value="update('province', $event)"
+          @update:model-value="update('province', $event as string)"
         />
       </div>
 
@@ -52,7 +53,7 @@ function mapOptions(items: string[], prefix: string): SelectOption[] {
           :options="mapOptions(options.statuses, 'Status')"
           placeholder="Select status"
           clearable
-          @update:model-value="update('status', $event)"
+          @update:model-value="update('status', $event as string)"
         />
       </div>
     </div>

@@ -1,21 +1,64 @@
-<template>
-  <div v-if="isOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white rounded-lg shadow-xl max-w-sm w-full mx-4 p-6">
-      <h2 class="text-lg font-bold text-gray-900 mb-2">{{ title }}</h2>
-      <p class="text-sm text-gray-600 mb-6">{{ message }}</p>
-      <div class="flex justify-end gap-3">
-        <button @click="$emit('cancel')" class="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition font-medium">
-          Cancel
-        </button>
-        <button @click="$emit('confirm')" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition font-medium">
-          Delete
-        </button>
-      </div>
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
-defineProps<{ isOpen: boolean; title: string; message: string }>()
-defineEmits<{ confirm: []; cancel: [] }>()
+import BaseButton from '@/components/base/BaseButton.vue'
+
+const props = defineProps<{
+  modelValue?: boolean
+  title: string
+  message: string
+  confirmText?: string
+  cancelText?: string
+  loading?: boolean
+}>()
+
+const emit = defineEmits<{
+  confirm: []
+  cancel: []
+  'update:modelValue': [value: boolean]
+}>()
+
+function onCancel() {
+  if (props.loading) return
+  emit('cancel')
+  emit('update:modelValue', false)
+}
+
+function onConfirm() {
+  if (props.loading) return
+  emit('confirm')
+}
 </script>
+
+<template>
+  <ElDialog
+    :model-value="modelValue"
+    :title="title"
+    width="420px"
+    :close-on-click-modal="!loading"
+    :close-on-press-escape="!loading"
+    :show-close="!loading"
+    append-to-body
+    destroy-on-close
+    @update:model-value="(v: boolean) => { if (!v) onCancel() }"
+  >
+    <p class="text-sm text-gray-600 leading-relaxed">{{ message }}</p>
+    <template #footer>
+      <div class="flex justify-end gap-3">
+        <BaseButton
+          variant="secondary"
+          :disabled="loading"
+          @click="onCancel"
+        >
+          {{ cancelText || 'Cancel' }}
+        </BaseButton>
+        <BaseButton
+          variant="danger"
+          :loading="loading"
+          :disabled="loading"
+          @click="onConfirm"
+        >
+          {{ loading ? confirmText || 'Processing...' : (confirmText || 'Confirm') }}
+        </BaseButton>
+      </div>
+    </template>
+  </ElDialog>
+</template>

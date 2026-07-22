@@ -1,39 +1,13 @@
 <script setup lang="ts">
-import { defineComponent, h } from "vue"
-
-// MenuItem is a small internal component for Sidebar items
-const MenuItem = defineComponent({
-  props: {
-    title: { type: String, required: true },
-    badge: String,
-  },
-  setup(props) {
-    return () =>
-      h(
-        "a",
-        {
-          href: "#",
-          class: "flex items-center justify-between px-3 py-2 rounded-lg hover:bg-gray-700 transition mb-1",
-        },
-        [
-          h("div", { class: "flex items-center gap-3" }, [
-            h("div", { class: "w-2 h-2 rounded-sm bg-gray-500" }),
-            h("span", { class: "text-xs text-gray-200" }, props.title),
-          ]),
-          props.badge
-            ? h("span", { class: "text-[10px] text-gray-400" }, props.badge)
-            : null,
-        ]
-      )
-  },
-})
+import AppLogo from "@/components/AppLogo.vue"
+import SidebarMenuItem from "@/components/layouts/SidebarMenuItem.vue"
 </script>
 <template>
   <aside class="w-[225px] bg-[#1F2937] text-gray-300 flex flex-col h-full border-r border-gray-700">
     <!-- Logo Section -->
     <div class="h-16 border-b border-gray-700 flex items-center px-3 shrink-0">
       <div class="w-10 h-10 rounded-lg border border-gray-600 flex items-center justify-center bg-white">
-        <img src="@/assets/images/pncLogo.png" alt="PNC Logo" class="h-8 w-8 object-contain" />
+        <AppLogo class="h-8 w-8 object-contain" />
       </div>
       <div class="ml-2">
         <h1 class="text-white font-semibold leading-none text-sm tracking-tight">
@@ -48,81 +22,98 @@ const MenuItem = defineComponent({
     <div class="flex-1 overflow-y-auto hide-scrollbar">
       <!-- HOME -->
       <nav class="px-4 mt-4">
-        <p class="text-[8px] tracking-[3px] text-gray-500 uppercase mb-2 font-medium">
+        <p class="text-[8px] tracking-[2px] text-gray-500 uppercase mb-2 font-medium">
           Home
         </p>
         <router-link
           to="/dashboard"
-          class="flex items-center justify-between px-3 py-2 rounded-lg text-gray-200 transition mb-1"
-          active-class="bg-slate-700 text-white border border-slate-600"
-          exact-active-class="bg-slate-700 text-white border border-slate-600"
+          class="flex items-center justify-between px-3 py-2 rounded text-gray-400 transition mb-1 hover:bg-slate-700/50"
+          exact-active-class="!text-white bg-slate-700 border border-slate-600 active-link"
         >
           <div class="flex items-center gap-2">
-            <div class="w-2 h-2 rounded-sm bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]"></div>
+            <div class="dot w-2 h-2 rounded-sm bg-gray-500 transition"></div>
             <span class="text-xs font-medium">Dashboard</span>
           </div>
-          <span class="text-[8px] font-bold text-blue-300 bg-blue-500/10 px-1.5 py-0.5 rounded">ALL</span>
+          <span class="badge text-[8px] font-bold text-gray-500 bg-gray-500/10 px-1.5 py-0.5 rounded transition">ALL</span>
         </router-link>
       </nav>
       <!-- SETUP -->
       <div class="px-3 mt-2">
-        <p class="text-[8px] tracking-[3px] text-gray-500 uppercase mb-1 font-medium">
+        <p class="text-[8px] tracking-[2px] text-gray-500 uppercase mb-1 font-medium">
           Setup
         </p>
         <router-link
           to="/campaigns"
-          class="flex items-center justify-between px-3 py-2 rounded-lg text-gray-200 transition mb-1"
-          active-class="bg-slate-700 text-white border border-slate-600"
-          exact-active-class="bg-slate-700 text-white border border-slate-600"
+          class="flex items-center justify-between px-3 py-2 rounded text-gray-400 transition mb-1 hover:bg-slate-700/50"
+          active-class="!text-white bg-slate-700 border border-slate-600 active-link"
         >
           <div class="flex items-center gap-3">
-            <div class="w-2 h-2 rounded-sm bg-gray-500"></div>
-            <span class="text-xs text-gray-200">Campaigns</span>
+            <div class="dot w-2 h-2 rounded-sm bg-gray-500 transition"></div>
+            <span class="text-xs">Campaigns</span>
           </div>
-          <span class="text-[10px] text-gray-400">MGR</span>
+          <span class="badge text-[10px] text-gray-500 bg-gray-500/10 px-1.5 py-0.5 rounded transition">MGR</span>
         </router-link>
-        <MenuItem title="Users & Roles" badge="ADM" />
+        <SidebarMenuItem title="Users & Roles" badge="ADM" />
       </div>
       <!-- OUTREACH -->
       <div class="px-3 mt-2">
-        <p class="text-[8px] tracking-[3px] text-gray-500 uppercase mb-1 font-medium">
+        <p class="text-[8px] tracking-[2px] text-gray-500 uppercase mb-1 font-medium">
           Outreach
         </p>
-        <MenuItem title="Information Sessions" />
-        <MenuItem title="NGOs & Partners" />
+        <router-link
+          to="/outreach/information-sessions"
+          class="flex items-center justify-between px-3 py-2 rounded text-gray-400 transition mb-1 hover:bg-slate-700/50"
+          active-class="!text-white bg-slate-700 border border-slate-600 active-link"
+        >
+          <div class="flex items-center gap-3">
+            <div class="dot w-2 h-2 rounded-sm bg-gray-500 transition"></div>
+            <span class="text-xs">Information Sessions</span>
+          </div>
+          <span class="badge text-[10px] text-gray-500 bg-gray-500/10 px-1.5 py-0.5 rounded transition">OFF</span>
+        </router-link>
+        <router-link
+          to="/ngos-partners"
+          class="flex items-center justify-between px-3 py-2 rounded text-gray-400 transition mb-1 hover:bg-slate-700/50"
+          active-class="!text-white bg-slate-700 border border-slate-600 active-link"
+        >
+          <div class="flex items-center gap-3">
+            <div class="dot w-2 h-2 rounded-sm bg-gray-500 transition"></div>
+            <span class="text-xs">NGOs & Partners</span>
+          </div>
+        </router-link>
       </div>
       <!-- CANDIDATES -->
       <div class="px-3 mt-2">
-        <p class="text-[8px] tracking-[3px] text-gray-500 uppercase mb-1 font-medium">
+        <p class="text-[8px] tracking-[2px] text-gray-500 uppercase mb-1 font-medium">
           Candidates
         </p>
-        <MenuItem title="Candidate List" />
-        <MenuItem title="Candidate Profile" />
+        <SidebarMenuItem title="Candidate List" to="/candidates" />
+        <SidebarMenuItem title="Candidate Profile" to="/candidates/1" />
       </div>
       <!-- EXAM -->
       <div class="px-3 mt-2">
-        <p class="text-[8px] tracking-[3px] text-gray-500 uppercase mb-1 font-medium">
+        <p class="text-[8px] tracking-[2px] text-gray-500 uppercase mb-1 font-medium">
           Exam
         </p>
-        <MenuItem title="Exam Configuration" badge="MGR" />
-        <MenuItem title="Import Wizard" />
-        <MenuItem title="Results & Analytics" />
+        <SidebarMenuItem title="Exam Configuration" to="/exams" badge="MGR" />
+        <SidebarMenuItem title="Import Wizard" to="/exam/import-wizard" />
+        <SidebarMenuItem title="Results & Analytics" to="/exam/results" />
       </div>
       <!-- EVALUATION -->
       <div class="px-3 mt-2">
-        <p class="text-[8px] tracking-[3px] text-gray-500 uppercase mb-1 font-medium">
+        <p class="text-[8px] tracking-[2px] text-gray-500 uppercase mb-1 font-medium">
           Evaluation
         </p>
-        <MenuItem title="Interest Assessment" />
-        <MenuItem title="Home Investigation" badge="INV" />
+        <SidebarMenuItem title="Interest Assessment" to="/evaluation/interest" />
+        <SidebarMenuItem title="Home Investigation" to="/evaluation/home-investigation" badge="INV" />
       </div>
       <!-- DECISION -->
       <div class="px-3 mt-3 pb-4">
-        <p class="text-[8px] tracking-[3px] text-gray-500 uppercase mb-1.5 font-medium">
+        <p class="text-[8px] tracking-[2px] text-gray-500 uppercase mb-1.5 font-medium">
           Decision
         </p>
-        <MenuItem title="Voting & Selection" badge="CMT" />
-        <MenuItem title="Reports & Exports" />
+        <SidebarMenuItem title="Voting & Selection" to="/decision/voting-selection" badge="CMT" />
+        <SidebarMenuItem title="Reports & Exports" to="/reports" badge="OFF" />
       </div>
     </div>
     <!-- Footer -->
@@ -133,8 +124,17 @@ const MenuItem = defineComponent({
         Role legend: ADM admin • MGR manager • INV officer • CMT committee
       </div>
     </div>
+
   </aside>
 </template>
 
 <style scoped>
+.active-link .dot {
+  background-color: #3b82f6;
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
+}
+.active-link .badge {
+  color: #93c5fd;
+  background-color: rgba(59, 130, 246, 0.1);
+}
 </style>
