@@ -19,6 +19,7 @@ export interface PaginationMeta {
 /** Raw candidate data from the backend API (snake_case) */
 export interface CandidateApiData {
   id: number
+  student_id: string | null
   campaign_id: number | null
   ngo_id: number | null
   province_id: number

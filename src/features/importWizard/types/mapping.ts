@@ -1,4 +1,4 @@
-export type SystemField = 'Candidate ID' | 'Mathematics' | 'Khmer' | 'Ignore'
+export type SystemField = 'Student ID' | 'Candidate ID' | 'Raw Score' | 'Raw Correct' | 'Raw Wrong' | 'Deduction' | 'Ignore'
 
 export interface ColumnMapping {
   fileColumn: string
@@ -28,4 +28,12 @@ export interface CommitSummary {
   imported: number
   skipped: number
   campaign: string
+}
+
+/** Represents a subject loaded from exam configuration */
+export interface SubjectOption {
+  id: number
+  name: string
+  maxScore: number
+  weight: number
 }

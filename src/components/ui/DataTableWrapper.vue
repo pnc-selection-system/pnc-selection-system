@@ -97,7 +97,25 @@ function onCurrentChange(currentRow: any, oldCurrentRow: any) {
   line-height: 1.3;
 }
 
-.el-table :deep(.el-table__body-wrapper) {
+.el-table {
   overflow-x: hidden;
+}
+
+/* Hide horizontal scrollbar completely in el-table */
+.el-table :deep(.el-table__body-wrapper),
+.el-table :deep(.el-table__header-wrapper),
+.el-table :deep(.el-table__fixed-body-wrapper) {
+  overflow-x: hidden !important;
+}
+
+.el-table :deep(.el-scrollbar__bar.is-horizontal) {
+  display: none !important;
+}
+
+.el-table :deep(.el-table__body-wrapper::-webkit-scrollbar),
+.el-table :deep(.el-table__header-wrapper::-webkit-scrollbar) {
+  display: none;
+  width: 0;
+  height: 0;
 }
 </style>

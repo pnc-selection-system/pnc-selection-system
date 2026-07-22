@@ -72,6 +72,7 @@ export function normalizeStatus(status: string): string {
 export function apiCandidateToFrontend(apiCandidate: CandidateApiData): Candidate {
   return {
     id: apiCandidate.id,
+    student_id: apiCandidate.student_id,
     campaign_id: apiCandidate.campaign_id,
     ngo_id: apiCandidate.ngo_id,
     province_id: apiCandidate.province_id,

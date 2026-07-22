@@ -1,5 +1,6 @@
 export interface Candidate {
   id: number
+  student_id: string | null
   campaign_id: number | null
   ngo_id: number | null
   province_id: number

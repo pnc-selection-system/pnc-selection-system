@@ -1,4 +1,4 @@
-export type WizardStepKey = 'upload' | 'map' | 'validate' | 'commit'
+export type WizardStepKey = 'subject' | 'upload' | 'map' | 'validate' | 'commit'
 
 export interface WizardStep {
   key: WizardStepKey
@@ -7,10 +7,11 @@ export interface WizardStep {
 }
 
 export const WIZARD_STEPS: WizardStep[] = [
-  { key: 'upload', order: 1, label: 'Upload' },
-  { key: 'map', order: 2, label: 'Map columns' },
-  { key: 'validate', order: 3, label: 'Validate' },
-  { key: 'commit', order: 4, label: 'Commit' },
+  { key: 'subject', order: 1, label: 'Select subject' },
+  { key: 'upload', order: 2, label: 'Upload' },
+  { key: 'map', order: 3, label: 'Map columns' },
+  { key: 'validate', order: 4, label: 'Validate' },
+  { key: 'commit', order: 5, label: 'Commit' },
 ]
 
 export interface PageMeta {

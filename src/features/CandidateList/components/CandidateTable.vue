@@ -7,8 +7,12 @@
     empty-description="Try adjusting your search or filter criteria"
     @row-click="(row) => $emit('row-click', row)"
   >
-    <el-table-column prop="candidate_no" label="ID" width="70" />
-    <el-table-column label="Candidate Info" width="350" show-overflow-tooltip>
+    <el-table-column prop="student_id" label="ID" width="65" show-overflow-tooltip>
+      <template #default="{ row }">
+        <span class="whitespace-nowrap font-medium text-slate-700">{{ row.student_id }}</span>
+      </template>
+    </el-table-column>
+    <el-table-column label="Candidate Info" show-overflow-tooltip>
       <template #default="{ row }">
         <div class="candidate-info">
           <div class="info-name">{{ row.fullName }}</div>
@@ -31,31 +35,17 @@
         </div>
       </template>
     </el-table-column>
-    <el-table-column prop="province" label="Province" width="180" show-overflow-tooltip />
-    <el-table-column prop="schoolName" label="School" width="250" show-overflow-tooltip />
-    <el-table-column label="NGO Name" width="200" show-overflow-tooltip>
+    <el-table-column prop="province" label="Province" show-overflow-tooltip />
+    <el-table-column prop="schoolName" label="School" show-overflow-tooltip />
+    <el-table-column label="NGO" show-overflow-tooltip>
       <template #default="{ row }">
         <span class="text-slate-400" v-if="!row.ngo">---</span>
         <span v-else>{{ row.ngo }}</span>
       </template>
     </el-table-column>
-    <el-table-column label="Status" width="140" align="center" show-overflow-tooltip >
+    <el-table-column label="Status" width="110" align="center" show-overflow-tooltip >
       <template #default="{ row }">
-        <el-select
-          :model-value="row.status"
-          size="small"
-          :class="['status-select', statusClass(row.status)]"
-          @click.stop
-          @update:model-value="$emit('update-status', { id: row.id, status: $event })"
-        >
-          <el-option label="Registered" value="Registered" />
-          <el-option label="Exam Done" value="Exam Done" />
-          <el-option label="Investigating" value="Investigating" />
-          <el-option label="Assessed" value="Assessed" />
-          <el-option label="Approved" value="Approved" />
-          <el-option label="Rejected" value="Rejected" />
-          <el-option label="On Hold" value="On Hold" />
-        </el-select>
+        <span class="inline-flex items-center rounded px-2.5 py-0.5 text-xs font-semibold" :class="statusBadgeClass(row.status)">{{ row.status }}</span>
       </template>
     </el-table-column>
   </DataTableWrapper>
@@ -68,21 +58,20 @@ import DataTableWrapper from '@/components/ui/DataTableWrapper.vue'
 defineProps<{ candidates: Candidate[]; loading: boolean }>()
 
 defineEmits<{
-  'update-status': [{ id: number; status: string }]
   'row-click': [row: Candidate]
 }>()
 
-function statusClass(status: string): string {
+function statusBadgeClass(status: string): string {
   const map: Record<string, string> = {
-    'Registered': 'status-registered',
-    'Exam Done': 'status-exam-done',
-    'Investigating': 'status-investigating',
-    'Assessed': 'status-assessed',
-    'Approved': 'status-approved',
-    'Rejected': 'status-rejected',
-    'On Hold': 'status-on-hold',
+    'Registered': 'bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-600/20',
+    'Exam Done': 'bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-600/20',
+    'Investigating': 'bg-blue-50 text-blue-700 ring-1 ring-inset ring-blue-600/20',
+    'Assessed': 'bg-violet-50 text-violet-700 ring-1 ring-inset ring-violet-600/20',
+    'Approved': 'bg-green-50 text-green-700 ring-1 ring-inset ring-green-600/20',
+    'Rejected': 'bg-red-50 text-red-700 ring-1 ring-inset ring-red-600/20',
+    'On Hold': 'bg-slate-50 text-slate-700 ring-1 ring-inset ring-slate-600/20',
   }
-  return map[status] || ''
+  return map[status] || 'bg-slate-50 text-slate-700 ring-1 ring-inset ring-slate-600/20'
 }
 </script>
 
@@ -136,99 +125,5 @@ function statusClass(status: string): string {
 .meta-separator {
   color: #cbd5e1;
   font-size: 10px;
-}
-
-.status-select {
-  width: 100%;
-}
-.status-select :deep(.el-select__wrapper) {
-  min-height: 26px;
-  padding: 0 8px;
-  font-size: 11px;
-  box-shadow: 0 0 0 1px #d1d5db inset;
-  border-radius: 4px;
-  transition: box-shadow 0.15s ease, background-color 0.15s ease;
-}
-.status-select :deep(.el-select__wrapper:hover) {
-  box-shadow: 0 0 0 1px #93c5fd inset;
-}
-.status-select :deep(.el-select__wrapper.is-focused) {
-  box-shadow: 0 0 0 1px #60a5fa inset;
-}
-
-/* Status color variants — border & text only */
-.status-select.status-registered :deep(.el-select__wrapper) {
-  box-shadow: 0 0 0 1px #10b981 inset;
-  background-color: #f0fdf4;
-}
-.status-select.status-registered :deep(.el-select__selected-item) {
-  color: #065f46;
-  font-weight: 600;
-}
-
-.status-select.status-exam-done :deep(.el-select__wrapper) {
-  box-shadow: 0 0 0 1px #f59e0b inset;
-  background-color: #fffbeb;
-}
-.status-select.status-exam-done :deep(.el-select__selected-item) {
-  color: #92400e;
-  font-weight: 600;
-}
-
-.status-select.status-investigating :deep(.el-select__wrapper) {
-  box-shadow: 0 0 0 1px #3b82f6 inset;
-  background-color: #eff6ff;
-}
-.status-select.status-investigating :deep(.el-select__selected-item) {
-  color: #1e40af;
-  font-weight: 600;
-}
-
-.status-select.status-assessed :deep(.el-select__wrapper) {
-  box-shadow: 0 0 0 1px #8b5cf6 inset;
-  background-color: #f5f3ff;
-}
-.status-select.status-assessed :deep(.el-select__selected-item) {
-  color: #5b21b6;
-  font-weight: 600;
-}
-
-.status-select.status-approved :deep(.el-select__wrapper) {
-  box-shadow: 0 0 0 1px #059669 inset;
-  background-color: #ecfdf5;
-}
-.status-select.status-approved :deep(.el-select__selected-item) {
-  color: #064e3b;
-  font-weight: 600;
-}
-
-.status-select.status-rejected :deep(.el-select__wrapper) {
-  box-shadow: 0 0 0 1px #ef4444 inset;
-  background-color: #fef2f2;
-}
-.status-select.status-rejected :deep(.el-select__selected-item) {
-  color: #991b1b;
-  font-weight: 600;
-}
-
-.status-select.status-on-hold :deep(.el-select__wrapper) {
-  box-shadow: 0 0 0 1px #94a3b8 inset;
-  background-color: #f8fafc;
-}
-.status-select.status-on-hold :deep(.el-select__selected-item) {
-  color: #475569;
-  font-weight: 600;
-}
-
-/* Smaller dropdown caret icon */
-.status-select :deep(.el-select__suffix) {
-  font-size: 9px;
-}
-.status-select :deep(.el-select__caret) {
-  font-size: 9px;
-}
-.status-select :deep(.el-select__suffix svg) {
-  width: 10px;
-  height: 10px;
 }
 </style>

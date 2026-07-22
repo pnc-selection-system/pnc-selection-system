@@ -1,6 +1,6 @@
 <template>
-  <div class="px-6 py-6">
-    <div class="mx-auto max-w-[1200px] space-y-4">
+  <div>
+    <div class="space-y-4">
       <CandidateHeader
         @create="showFormModal = true"
         @import="showImportModal = true"
@@ -18,7 +18,6 @@
       <CandidateTable
         :candidates="candidates"
         :loading="showLoading"
-        @update-status="handleStatusUpdate"
         @row-click="handleRowClick"
       />
 
@@ -138,10 +137,6 @@ async function handleSaveCandidate(payload: {
   } catch {
     // Error is handled in the store
   }
-}
-
-function handleStatusUpdate({ id, status }: { id: number; status: string }) {
-  store.updateCandidateStatus(id, status)
 }
 
 function handleRowClick(row: Candidate) {

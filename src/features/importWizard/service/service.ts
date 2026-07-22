@@ -1,3 +1,4 @@
+import api from '@/plugins/axios'
 import type { PageMeta } from '../types/wizard'
 import type {
   ColumnMapping,
@@ -7,52 +8,80 @@ import type {
   ValidationResult,
 } from '../types/mapping'
 
-const DELAY = 400
-
-function wait<T>(value: T, ms = DELAY): Promise<T> {
-  return new Promise((resolve) => setTimeout(() => resolve(value), ms))
-}
-
-export const SYSTEM_FIELDS: SystemField[] = ['Candidate ID', 'Mathematics', 'Khmer', 'Ignore']
+export const SYSTEM_FIELDS: SystemField[] = ['Student ID', 'Candidate ID', 'Raw Score', 'Raw Correct', 'Raw Wrong', 'Deduction', 'Ignore']
 
 export async function fetchPageMeta(): Promise<PageMeta> {
-  return wait({
+  return {
     breadcrumb: ['Exam', 'Import Wizard'],
     title: 'Import exam results',
     roles: ['Officer', 'Manager'],
     reqCodes: ['FR-EX-5', 'FR-EX-6'],
     fileFormats: 'ZipGrade CSV/XLSX',
-  })
+  }
 }
 
 /**
- * Simulates parsing the uploaded file's header row + a sample value per column,
+ * Parse the uploaded file's header row + a sample value per column,
  * with a best-guess mapping to system fields.
  */
-export async function parseUploadedFile(file: File): Promise<{ file: UploadedFile; mappings: ColumnMapping[] }> {
-  return wait({
-    file: { name: file.name, rowCount: 128 },
-    mappings: [
-      { fileColumn: 'StudentID', sampleValue: 'C-1042', mappedTo: 'Candidate ID' },
-      { fileColumn: 'Math_raw', sampleValue: '78', mappedTo: 'Mathematics' },
-      { fileColumn: 'Khmer_raw', sampleValue: '71', mappedTo: 'Khmer' },
-      { fileColumn: 'Notes', sampleValue: '—', mappedTo: 'Ignore' },
-    ],
-  })
+export async function parseUploadedFile(
+  file: File,
+  campaignId: number,
+  subjectId: number
+): Promise<{ file: UploadedFile; mappings: ColumnMapping[]; importFileId: number }> {
+  const formData = new FormData()
+  formData.append('file', file)
+  formData.append('campaign_id', String(campaignId))
+  formData.append('subject_id', String(subjectId))
+
+  try {
+    const response = await api.post('/exam-results/import/upload', formData)
+    const data = response.data.data
+
+    // Convert backend response to frontend format
+    const mappings: ColumnMapping[] = data.detected_columns.map((col: string, index: number) => ({
+      fileColumn: col,
+      sampleValue: data.preview[index]?.student_id || '',
+      mappedTo: data.auto_mapping[col] || 'Ignore',
+    }))
+
+    return {
+      file: { name: data.file_name, rowCount: data.total_rows },
+      mappings,
+      importFileId: data.import_file_id,
+    }
+  } catch (error: any) {
+    console.error('Upload error:', error.response?.data || error.message)
+    throw new Error(error.response?.data?.message || error.message || 'Failed to upload file')
+  }
 }
 
 export async function runValidation(mappings: ColumnMapping[]): Promise<ValidationResult> {
-  return wait({
+  // For now, return mock validation data
+  // In the future, this could call a validation endpoint
+  return {
     totalRows: 128,
     validRows: 121,
-    issues: [
-      { row: 57, column: 'StudentID', message: 'Unmatched StudentID "C-9999"', type: 'error' },
-      { row: 112, column: 'ID', message: 'Duplicate ID — keeps highest score', type: 'warning' },
-      { row: 340, column: 'Math_raw', message: 'Math_raw "abc" not numeric', type: 'error' },
-    ],
-  })
+    issues: [],
+  }
 }
 
-export async function commitImport(): Promise<CommitSummary> {
-  return wait({ imported: 121, skipped: 7, campaign: '2026' })
+export async function commitImport(
+  importFileId: number,
+  columnMapping: Record<string, string>,
+  subjectId: number
+): Promise<CommitSummary> {
+  const response = await api.post('/exam-results/import/confirm', {
+    import_file_id: importFileId,
+    column_mapping: columnMapping,
+    subject_id: subjectId,
+  })
+
+  const result = response.data.data
+
+  return {
+    imported: result.imported,
+    skipped: result.skipped,
+    campaign: '2026',
+  }
 }

@@ -54,7 +54,7 @@
 
         <div class="py-5">
           <div v-if="activeTab === 'personal'" class="grid grid-cols-2 gap-x-8 gap-y-4">
-            <div><p class="text-xs font-medium uppercase tracking-wider text-slate-400">Candidate ID</p><p class="mt-1 text-sm font-medium text-slate-900">{{ candidate.candidate_no }}</p></div>
+            <div><p class="text-xs font-medium uppercase tracking-wider text-slate-400">Student ID</p><p class="mt-1 text-sm font-medium text-slate-900">{{ candidate.student_id || '---' }}</p></div>
             <div><p class="text-xs font-medium uppercase tracking-wider text-slate-400">Full Name (EN)</p><p class="mt-1 text-sm font-medium text-slate-900">{{ candidate.fullName }}</p></div>
             <div><p class="text-xs font-medium uppercase tracking-wider text-slate-400">Full Name (KH)</p><p class="mt-1 text-sm font-medium text-slate-900">{{ candidate.fullName_KH || '---' }}</p></div>
             <div><p class="text-xs font-medium uppercase tracking-wider text-slate-400">Gender</p><p class="mt-1 text-sm font-medium text-slate-900">{{ candidate.gender }}</p></div>
@@ -93,7 +93,7 @@
 
     <template #footer>
       <div class="flex justify-end gap-3">
-        <BaseButton variant="secondary" size="sm" @click="$emit('update:modelValue', false)">Close</BaseButton>
+        <BaseButton variant="secondary" size="small" @click="$emit('update:modelValue', false)">Close</BaseButton>
       </div>
     </template>
   </BaseModal>
