@@ -1,4 +1,4 @@
-export type NgoPartnerStatus = 'Active' | 'Inactive'
+export type NgoPartnerStatus = 'active' | 'inactive'
 
 export interface NgoPartner {
   id: number

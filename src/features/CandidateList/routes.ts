@@ -10,12 +10,11 @@ export default [
         path: '',
         name: 'CandidateList',
         component: () => import('./views/CandidateListView.vue'),
-        beforeEnter: () => {
-          // Fire-and-forget: navigation is instant, data loads in background
-          prefetchProvincesAndNgos() // Pre-fill name caches + filter dropdowns
+        beforeEnter: async () => {
+          await prefetchProvincesAndNgos()
           const pinia = getActivePinia()
           if (pinia) {
-            prefetchCandidateList(pinia)
+            await prefetchCandidateList(pinia)
           }
         },
       },

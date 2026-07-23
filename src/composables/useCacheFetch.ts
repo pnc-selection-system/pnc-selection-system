@@ -35,6 +35,38 @@ export interface UseCacheFetchReturn<T> {
 const cacheStore = new Map<string, CacheEntry<any>>()
 const inflightStore = new Map<string, Promise<any>>()
 
+const SESSION_STORAGE_PREFIX = 'app:cache:'
+
+function readSessionCache(): void {
+  try {
+    const keys = Object.keys(sessionStorage)
+    for (const key of keys) {
+      if (key.startsWith(SESSION_STORAGE_PREFIX)) {
+        const raw = sessionStorage.getItem(key)
+        if (!raw) continue
+        const entry = JSON.parse(raw) as CacheEntry<any>
+        if (entry && entry.data !== undefined && entry.timestamp) {
+          cacheStore.set(key.slice(SESSION_STORAGE_PREFIX.length), entry)
+        }
+      }
+    }
+  } catch {}
+}
+
+function writeSessionCache(key: string, entry: CacheEntry<any>): void {
+  try {
+    sessionStorage.setItem(`${SESSION_STORAGE_PREFIX}${key}`, JSON.stringify(entry))
+  } catch {}
+}
+
+function removeSessionCache(key: string): void {
+  try {
+    sessionStorage.removeItem(`${SESSION_STORAGE_PREFIX}${key}`)
+  } catch {}
+}
+
+readSessionCache()
+
 /**
  * Remove all cache entries older than 5 minutes to prevent unbounded memory growth.
  */
@@ -43,6 +75,7 @@ export function pruneExpiredCache(): void {
   for (const [key, entry] of cacheStore) {
     if (entry.timestamp && entry.timestamp < cutoff) {
       cacheStore.delete(key)
+      removeSessionCache(key)
     }
   }
 }
@@ -51,6 +84,14 @@ export function pruneExpiredCache(): void {
 export function clearAllCache(): void {
   cacheStore.clear()
   inflightStore.clear()
+  try {
+    const keys = Object.keys(sessionStorage)
+    for (const key of keys) {
+      if (key.startsWith(SESSION_STORAGE_PREFIX)) {
+        sessionStorage.removeItem(key)
+      }
+    }
+  } catch {}
 }
 
 /**
@@ -59,7 +100,9 @@ export function clearAllCache(): void {
  * the component's `useCacheFetch` finds the data already cached.
  */
 export function prefetchCache<T>(key: string, data: T): void {
-  cacheStore.set(key, { data, timestamp: Date.now() })
+  const entry: CacheEntry<T> = { data, timestamp: Date.now() }
+  cacheStore.set(key, entry)
+  writeSessionCache(key, entry)
 }
 
 // ---------------------------------------------------------------------------
@@ -146,7 +189,9 @@ export function useCacheFetch<T>(
 
     const promise = fetcher()
       .then((result) => {
-        cacheStore.set(resolvedKey, { data: result, timestamp: Date.now() })
+        const entry: CacheEntry<T> = { data: result, timestamp: Date.now() }
+        cacheStore.set(resolvedKey, entry)
+        writeSessionCache(resolvedKey, entry)
         data.value = result
         return result
       })
@@ -173,6 +218,7 @@ export function useCacheFetch<T>(
     if (resolvedKey) {
       cacheStore.delete(resolvedKey)
       inflightStore.delete(resolvedKey)
+      removeSessionCache(resolvedKey)
     }
     data.value = null
     error.value = null
@@ -232,7 +278,9 @@ export function useCacheFetch<T>(
 
       const promise = fetcher()
         .then((result) => {
-          cacheStore.set(newKey, { data: result, timestamp: Date.now() })
+          const entry: CacheEntry<T> = { data: result, timestamp: Date.now() }
+          cacheStore.set(newKey, entry)
+          writeSessionCache(newKey, entry)
           data.value = result
           fromCache.value = false
         })

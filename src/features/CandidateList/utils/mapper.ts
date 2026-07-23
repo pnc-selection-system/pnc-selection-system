@@ -16,6 +16,34 @@ let provinceNameCache: Record<number, string> = {}
  */
 let ngoNameCache: Record<number, string> = {}
 
+function hydrateFromSessionStorage(): void {
+  try {
+    const provinceRaw = sessionStorage.getItem('provinceNames')
+    if (provinceRaw) {
+      const parsed = JSON.parse(provinceRaw)
+      if (typeof parsed === 'object' && parsed !== null) {
+        provinceNameCache = parsed
+      }
+    }
+    const ngoRaw = sessionStorage.getItem('ngoNames')
+    if (ngoRaw) {
+      const parsed = JSON.parse(ngoRaw)
+      if (typeof parsed === 'object' && parsed !== null) {
+        ngoNameCache = parsed
+      }
+    }
+    const campaignRaw = sessionStorage.getItem('campaignNames')
+    if (campaignRaw) {
+      const parsed = JSON.parse(campaignRaw)
+      if (typeof parsed === 'object' && parsed !== null) {
+        campaignNameCache = parsed
+      }
+    }
+  } catch {}
+}
+
+hydrateFromSessionStorage()
+
 /**
  * Check if the campaign name cache has been populated
  */
@@ -28,6 +56,9 @@ export function hasCampaignCache(): boolean {
  */
 export function setCampaignNameCache(cache: Record<number, string>) {
   campaignNameCache = cache
+  try {
+    sessionStorage.setItem('campaignNames', JSON.stringify(cache))
+  } catch {}
 }
 
 /**
@@ -42,6 +73,9 @@ export function hasProvinceCache(): boolean {
  */
 export function setProvinceNameCache(cache: Record<number, string>) {
   provinceNameCache = cache
+  try {
+    sessionStorage.setItem('provinceNames', JSON.stringify(cache))
+  } catch {}
 }
 
 /**
@@ -56,6 +90,9 @@ export function hasNgoCache(): boolean {
  */
 export function setNgoNameCache(cache: Record<number, string>) {
   ngoNameCache = cache
+  try {
+    sessionStorage.setItem('ngoNames', JSON.stringify(cache))
+  } catch {}
 }
 
 /**
@@ -140,3 +177,4 @@ export function splitFullName(fullName: string): { firstName: string; lastName: 
     lastName: trimmed.slice(lastSpaceIndex + 1),
   }
 }
+

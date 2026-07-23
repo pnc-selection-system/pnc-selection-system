@@ -8,6 +8,7 @@ import type { NgoPartnerFormData } from '../types/partner'
 
 const props = defineProps<{
   open: boolean
+  saving?: boolean
   apiError?: string | null
 }>()
 
@@ -63,6 +64,7 @@ async function handleSubmit() {
     address: form.address.trim() || undefined,
     phone: form.phone.trim() || undefined,
     email: form.email.trim() || undefined,
+    status: 'active',
   }, logoPreview.value)
 }
 </script>
@@ -73,7 +75,8 @@ async function handleSubmit() {
 
       <!-- Header -->
       <div class="mb-6 flex items-center gap-3">
-        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 ring-1 ring-blue-100">
+        <div class="flex h-10 w-10 items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50 ring-1 ring-blue-100"
+        style="border-radius: 4px">
           <svg class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0 0 12 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75Z" />
           </svg>
@@ -97,7 +100,8 @@ async function handleSubmit() {
           <!-- Avatar / preview -->
           <button
             type="button"
-            class="group relative h-14 w-14 shrink-0 overflow-hidden rounded-xl ring-1 ring-slate-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 hover:ring-slate-300 hover:shadow-sm transition-shadow"
+            class="group relative h-14 w-14 shrink-0 overflow-hidden ring-1 ring-slate-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 hover:ring-slate-300 hover:shadow-sm transition-shadow"
+          style="border-radius: 4px"
             title="Upload logo"
             @click="fileInput?.click()"
           >
@@ -162,7 +166,7 @@ async function handleSubmit() {
     <template #footer>
       <div class="flex items-center justify-end gap-3">
         <BaseButton variant="secondary" class="!w-auto !px-5" @click="emit('update:open', false)">Cancel</BaseButton>
-        <BaseButton class="!w-auto !px-5" @click="handleSubmit">Add Partner</BaseButton>
+        <BaseButton class="!w-auto !px-5" :loading="saving" @click="handleSubmit">Save partner</BaseButton>
       </div>
     </template>
   </BaseModal>

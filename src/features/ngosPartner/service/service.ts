@@ -2,26 +2,22 @@ import api from '@/plugins/axios'
 import type { ApiResponse, ContactPerson, ContactPersonFormData, NgoPartner, NgoPartnerFormData } from '../types/partner'
 import type { CommunicationLogEntry } from '../types/communication'
 
-// --- Mock data for communication log (no backend endpoint yet) ---
-
-const logsByPartner: Record<string, CommunicationLogEntry[]> = {
-  1: [
-    { id: 'l1', date: '2026-03-14', channel: 'Email', summary: 'Shared shortlist of 12 candidates' },
-    { id: 'l2', date: '2026-03-03', channel: 'Call', summary: 'Confirmed session attendance' },
-  ],
-}
+// --- Real API calls for communication logs (nested sub-resource) ---
 
 export async function fetchCommunicationLog(partnerId: number): Promise<CommunicationLogEntry[]> {
-  return Promise.resolve(logsByPartner[partnerId] ?? [])
+  const response = await api.get<ApiResponse<CommunicationLogEntry[]>>(`/ngo-partners/${partnerId}/communication-logs`)
+  const payload = response.data.data ?? response.data
+  if (Array.isArray(payload)) return payload
+  if (payload && typeof payload === 'object' && Array.isArray((payload as any).data)) return (payload as any).data
+  return []
 }
 
 export async function addLogEntry(
   partnerId: number,
   entry: Omit<CommunicationLogEntry, 'id'>,
 ): Promise<CommunicationLogEntry> {
-  const created: CommunicationLogEntry = { ...entry, id: `l${Date.now()}` }
-  logsByPartner[partnerId] = [created, ...(logsByPartner[partnerId] ?? [])]
-  return Promise.resolve(created)
+  const response = await api.post<ApiResponse<CommunicationLogEntry>>(`/ngo-partners/${partnerId}/communication-logs`, entry)
+  return response.data.data
 }
 
 // --- Real API calls for NGO partners ---

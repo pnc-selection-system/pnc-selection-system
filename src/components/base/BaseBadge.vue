@@ -29,7 +29,8 @@ const emit = defineEmits<{
     :hit="hit"
     :disable-transitions="disableTransitions"
     effect="light"
-    class="inline-flex items-center gap-1.5 rounded"
+    class="inline-flex items-center gap-1.5"
+    style="border-radius: 4px"
     @close="emit('close')"
   >
     <slot />

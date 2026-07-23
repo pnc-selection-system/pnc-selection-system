@@ -18,6 +18,8 @@ const props = defineProps<{
   loading?: boolean
   name?: string
   id?: string
+  teleported?: boolean
+  popperClass?: string
 }>()
 
 const emit = defineEmits<{
@@ -44,7 +46,7 @@ function handleChange(value: unknown) {
 <template>
   <div class="flex flex-col gap-2">
     <label v-if="label" :for="id || name" class="text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400">{{ label }}</label>
-    <div class="base-select-wrap" style="position: relative;">
+    <div class="base-select-wrap">
       <el-select
         :id="id || name"
         :model-value="modelValue"
@@ -53,7 +55,9 @@ function handleChange(value: unknown) {
         :clearable="clearable"
         :multiple="multiple"
         :loading="loading"
-        class="w-full base-select-el"
+        :teleported="teleported ?? true"
+        :popper-class="['base-select-popper', popperClass].filter(Boolean).join(' ')"
+        class="w-full"
         @update:model-value="handleChange"
       >
         <el-option
@@ -64,16 +68,12 @@ function handleChange(value: unknown) {
           :disabled="opt.disabled"
         />
       </el-select>
-      <span
-        class="base-select-arrow"
-        style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font-size: 12px; color: #64748b; line-height: 1; pointer-events: none; z-index: 100;"
-      >▾</span>
     </div>
   </div>
 </template>
 
 <style>
-.base-select-el .el-select__suffix .el-select__caret {
-  display: none !important;
+.base-select-popper {
+  z-index: 9999 !important;
 }
 </style>

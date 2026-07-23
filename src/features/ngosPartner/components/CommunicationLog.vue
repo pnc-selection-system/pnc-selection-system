@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import BaseButton from '../../../components/base/BaseButton.vue'
-import EmptyState from '../../../components/ui/EmptyState.vue'
+import BaseIcon from '../../../components/base/BaseIcon.vue'
+import DataTableWrapper from '@/components/ui/DataTableWrapper.vue'
 import type { CommunicationLogEntry } from '../types/communication'
 
 defineProps<{
@@ -26,37 +27,44 @@ function formatDate(iso: string) {
 <template>
   <div class="border-t border-slate-100 px-4 py-2">
     <div class="flex items-center justify-between">
-      <p class="font-mono text-[9px] uppercase tracking-[0.1em] text-slate-400">
+      <p class="font-mono text-[11px] uppercase tracking-[0.1em] text-slate-400">
         Communication log
       </p>
-      <BaseButton variant="secondary" size="small" @click="emit('logEntry')">+ Add</BaseButton>
+      <BaseButton
+        variant="primary"
+        class="!w-auto !rounded-[4px] !px-3 !py-1.5 text-xs font-semibold"
+        @click="emit('logEntry')"
+      >
+        <BaseIcon :size="12" :stroke-width="2.5">
+          <path d="M12 5v14M5 12h14" />
+        </BaseIcon>
+        Log entry
+      </BaseButton>
     </div>
-    <EmptyState
-      v-if="entries.length === 0"
-      class="mt-2"
-      title="No log entries yet"
-      description="Record calls, emails, or visits with this partner."
-    />
 
-    <table v-else class="mt-1 w-full border-collapse">
-      <thead>
-        <tr class="border-b border-slate-100 bg-slate-50/30">
-          <th class="px-4 py-2 text-left font-mono text-[9px] uppercase tracking-[0.1em] text-slate-400">Date</th>
-          <th class="px-4 py-2 text-left font-mono text-[9px] uppercase tracking-[0.1em] text-slate-400">Channel</th>
-          <th class="px-4 py-2 text-left font-mono text-[9px] uppercase tracking-[0.1em] text-slate-400">Summary</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="entry in entries" :key="entry.id" class="border-b border-slate-50 last:border-0 transition-colors hover:bg-slate-50/80">
-          <td class="px-4 py-2.5 text-slate-600 text-[13px]">{{ formatDate(entry.date) }}</td>
-          <td class="px-4 py-2.5">
-            <span class="rounded px-2 py-0.5 font-mono text-[11px]" :class="channelClasses[entry.channel]">
-              {{ entry.channel }}
-            </span>
-          </td>
-          <td class="px-4 py-2.5 text-slate-600 text-[13px]">{{ entry.summary }}</td>
-        </tr>
-      </tbody>
-    </table>
+    <DataTableWrapper
+      :data="entries"
+      row-key="id"
+      empty-text="No log entries yet"
+      empty-description="Record calls, emails, or visits with this partner."
+    >
+      <el-table-column label="Date" width="110">
+        <template #default="{ row }">
+          <span class="text-[13px] text-slate-600">{{ formatDate(row.date) }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Channel" width="120">
+        <template #default="{ row }">
+          <span class="rounded px-2 py-0.5 font-mono text-[11px]" :class="channelClasses[row.channel]">
+            {{ row.channel }}
+          </span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Summary" min-width="200">
+        <template #default="{ row }">
+          <span class="text-[13px] text-slate-600">{{ row.summary }}</span>
+        </template>
+      </el-table-column>
+    </DataTableWrapper>
   </div>
 </template>

@@ -29,6 +29,19 @@ export const useCandidateStore = defineStore('candidate', {
   },
 
   actions: {
+    hydrateFromStorage() {
+      try {
+        const raw = sessionStorage.getItem('candidates')
+        if (raw) {
+          const parsed = JSON.parse(raw)
+          if (parsed && Array.isArray(parsed.candidates)) {
+            this.candidates = parsed.candidates
+            this.total = parsed.total ?? 0
+          }
+        }
+      } catch {}
+    },
+
     async loadCampaignNames() {
       if (hasCampaignCache()) return
       try {
@@ -79,6 +92,11 @@ export const useCandidateStore = defineStore('candidate', {
     },
 
     async fetchCandidates() {
+      // Skip API call if we already have data (hydrated from sessionStorage on refresh)
+      if (this.candidates.length > 0) {
+        return
+      }
+
       this.loading = true
       this.error = null
       try {
@@ -112,6 +130,14 @@ export const useCandidateStore = defineStore('candidate', {
           this.candidates = mapped
           this.total = meta?.total ?? mapped.length
         }
+
+        // Persist to sessionStorage for instant loading on refresh / revisit
+        try {
+          sessionStorage.setItem('candidates', JSON.stringify({
+            candidates: this.candidates,
+            total: this.total,
+          }))
+        } catch {}
       } catch (err) {
         this.error = getErrorMessage(err, 'Failed to load candidates')
       } finally {

@@ -12,7 +12,6 @@ const routes: RouteRecordRaw[] = [
         meta: { requiresAuth: true },
         component: () => import('./view/NGOsPartnersView.vue'),
         beforeEnter: () => {
-          // Fire-and-forget: navigation is instant, data loads in background
           prefetchNgoPartners()
         },
       },

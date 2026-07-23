@@ -10,7 +10,7 @@ import AddPartnerModel from '../components/AddPartnerModel.vue'
 import AddContactModel from '../components/AddContactModel.vue'
 import AddLogEntryModel from '../components/AddLogEntryModel.vue'
 import { getErrorMessage, isAxiosError } from '@/utils/error'
-import { getCachedPartners } from '@/composables/useRoutePrefetch'
+import { getCachedPartners, getCachedContacts, getCachedLogs, prefetchNgoPartnerDetails, setCachedContacts, setCachedLogs } from '@/composables/useRoutePrefetch'
 import {
   fetchPartners,
   addPartner,
@@ -23,6 +23,9 @@ import { saveLogo } from '../composables/usePartnerLogos'
 import type { NgoPartner, NgoPartnerFormData, ContactPerson, ContactPersonFormData } from '../types/partner'
 import type { CommunicationLogEntry } from '../types/communication'
 
+const saving = ref(false)
+const contactSaving = ref(false)
+const logSaving = ref(false)
 const partners = ref<NgoPartner[]>([])
 const selectedPartner = ref<NgoPartner | null>(null)
 const contacts = ref<ContactPerson[]>([])
@@ -40,42 +43,54 @@ const validPartners = computed(() => Array.isArray(partners.value) ? partners.va
 
 onMounted(async () => {
   try {
-    loading.value = true
     error.value = null
 
-    // Use pre-fetched data from route beforeEnter guard if available
     const cached = getCachedPartners()
     if (cached) {
       partners.value = cached
+      loading.value = false
     } else {
       partners.value = await fetchPartners()
+      loading.value = false
     }
 
-    // Auto-select the first partner if available.
-    // The watch on selectedPartner will handle loading contacts and logs.
     const firstPartner = partners.value[0]
     if (firstPartner) {
       selectedPartner.value = firstPartner
+      const cachedContacts = getCachedContacts(firstPartner.id)
+      const cachedLogs = getCachedLogs(firstPartner.id)
+      if (cachedContacts) contacts.value = cachedContacts
+      if (cachedLogs) logEntries.value = cachedLogs
+      prefetchNgoPartnerDetails(firstPartner.id)
     }
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Failed to load partners'
-  } finally {
     loading.value = false
   }
 })
 
-// Watch for partner selection changes to load their contacts/logs
+// Watch for partner selection changes — show cached data instantly, fetch in background
 watch(selectedPartner, async (partner) => {
   if (partner) {
-    contacts.value = []
-    logEntries.value = []
-    try {
+    const cachedContacts = getCachedContacts(partner.id)
+    const cachedLogs = getCachedLogs(partner.id)
+
+    if (cachedContacts) {
+      contacts.value = cachedContacts
+    } else {
+      contacts.value = []
+    }
+    if (cachedLogs) {
+      logEntries.value = cachedLogs
+    } else {
+      logEntries.value = []
+    }
+
+    if (!cachedContacts || !cachedLogs) {
       await Promise.all([
-        loadContactPersons(partner.id),
-        loadLogEntries(partner.id),
+        !cachedContacts ? loadContactPersons(partner.id) : Promise.resolve(),
+        !cachedLogs ? loadLogEntries(partner.id) : Promise.resolve(),
       ])
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to load partner details'
     }
   }
 })
@@ -104,6 +119,7 @@ function extractApiError(err: unknown, fallback: string): string {
 }
 
 async function handleAddPartner(formData: NgoPartnerFormData, logoBase64: string | null) {
+  saving.value = true
   try {
     partnerError.value = null
     const created = await addPartner(formData)
@@ -112,42 +128,60 @@ async function handleAddPartner(formData: NgoPartnerFormData, logoBase64: string
     showAddPartner.value = false
   } catch (err) {
     partnerError.value = extractApiError(err, 'Failed to add partner')
+  } finally {
+    saving.value = false
   }
 }
 
 async function handleAddContact(formData: ContactPersonFormData) {
   if (!selectedPartner.value) return
+  contactSaving.value = true
   try {
     contactError.value = null
     const created = await addContactPerson(selectedPartner.value.id, formData)
     contacts.value = [...contacts.value, created]
+    setCachedContacts(selectedPartner.value.id, contacts.value)
     showAddContact.value = false
     contactError.value = null
   } catch (err) {
     contactError.value = extractApiError(err, 'Failed to add contact')
+  } finally {
+    contactSaving.value = false
   }
 }
 
 async function handleAddLog(entry: Omit<CommunicationLogEntry, 'id'>) {
   if (!selectedPartner.value) return
-  const created = await addLogEntry(selectedPartner.value.id, entry)
-  logEntries.value = [created, ...logEntries.value]
-  showAddLog.value = false
+  logSaving.value = true
+  try {
+    const created = await addLogEntry(selectedPartner.value.id, entry)
+    logEntries.value = [created, ...logEntries.value]
+    setCachedLogs(selectedPartner.value.id, logEntries.value)
+    showAddLog.value = false
+  } catch {
+    // Silently fail — log is non-critical
+  } finally {
+    logSaving.value = false
+  }
 }
 
 async function loadContactPersons(partnerId: number) {
   try {
-    contacts.value = await fetchContactPersons(partnerId)
+    const data = await fetchContactPersons(partnerId)
+    setCachedContacts(partnerId, data)
+    contacts.value = data
   } catch {
-    contacts.value = []
+    contacts.value = getCachedContacts(partnerId) || []
   }
 }
 
 async function loadLogEntries(partnerId: number) {
   try {
-    logEntries.value = await fetchCommunicationLog(partnerId)
+    const data = await fetchCommunicationLog(partnerId)
+    setCachedLogs(partnerId, data)
+    logEntries.value = data
   } catch {
-    logEntries.value = []
+    logEntries.value = getCachedLogs(partnerId) || []
   }
 }
 </script>
@@ -155,11 +189,7 @@ async function loadLogEntries(partnerId: number) {
 <template>
   <div class="px-6 py-6">
     <div class="mx-auto max-w-[1200px] space-y-4">
-      <PageHeader
-        breadcrumb="Outreach"
-        title="NGOs & Partners"
-        subtitle="Manage your partner organizations and their contact information"
-      />
+      <PageHeader breadcrumb="OUTREACH / NGOs & PARTNERS" title="NGOs & Partners" />
 
       <!-- Error alert -->
       <div
@@ -170,7 +200,7 @@ async function loadLogEntries(partnerId: number) {
         <button class="ml-2 underline hover:no-underline" @click="error = null">Dismiss</button>
       </div>
 
-      <div class="grid grid-cols-1 gap-4 lg:grid-cols-[1.6fr_1fr]">
+      <div class="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_1.6fr]">
         <div>
           <LoadingSpinner v-if="loading" class="py-16" />
           <PartnerList
@@ -203,6 +233,7 @@ async function loadLogEntries(partnerId: number) {
 
       <AddPartnerModel
         :open="showAddPartner"
+        :saving="saving"
         :api-error="partnerError"
         @update:open="showAddPartner = $event; partnerError = null"
         @submit="(fd, logo) => handleAddPartner(fd, logo)"
@@ -210,6 +241,7 @@ async function loadLogEntries(partnerId: number) {
       <AddContactModel
         v-if="selectedPartner"
         :open="showAddContact"
+        :saving="contactSaving"
         :api-error="contactError"
         @update:open="showAddContact = $event; contactError = null"
         @submit="handleAddContact"
@@ -217,6 +249,7 @@ async function loadLogEntries(partnerId: number) {
       <AddLogEntryModel
         v-if="selectedPartner"
         :open="showAddLog"
+        :saving="logSaving"
         @update:open="showAddLog = $event"
         @submit="handleAddLog"
       />

@@ -6,6 +6,52 @@ import { CampaignStatus } from '@/enums'
 import type { Campaign } from '@/features/campaign/types'
 import type { Session, SessionFormData } from '../types/session'
 
+// Keys for sessionStorage persistence
+const CAMPAIGNS_SESSION_KEY = 'informationSessions:campaigns'
+const SESSIONS_SESSION_KEY = 'informationSessions:sessions'
+const FILTERS_SESSION_KEY = 'informationSessions:filters'
+
+function hydrateFromStorage() {
+  // Hydrate campaigns from sessionStorage
+  try {
+    const raw = sessionStorage.getItem(CAMPAIGNS_SESSION_KEY)
+    if (raw) {
+      campaigns.value = JSON.parse(raw)
+    }
+  } catch {}
+
+  // Hydrate sessions from sessionStorage
+  try {
+    const raw = sessionStorage.getItem(SESSIONS_SESSION_KEY)
+    if (raw) {
+      const parsed = JSON.parse(raw)
+      if (Array.isArray(parsed.sessions)) {
+        sessions.value = parsed.sessions
+        total.value = parsed.total ?? 0
+      }
+    }
+  } catch {}
+
+  // Hydrate filters from sessionStorage
+  try {
+    const raw = sessionStorage.getItem(FILTERS_SESSION_KEY)
+    if (raw) {
+      const parsed = JSON.parse(raw)
+      if (parsed) {
+        filters.value = { ...filters.value, ...parsed }
+      }
+    }
+  } catch {}
+}
+
+function persistToStorage() {
+  try {
+    sessionStorage.setItem(CAMPAIGNS_SESSION_KEY, JSON.stringify(campaigns.value))
+    sessionStorage.setItem(SESSIONS_SESSION_KEY, JSON.stringify({ sessions: sessions.value, total: total.value }))
+    sessionStorage.setItem(FILTERS_SESSION_KEY, JSON.stringify(filters.value))
+  } catch {}
+}
+
 // Module-level state — persists across route changes
 const sessions = ref<Session[]>([])
 const campaigns = ref<Campaign[]>([])
@@ -23,6 +69,9 @@ function pageCacheKey(page: number) {
 }
 
 export function useInfoSessions() {
+  // Hydrate from sessionStorage on module load so the first render is instant
+  hydrateFromStorage()
+
   // Internal: fetch and swap — never clears existing rows
   async function _fetchSessions(page = currentPage.value) {
     const result = await fetchSessions(filters.value, page, 10)
@@ -31,6 +80,7 @@ export function useInfoSessions() {
     if (page === currentPage.value) {
       sessions.value = result.data
       total.value = result.total
+      persistToStorage()
     }
     return result
   }
@@ -53,12 +103,18 @@ export function useInfoSessions() {
         end_date: c.end_date?.split('T')[0] ?? '',
       }))
       filterOptions.value = { ...filterOptions.value, campaignYears: years, campaignDates }
+      sessionStorage.setItem(CAMPAIGNS_SESSION_KEY, JSON.stringify(data))
     } catch {}
   }
 
   async function bootstrap() {
     if (!isBootstrapped.value) {
-      isLoading.value = true
+      // Only show loading if we have no cached data to display instantly.
+      // The route-level prefetch (prefetchInfoSessions) already ran during
+      // navigation, so on first load the data may already be in sessionStorage
+      // and hydrated by hydrateFromStorage() above.
+      const hasCachedData = sessions.value.length > 0
+      if (!hasCachedData) isLoading.value = true
       try {
         await Promise.all([
           _fetchSessions().then(result => {
@@ -68,7 +124,7 @@ export function useInfoSessions() {
           _refreshCampaigns(),
           fetchProvinces().then(provinces => {
             filterOptions.value = { ...filterOptions.value, provinces }
-          }).catch(() => {}),
+          }),
         ])
       } finally {
         isLoading.value = false
@@ -76,7 +132,9 @@ export function useInfoSessions() {
       }
       return
     }
-    // Subsequent visits: refresh campaigns & sessions silently in background
+    // Subsequent visits: refresh campaigns & sessions silently in background.
+    // Module-level refs persist across route changes, so the table renders
+    // instantly from cache while fresh data loads in the background.
     _refreshCampaigns()
     _fetchSessions().then(result => {
       const totalPages = Math.ceil(result.total / 10)
@@ -132,6 +190,7 @@ export function useInfoSessions() {
     total.value += 1
     pageCache.clear()
     currentPage.value = 1
+    persistToStorage()
     return saved
   }
 
@@ -142,6 +201,7 @@ export function useInfoSessions() {
     const saved = await saveSession(form)
     sessions.value = sessions.value.map(s => s.id === saved.id ? saved : s)
     pageCache.clear()
+    persistToStorage()
     return saved
   }
 

@@ -7,6 +7,7 @@ import type { ContactPersonFormData } from '../types/partner'
 
 const props = defineProps<{
   open: boolean
+  saving?: boolean
   apiError?: string | null
 }>()
 
@@ -102,7 +103,7 @@ function handleSubmit() {
         <BaseButton variant="secondary" class="!w-auto !px-5" @click="emit('update:open', false)">
           Cancel
         </BaseButton>
-        <BaseButton class="!w-auto !px-5" @click="handleSubmit">
+        <BaseButton class="!w-auto !px-5" :loading="saving" @click="handleSubmit">
           Add Contact
         </BaseButton>
       </div>

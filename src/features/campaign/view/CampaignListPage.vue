@@ -28,7 +28,11 @@ const {
   loadCampaigns,
 } = useCampaigns()
 
-onMounted(() => loadCampaigns())
+onMounted(() => {
+  if (filteredCampaigns.value.length === 0) {
+    loadCampaigns()
+  }
+})
 
 const showFormModal = ref(false)
 const editingCampaign = ref<Campaign | null>(null)

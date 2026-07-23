@@ -26,7 +26,13 @@ const {
   getActiveCampaignId,
 } = useInfoSessions()
 
-onMounted(() => bootstrap())
+onMounted(async () => {
+  try {
+    await bootstrap()
+  } catch (err) {
+    console.error('[InformationSessionView] Error during bootstrap:', err)
+  }
+})
 
 const isFormOpen = ref(false)
 const isSaving = ref(false)
@@ -47,10 +53,10 @@ function handleEdit(session: Session) {
   form.value = {
     id: session.id,
     date: dateOnly,
-    province_id: session.province_id ?? null,
-    district_id: session.district_id ?? null,
-    commune_id: session.commune_id ?? null,
-    village_id: session.village_id ?? null,
+    province_id: session.province_id ? Number(session.province_id) : null,
+    district_id: session.district_id ? Number(session.district_id) : null,
+    commune_id: session.commune_id ? Number(session.commune_id) : null,
+    village_id: session.village_id ? Number(session.village_id) : null,
     school: session.school_name,
     venue: session.venue ?? '',
     attendanceCount: session.attendance_count ?? 0,

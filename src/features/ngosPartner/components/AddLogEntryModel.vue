@@ -8,6 +8,7 @@ import type { CommunicationChannel, CommunicationLogEntry } from '../types/commu
 
 const props = defineProps<{
   open: boolean
+  saving?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -42,7 +43,6 @@ function handleSubmit() {
     return
   }
   emit('submit', { date: form.date, channel: form.channel, summary: form.summary.trim() })
-  emit('update:open', false)
 }
 </script>
 
@@ -94,7 +94,7 @@ function handleSubmit() {
         <BaseButton variant="secondary" class="!w-auto !px-5" @click="emit('update:open', false)">
           Cancel
         </BaseButton>
-        <BaseButton class="!w-auto !px-5" @click="handleSubmit">
+        <BaseButton class="!w-auto !px-5" :loading="saving" @click="handleSubmit">
           Save Entry
         </BaseButton>
       </div>

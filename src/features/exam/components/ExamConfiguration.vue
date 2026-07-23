@@ -13,7 +13,11 @@ const props = defineProps<{
 const campaignIdRef = toRef(props, 'campaignId')
 
 const { config, isSaving, lastSavedFormatted, saveConfiguration, resetConfiguration, validateConfiguration, loading, error: configError } = useExamConfig(campaignIdRef)
-const { isValidWeight, totalWeight } = useSubjects({ campaignId: props.campaignId })
+const { isValidWeight, totalWeight, currentCampaignId, setCampaignId } = useSubjects()
+
+watch(() => props.campaignId, (newVal) => {
+  setCampaignId(newVal ?? null)
+}, { immediate: true })
 
 const overallPassMark = ref(config.value.overallPassMark)
 const perSubjectMin = ref(config.value.perSubjectMin)

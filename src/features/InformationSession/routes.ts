@@ -1,6 +1,7 @@
 import type { RouteRecordRaw } from 'vue-router'
 import AppLayout from '@/layouts/AppLayout.vue'
 import InformationSessionView from './view/InformationSessionView.vue'
+import { prefetchInfoSessions } from '@/composables/useRoutePrefetch'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -14,6 +15,9 @@ const routes: RouteRecordRaw[] = [
         meta: {
           title: 'Information Sessions',
           requiresAuth: true,
+        },
+        beforeEnter: () => {
+          prefetchInfoSessions()
         },
       },
       {

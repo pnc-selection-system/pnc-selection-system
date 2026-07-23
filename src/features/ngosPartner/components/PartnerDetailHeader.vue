@@ -41,7 +41,8 @@ function initials(name: string) {
         <!-- Clickable logo -->
         <button
           type="button"
-          class="group relative h-11 w-11 shrink-0 rounded-xl overflow-hidden ring-1 ring-slate-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition-shadow hover:ring-slate-300 hover:shadow-sm"
+          class="group relative h-11 w-11 shrink-0 overflow-hidden ring-1 ring-slate-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition-shadow hover:ring-slate-300 hover:shadow-sm"
+          style="border-radius: 4px"
           title="Change logo"
           @click="fileInput?.click()"
         >
@@ -77,9 +78,8 @@ function initials(name: string) {
 
       <!-- Status badge -->
       <BaseBadge
-        :type="partner.status === 'Active' ? 'success' : 'info'"
-        class="shrink-0 !rounded-lg !px-2 !py-0.5 !h-auto !text-[11px]"
-        :class="partner.status === 'Active' ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : ''"
+        :type="partner.status === 'active' ? 'success' : 'info'"
+        size="small"
       >
         {{ partner.status }}
       </BaseBadge>

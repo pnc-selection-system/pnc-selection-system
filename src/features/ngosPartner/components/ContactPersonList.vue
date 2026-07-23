@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import BaseButton from '../../../components/base/BaseButton.vue'
-import EmptyState from '../../../components/ui/EmptyState.vue'
+import BaseIcon from '../../../components/base/BaseIcon.vue'
+import DataTableWrapper from '@/components/ui/DataTableWrapper.vue'
 import type { ContactPerson } from '../types/partner'
 
 defineProps<{
@@ -15,44 +16,47 @@ const emit = defineEmits<{
 <template>
   <div class="border-t border-slate-100">
     <div class="flex items-center justify-between px-4 py-2">
-      <p class="font-mono text-[9px] uppercase tracking-[0.1em] text-slate-400">
+      <p class="font-mono text-[11px] uppercase tracking-[0.1em] text-slate-400">
         Contact Persons
       </p>
-    </div>
-    <div class="px-4 pb-2">
-      <BaseButton variant="secondary" class="!h-auto !w-full !border-dashed !py-2.5 !text-[13px]" @click="emit('addContact')">
-        + Add contact
+      <BaseButton
+        variant="primary"
+        class="!w-auto !rounded-[4px] !px-3 !py-1.5 text-xs font-semibold"
+        @click="emit('addContact')"
+      >
+        <BaseIcon :size="12" :stroke-width="2.5">
+          <path d="M12 5v14M5 12h14" />
+        </BaseIcon>
+        Add Contact
       </BaseButton>
     </div>
 
-    <EmptyState
-      v-if="contacts.length === 0"
-      class="mt-2"
-      title="No contacts yet"
-      description="Add contact persons linked to this partner."
-    />
-
-    <table v-else class="w-full border-collapse text-xs">
-      <thead>
-        <tr class="border-b border-slate-100 bg-slate-50/30">
-          <th class="px-4 py-2 text-left font-mono text-[9px] uppercase tracking-[0.1em] text-slate-400">Name</th>
-          <th class="px-4 py-2 text-left font-mono text-[9px] uppercase tracking-[0.1em] text-slate-400">Role</th>
-          <th class="px-4 py-2 text-left font-mono text-[9px] uppercase tracking-[0.1em] text-slate-400">Phone</th>
-          <th class="px-4 py-2 text-left font-mono text-[9px] uppercase tracking-[0.1em] text-slate-400">Email</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          v-for="contact in contacts"
-          :key="contact.id"
-          class="border-b border-slate-50 last:border-0 transition-colors hover:bg-slate-50/80"
-        >
-          <td class="px-4 py-2.5 text-[#2D3748] text-[13px]">{{ contact.full_name }}</td>
-          <td class="px-4 py-2.5 text-slate-500 text-[12px]">{{ contact.role || '-' }}</td>
-          <td class="px-4 py-2.5 text-slate-500 text-[12px]">{{ contact.phone || '-' }}</td>
-          <td class="px-4 py-2.5 text-slate-500 text-[12px]">{{ contact.email || '-' }}</td>
-        </tr>
-      </tbody>
-    </table>
+    <DataTableWrapper
+      :data="contacts"
+      row-key="id"
+      empty-text="No contacts yet"
+      empty-description="Add contact persons linked to this partner."
+    >
+      <el-table-column label="Name" min-width="160">
+        <template #default="{ row }">
+          <span class="text-[13px] text-[#2D3748]">{{ row.full_name }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Role" min-width="120">
+        <template #default="{ row }">
+          <span class="text-[12px] text-slate-500">{{ row.role || '-' }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Phone" min-width="140">
+        <template #default="{ row }">
+          <span class="text-[12px] text-slate-500">{{ row.phone || '-' }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Email" min-width="180">
+        <template #default="{ row }">
+          <span class="text-[12px] text-slate-500">{{ row.email || '-' }}</span>
+        </template>
+      </el-table-column>
+    </DataTableWrapper>
   </div>
 </template>

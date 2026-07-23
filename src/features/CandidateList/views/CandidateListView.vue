@@ -83,6 +83,9 @@ const router = useRouter()
 const { candidates, loading, page, total, totalPages, search, province_id, ngo_id, status, examResult, perPage } = useCandidates()
 const store = useCandidateStore()
 
+// Hydrate from sessionStorage before useCandidates immediately triggers applyFilters
+store.hydrateFromStorage()
+
 const showFormModal = ref(false)
 const showImportModal = ref(false)
 

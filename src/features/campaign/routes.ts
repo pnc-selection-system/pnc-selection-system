@@ -1,4 +1,5 @@
 import type { RouteRecordRaw } from 'vue-router'
+import { fetchCampaigns } from './services/campaign'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -10,6 +11,15 @@ const routes: RouteRecordRaw[] = [
         name: 'campaigns',
         meta: { requiresAuth: true },
         component: () => import('./view/CampaignListPage.vue'),
+        beforeEnter: () => {
+          fetchCampaigns()
+            .then((campaigns) => {
+              try {
+                sessionStorage.setItem('campaigns', JSON.stringify(campaigns))
+              } catch {}
+            })
+            .catch(() => {})
+        },
       },
       {
         path: ':id',
