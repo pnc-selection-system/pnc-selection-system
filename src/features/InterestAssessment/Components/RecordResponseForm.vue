@@ -5,6 +5,36 @@ import BaseInput from '@/components/base/BaseInput.vue'
 import type { AssessmentForm } from '../types/question'
 import type { AssessmentResponse, CandidateOption, QuestionAnswer } from '../types/response'
 
+// ── Scale 1-5 color helpers ──
+const SCALE_COLORS = [
+  { ring: 'ring-red-200', bg: 'bg-red-500', border: 'border-red-500', text: 'text-red-600', bar: 'bg-red-400', check: 'text-red-500' },
+  { ring: 'ring-orange-200', bg: 'bg-orange-500', border: 'border-orange-500', text: 'text-orange-600', bar: 'bg-orange-400', check: 'text-orange-500' },
+  { ring: 'ring-amber-200', bg: 'bg-amber-500', border: 'border-amber-500', text: 'text-amber-600', bar: 'bg-amber-400', check: 'text-amber-500' },
+  { ring: 'ring-lime-200', bg: 'bg-lime-500', border: 'border-lime-500', text: 'text-lime-600', bar: 'bg-lime-400', check: 'text-lime-500' },
+  { ring: 'ring-emerald-200', bg: 'bg-emerald-500', border: 'border-emerald-500', text: 'text-emerald-600', bar: 'bg-emerald-400', check: 'text-emerald-500' },
+]
+
+function getScaleColors(n: number) {
+  return SCALE_COLORS[n - 1] ?? SCALE_COLORS[0]
+}
+
+function getScaleActiveClass(n: number) {
+  const c = getScaleColors(n)
+  return `${c.border} ${c.bg} text-white shadow-lg ${c.ring} ring-2 ring-offset-1`
+}
+
+function getScaleCheckClass(n: number) {
+  return getScaleColors(n).check
+}
+
+function getScaleBarClass(n: number) {
+  return getScaleColors(n).bar
+}
+
+function getScaleTextClass(n: number) {
+  return getScaleColors(n).text
+}
+
 const props = defineProps<{
   form: AssessmentForm
   candidates: CandidateOption[]
@@ -244,17 +274,51 @@ function handleSubmit() {
           @update:model-value="answers[question.id] = $event"
         />
 
-        <div v-else-if="question.type === 'scale_1_5'" class="mt-2 flex gap-2">
-          <button
-            v-for="n in 5"
-            :key="n"
-            type="button"
-            class="flex h-9 w-9 items-center justify-center rounded-full border text-sm"
-            :class="answers[question.id] === n ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-slate-200 text-slate-500 hover:border-slate-300'"
-            @click="answers[question.id] = n"
-          >
-            {{ n }}
-          </button>
+        <div v-else-if="question.type === 'scale_1_5'" class="mt-2">
+          <div class="flex items-center gap-1.5">
+            <button
+              v-for="n in 5"
+              :key="n"
+              type="button"
+              class="relative flex h-10 w-10 items-center justify-center rounded-xl border-2 text-sm font-bold transition-all duration-150 ease-out"
+              :class="[
+                answers[question.id] === n
+                  ? getScaleActiveClass(n)
+                  : 'border-slate-200 bg-white text-slate-500 hover:scale-110 hover:border-slate-300 hover:shadow-md',
+              ]"
+              @click="answers[question.id] = n"
+            >
+              {{ n }}
+              <!-- Selected indicator dot -->
+              <span
+                v-if="answers[question.id] === n"
+                class="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-white shadow-sm"
+              >
+                <svg class="h-2.5 w-2.5" :class="getScaleCheckClass(n)" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                </svg>
+              </span>
+            </button>
+          </div>
+          <!-- Scale labels -->
+          <div class="mt-1.5 flex justify-between px-0.5">
+            <span class="text-[11px] font-medium text-red-500">Low</span>
+            <span class="text-[11px] font-medium text-amber-500">Medium</span>
+            <span class="text-[11px] font-medium text-emerald-500">High</span>
+          </div>
+          <!-- Score preview: actual backend normalization is (value - min) / (max - min) with min=1, max=5 → (value-1)/4 -->
+          <div v-if="answers[question.id]" class="mt-2 flex items-center gap-2">
+            <div class="h-1.5 flex-1 overflow-hidden rounded-full bg-slate-100">
+              <div
+                class="h-full rounded-full transition-all duration-500 ease-out"
+                :class="getScaleBarClass(answers[question.id] as number)"
+                :style="{ width: (((answers[question.id] as number) - 1) / 4) * 100 + '%' }"
+              />
+            </div>
+            <span class="text-xs font-semibold" :class="getScaleTextClass(answers[question.id] as number)">
+              {{ Math.round((((answers[question.id] as number) - 1) / 4) * 100) }}%
+            </span>
+          </div>
         </div>
 
         <div v-else-if="question.type === 'single_choice'" class="mt-2 flex flex-wrap gap-2">

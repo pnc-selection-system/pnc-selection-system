@@ -9,7 +9,7 @@ import RecordResponseForm from '../Components/RecordResponseForm.vue'
 import InterestAssessmentSkeleton from '../Components/InterestAssessmentSkeleton.vue'
 import ResponseResultsTable from '../Components/ResponseResultsTable.vue'
 import { useAssessmentFormStore } from '../store/useAssessmentFormStore'
-import { cloneFormFromYear, fetchAllResponses, fetchCandidatesPendingResponse, fetchPageMeta, submitResponse } from '../service/service'
+import { cloneFormFromYear, fetchAllResponses, fetchCandidatesPendingResponse, fetchFirstCampaign, fetchPageMeta, submitResponse } from '../service/service'
 import type { PageMeta, Question, QuestionType } from '../types/question'
 import type { AssessmentResponse, CandidateOption, CandidateResult } from '../types/response'
 
@@ -56,7 +56,12 @@ function addQuestion(type: QuestionType) {
 }
 
 async function handleCloneFromYear(year: string) {
-  draftQuestions.value = await cloneFormFromYear(year)
+  try {
+    draftQuestions.value = await cloneFormFromYear(year)
+    ElMessage.success(`Form cloned from ${year}`)
+  } catch (e: any) {
+    ElMessage.warning(e?.message || `No data available for year ${year}`)
+  }
 }
 
 function handleScaleSelect(questionId: string, value: number) {
@@ -86,29 +91,72 @@ function handleOptionSelect(questionId: string, option: string) {
 }
 
 async function handleSave() {
-  if (!store.activeForm) return
   isSaving.value = true
   try {
-    const saved = await store.save({
-      ...store.activeForm,
-      questions: draftQuestions.value,
-      passThreshold: draftThreshold.value,
-    })
-    // Reload form from saved data so it shows the new saved state
+    let saved
+    if (store.activeForm) {
+      // Update existing form
+      saved = await store.save({
+        ...store.activeForm,
+        questions: draftQuestions.value,
+        passThreshold: draftThreshold.value,
+      })
+    } else {
+      // Create new form — resolve campaign and default name
+      const campaign = await fetchFirstCampaign()
+      const campaignId = campaign?.id
+      if (!campaignId) {
+        ElMessage.warning('No campaign found. Create a campaign first.')
+        return
+      }
+      saved = await store.save({
+        id: '',
+        campaignId,
+        name: `Interest Assessment ${new Date().getFullYear()}`,
+        campaign: '',
+        questions: draftQuestions.value,
+        passThreshold: draftThreshold.value,
+      })
+    }
     draftQuestions.value = saved.questions
     ElMessage.success('Form saved successfully!')
+  } catch (e: any) {
+    const errMsg = e?.response?.data?.message || e?.message || 'Failed to save form'
+    ElMessage.error(errMsg)
+    console.error('Save form error:', e?.response?.data || e)
   } finally {
     isSaving.value = false
   }
 }
 
 async function handleSubmitResponse(response: AssessmentResponse) {
+  if (!store.activeForm?.id) {
+    ElMessage.warning('No active form. Save the form first.')
+    return
+  }
   isSubmitting.value = true
   try {
-    await submitResponse(response)
-    ElMessage.success('Response recorded successfully!')
-    results.value = await fetchAllResponses()
+    // Build key map: frontend question ID → schema field key
+    const keyMap: Record<string, string> = {}
+    store.activeForm.questions.forEach(q => {
+      if (q.key) keyMap[q.id] = q.key
+    })
+    const result = await submitResponse(store.activeForm.id, response, keyMap)
+    const score = result.score ?? 0
+    const passed = result.passed ?? false
+    // Use the actual pass_threshold returned by the backend (which uses the form's saved threshold)
+    const threshold = result.passThreshold ?? store.activeForm.passThreshold ?? 60
+    ElMessage.success(
+      `Response submitted! Score: ${score}% — ${passed ? '✅ PASSED' : '❌ FAILED'} (threshold: ${threshold}%)`
+    )
+
+    // Reload all responses from the API so the Results tab shows persisted data
+    results.value = await fetchAllResponses(store.activeForm.id)
     activeTab.value = 'results'
+  } catch (e: any) {
+    const errMsg = e?.response?.data?.message || e?.message || 'Failed to submit response'
+    ElMessage.error(errMsg)
+    console.error('Submit error:', e?.response?.data || e)
   } finally {
     isSubmitting.value = false
   }
@@ -144,7 +192,9 @@ onMounted(async () => {
       draftThreshold.value = store.activeForm.passThreshold
     }
     candidates.value = await fetchCandidatesPendingResponse()
-    results.value = await fetchAllResponses()
+    if (store.activeForm?.id) {
+      results.value = await fetchAllResponses(store.activeForm.id)
+    }
     console.log('InterestAssessment: All data loaded, setting loading to false')
   } catch (error) {
     console.error('InterestAssessment: Failed to load:', error)
