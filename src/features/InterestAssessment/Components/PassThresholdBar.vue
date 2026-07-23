@@ -1,6 +1,10 @@
 <script setup lang="ts">
+import { ref, watch } from 'vue'
+import BaseButton from '@/components/base/BaseButton.vue'
+
 const props = defineProps<{
   modelValue: number
+  saving?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -8,15 +12,29 @@ const emit = defineEmits<{
   save: []
 }>()
 
+const showSuccess = ref(false)
+
 function handleInput(e: Event) {
   const raw = (e.target as HTMLInputElement).value.replace('%', '')
   emit('update:modelValue', Number(raw) || 0)
 }
 
 function handleSaveClick() {
-  console.log('PassThresholdBar: Save button clicked!')
   emit('save')
 }
+
+// When saving transitions from true → false, briefly flash green
+watch(
+  () => props.saving,
+  (curr, prev) => {
+    if (prev === true && curr === false) {
+      showSuccess.value = true
+      setTimeout(() => {
+        showSuccess.value = false
+      }, 1800)
+    }
+  },
+)
 </script>
 
 <template>
@@ -35,13 +53,24 @@ function handleSaveClick() {
       </div>
     </div>
 
-    <button
-      type="button"
-      class="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 cursor-pointer"
-      style="position: relative; z-index: 9999;"
+    <BaseButton
+      :loading="saving"
+      :class="{ 'save-success': showSuccess }"
+      :disabled="saving"
       @click="handleSaveClick"
     >
-      Save form
-    </button>
+      <template v-if="showSuccess">✓ Saved</template>
+      <template v-else>Save form</template>
+    </BaseButton>
   </div>
 </template>
+
+<style scoped>
+.save-success {
+  --el-button-bg-color: #059669;
+  --el-button-border-color: #059669;
+  --el-button-hover-bg-color: #047857;
+  --el-button-hover-border-color: #047857;
+  --el-button-text-color: #fff;
+}
+</style>

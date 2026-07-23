@@ -7,12 +7,13 @@ import QuestionPalette from '../Components/QuestionPalette.vue'
 import FormCanvas from '../Components/FormCanvas.vue'
 import RecordResponseForm from '../Components/RecordResponseForm.vue'
 import InterestAssessmentSkeleton from '../Components/InterestAssessmentSkeleton.vue'
+import ResponseResultsTable from '../Components/ResponseResultsTable.vue'
 import { useAssessmentFormStore } from '../store/useAssessmentFormStore'
-import { cloneFormFromYear, fetchCandidatesPendingResponse, fetchPageMeta, submitResponse } from '../service/service'
+import { cloneFormFromYear, fetchAllResponses, fetchCandidatesPendingResponse, fetchPageMeta, submitResponse } from '../service/service'
 import type { PageMeta, Question, QuestionType } from '../types/question'
-import type { AssessmentResponse, CandidateOption } from '../types/response'
+import type { AssessmentResponse, CandidateOption, CandidateResult } from '../types/response'
 
-type AssessmentTab = 'builder' | 'record'
+type AssessmentTab = 'builder' | 'record' | 'results'
 
 const store = useAssessmentFormStore()
 
@@ -20,6 +21,7 @@ const loading = ref(true)
 const meta = ref<PageMeta | null>(null)
 const activeTab = ref<AssessmentTab>('builder')
 const candidates = ref<CandidateOption[]>([])
+const results = ref<CandidateResult[]>([])
 
 // Local builder draft - only committed to the store on "Save form"
 const draftQuestions = ref<Question[]>([])
@@ -29,6 +31,8 @@ const draftThreshold = ref(60)
 const selectedOptions = ref<Record<string, string>>({})
 const selectedScales = ref<Record<string, number>>({})
 
+const isSaving = ref(false)
+const isSubmitting = ref(false)
 const formName = computed(() => store.activeForm?.name ?? '')
 
 function addQuestion(type: QuestionType) {
@@ -82,19 +86,32 @@ function handleOptionSelect(questionId: string, option: string) {
 }
 
 async function handleSave() {
-  console.log('Save button clicked!', draftQuestions.value)
   if (!store.activeForm) return
-  await store.save({
-    ...store.activeForm,
-    questions: draftQuestions.value,
-    passThreshold: draftThreshold.value,
-  })
-  console.log('Form saved successfully!')
-  ElMessage.success('Form saved successfully!')
+  isSaving.value = true
+  try {
+    const saved = await store.save({
+      ...store.activeForm,
+      questions: draftQuestions.value,
+      passThreshold: draftThreshold.value,
+    })
+    // Reload form from saved data so it shows the new saved state
+    draftQuestions.value = saved.questions
+    ElMessage.success('Form saved successfully!')
+  } finally {
+    isSaving.value = false
+  }
 }
 
 async function handleSubmitResponse(response: AssessmentResponse) {
-  await submitResponse(response)
+  isSubmitting.value = true
+  try {
+    await submitResponse(response)
+    ElMessage.success('Response recorded successfully!')
+    results.value = await fetchAllResponses()
+    activeTab.value = 'results'
+  } finally {
+    isSubmitting.value = false
+  }
 }
 
 onMounted(async () => {
@@ -127,6 +144,7 @@ onMounted(async () => {
       draftThreshold.value = store.activeForm.passThreshold
     }
     candidates.value = await fetchCandidatesPendingResponse()
+    results.value = await fetchAllResponses()
     console.log('InterestAssessment: All data loaded, setting loading to false')
   } catch (error) {
     console.error('InterestAssessment: Failed to load:', error)
@@ -138,8 +156,8 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-50 p-6" style="pointer-events: auto;">
-    <div class="mx-auto max-w-6xl space-y-4" style="pointer-events: auto;">
+  <div class="min-h-screen p-6" style="pointer-events: auto;">
+    <div class="mx-auto max-w-[1200px] space-y-4" style="pointer-events: auto;">
       <PageHeader v-if="meta" :meta="meta" />
 
       <AssessmentTabs v-model="activeTab" />
@@ -157,20 +175,28 @@ onMounted(async () => {
             :pass-threshold="draftThreshold"
             :selected-options="selectedOptions"
             :selected-scales="selectedScales"
+            :saving="isSaving"
             @update:questions="draftQuestions = $event"
             @update:pass-threshold="draftThreshold = $event"
             @save="handleSave"
             @select-scale="handleScaleSelect"
             @select-option="handleOptionSelect"
+            @add-question="addQuestion"
           />
         </div>
       </template>
 
       <RecordResponseForm
-        v-else-if="activeTab === 'record' && store.activeForm"
+        v-if="activeTab === 'record' && store.activeForm"
         :form="store.activeForm"
         :candidates="candidates"
+        :submitting="isSubmitting"
         @submit="handleSubmitResponse"
+      />
+
+      <ResponseResultsTable
+        v-if="activeTab === 'results'"
+        :results="results"
       />
     </div>
   </div>

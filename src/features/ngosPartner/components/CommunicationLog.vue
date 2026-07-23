@@ -12,10 +12,10 @@ const emit = defineEmits<{
 }>()
 
 const channelClasses: Record<string, string> = {
-  Email: 'bg-slate-100 text-slate-600',
-  Call: 'bg-slate-100 text-slate-600',
-  Visit: 'bg-slate-100 text-slate-600',
-  SMS: 'bg-slate-100 text-slate-600',
+  Email: 'bg-blue-50 text-blue-700 border border-blue-200',
+  Call: 'bg-green-50 text-green-700 border border-green-200',
+  Visit: 'bg-purple-50 text-purple-700 border border-purple-200',
+  Meeting: 'bg-amber-50 text-amber-700 border border-amber-200',
 }
 
 function formatDate(iso: string) {
@@ -24,37 +24,37 @@ function formatDate(iso: string) {
 </script>
 
 <template>
-  <div class="border-t border-slate-100 px-6 py-4">
+  <div class="border-t border-slate-100 px-4 py-2">
     <div class="flex items-center justify-between">
-      <p class="font-mono text-[11px] font-medium uppercase tracking-wider text-slate-400">
+      <p class="font-mono text-[9px] uppercase tracking-[0.1em] text-slate-400">
         Communication log
       </p>
-      <BaseButton variant="secondary" size="sm" @click="emit('logEntry')">+ Add</BaseButton>
+      <BaseButton variant="secondary" size="small" @click="emit('logEntry')">+ Add</BaseButton>
     </div>
     <EmptyState
       v-if="entries.length === 0"
-      class="mt-4"
+      class="mt-2"
       title="No log entries yet"
       description="Record calls, emails, or visits with this partner."
     />
 
-    <table v-else class="mt-3 w-full text-sm">
+    <table v-else class="mt-1 w-full border-collapse">
       <thead>
-        <tr class="border-b border-slate-100 bg-slate-50">
-          <th class="px-4 py-2 text-left font-mono text-[11px] font-medium uppercase tracking-wider text-slate-400">Date</th>
-          <th class="px-4 py-2 text-left font-mono text-[11px] font-medium uppercase tracking-wider text-slate-400">Channel</th>
-          <th class="px-4 py-2 text-left font-mono text-[11px] font-medium uppercase tracking-wider text-slate-400">Summary</th>
+        <tr class="border-b border-slate-100 bg-slate-50/30">
+          <th class="px-4 py-2 text-left font-mono text-[9px] uppercase tracking-[0.1em] text-slate-400">Date</th>
+          <th class="px-4 py-2 text-left font-mono text-[9px] uppercase tracking-[0.1em] text-slate-400">Channel</th>
+          <th class="px-4 py-2 text-left font-mono text-[9px] uppercase tracking-[0.1em] text-slate-400">Summary</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="entry in entries" :key="entry.id" class="border-b border-slate-50 last:border-0">
-          <td class="px-4 py-3 text-slate-700">{{ formatDate(entry.date) }}</td>
-          <td class="px-4 py-3">
-            <span class="rounded px-2 py-0.5 font-mono text-xs" :class="channelClasses[entry.channel]">
+        <tr v-for="entry in entries" :key="entry.id" class="border-b border-slate-50 last:border-0 transition-colors hover:bg-slate-50/80">
+          <td class="px-4 py-2.5 text-slate-600 text-[13px]">{{ formatDate(entry.date) }}</td>
+          <td class="px-4 py-2.5">
+            <span class="rounded px-2 py-0.5 font-mono text-[11px]" :class="channelClasses[entry.channel]">
               {{ entry.channel }}
             </span>
           </td>
-          <td class="px-4 py-3 text-slate-700">{{ entry.summary }}</td>
+          <td class="px-4 py-2.5 text-slate-600 text-[13px]">{{ entry.summary }}</td>
         </tr>
       </tbody>
     </table>

@@ -1,71 +1,98 @@
 import { ref, computed } from 'vue'
-import type { Campaign } from '../types'
+import type { Campaign, CampaignPayload } from '../types'
+import * as campaignService from '../services/campaign'
+import { getErrorMessage } from '@/utils/error'
 
-const campaigns = ref<Campaign[]>([
-  {
-    id: '1',
-    name: 'BEM Chairman Election 2025',
-    description: 'Election for the Student Executive Board chairman for 2025/2026 period',
-    startDate: '2025-08-01',
-    endDate: '2025-08-15',
-    status: 'active',
-  },
-  {
-    id: '2',
-    name: 'Department Association Election 2025',
-    description: 'Election for the department student association chairman',
-    startDate: '2025-09-01',
-    endDate: '2025-09-10',
-    status: 'draft',
-  },
-  {
-    id: '3',
-    name: 'Student Senate Election 2024',
-    description: 'Student senate election for the 2024/2025 period',
-    startDate: '2024-06-01',
-    endDate: '2024-06-15',
-    status: 'closed',
-  },
-  {
-    id: '4',
-    name: 'Student Activity Unit Election 2025',
-    description: 'Election for the student activity unit chairman',
-    startDate: '2025-10-01',
-    endDate: '2025-10-10',
-    status: 'draft',
-  },
-])
+const campaigns = ref<Campaign[]>([])
+const loading = ref(false)
+const saving = ref(false)
+const deleting = ref(false)
+const error = ref<string | null>(null)
 
 const searchQuery = ref('')
 const statusFilter = ref<string>('all')
+const yearFilter = ref<string>('all')
 const showInfoBox = ref(true)
 
+const yearOptions = computed(() => {
+  if (!Array.isArray(campaigns.value)) return []
+  const years = new Set(campaigns.value.map((c) => c.year.toString()))
+  return Array.from(years).sort().reverse()
+})
+
 const filteredCampaigns = computed(() => {
+  if (!Array.isArray(campaigns.value)) return []
   return campaigns.value.filter((c) => {
     const q = searchQuery.value.toLowerCase()
-    const matchesSearch = !q || c.name.toLowerCase().includes(q) || c.description.toLowerCase().includes(q)
+    const matchesSearch = !q || c.name.toLowerCase().includes(q)
     const matchesStatus = statusFilter.value === 'all' || c.status === statusFilter.value
-    return matchesSearch && matchesStatus
+    const matchesYear = yearFilter.value === 'all' || c.year.toString() === yearFilter.value
+    return matchesSearch && matchesStatus && matchesYear
   })
 })
 
 export function useCampaigns() {
-  function deleteCampaign(id: string) {
-    campaigns.value = campaigns.value.filter((c) => c.id !== id)
-  }
-
-  function updateCampaign(updated: Campaign) {
-    const idx = campaigns.value.findIndex((c) => c.id === updated.id)
-    if (idx !== -1) {
-      campaigns.value[idx] = { ...updated }
+  async function loadCampaigns() {
+    loading.value = true
+    error.value = null
+    try {
+      campaigns.value = await campaignService.fetchCampaigns()
+    } catch (err) {
+      error.value = getErrorMessage(err, 'Failed to load campaigns')
+    } finally {
+      loading.value = false
     }
   }
 
-  function addCampaign(campaign: Campaign) {
-    campaigns.value.unshift({ ...campaign })
+  async function deleteCampaign(id: number) {
+    deleting.value = true
+    try {
+      await campaignService.deleteCampaign(id)
+      if (Array.isArray(campaigns.value)) {
+        campaigns.value = campaigns.value.filter((c) => c.id !== id)
+      }
+    } catch (err) {
+      error.value = getErrorMessage(err, 'Failed to delete campaign')
+    } finally {
+      deleting.value = false
+    }
+  }
+
+  async function updateCampaign(id: number, payload: Partial<CampaignPayload>) {
+    saving.value = true
+    try {
+      const updated = await campaignService.updateCampaign(id, payload)
+      if (Array.isArray(campaigns.value)) {
+        const idx = campaigns.value.findIndex((c) => c.id === id)
+        if (idx !== -1) {
+          campaigns.value[idx] = updated
+        }
+      }
+    } catch (err) {
+      error.value = getErrorMessage(err, 'Failed to update campaign')
+    } finally {
+      saving.value = false
+    }
+  }
+
+  async function addCampaign(payload: CampaignPayload) {
+    saving.value = true
+    try {
+      const created = await campaignService.createCampaign(payload)
+      if (Array.isArray(campaigns.value)) {
+        campaigns.value.unshift(created)
+      } else {
+        campaigns.value = [created]
+      }
+    } catch (err) {
+      error.value = getErrorMessage(err, 'Failed to create campaign')
+    } finally {
+      saving.value = false
+    }
   }
 
   function getStatusCount(status: Campaign['status'] | 'all') {
+    if (!Array.isArray(campaigns.value)) return 0
     if (status === 'all') return campaigns.value.length
     return campaigns.value.filter((c) => c.status === status).length
   }
@@ -75,11 +102,18 @@ export function useCampaigns() {
   }
 
   return {
+    saving,
+    deleting,
     campaigns,
+    loading,
+    error,
     searchQuery,
     statusFilter,
+    yearFilter,
+    yearOptions,
     showInfoBox,
     filteredCampaigns,
+    loadCampaigns,
     deleteCampaign,
     updateCampaign,
     addCampaign,

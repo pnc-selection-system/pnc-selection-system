@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
 import BaseButton from '@/components/base/BaseButton.vue'
 import type { ExamRound, PublishStatus } from '../types/results'
 
@@ -16,32 +16,57 @@ const emit = defineEmits<{
 }>()
 
 const statusLabel = computed(() => (props.status === 'draft' ? 'Draft — not published' : 'Published & locked'))
-const statusClasses = computed(() =>
-  props.status === 'draft'
-    ? 'bg-amber-50 text-amber-700 border-amber-200'
-    : 'bg-green-50 text-green-700 border-green-200',
-)
+const isDropdownOpen = ref(false)
+const dropdownRef = ref<HTMLElement | null>(null)
+
+function handleClickOutside(event: MouseEvent) {
+  if (dropdownRef.value && !dropdownRef.value.contains(event.target as Node)) {
+    isDropdownOpen.value = false
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
+
+function selectRound(roundId: string) {
+  emit('update:modelValue', roundId)
+  isDropdownOpen.value = false
+}
 </script>
 
 <template>
   <div class="flex flex-wrap items-center justify-between gap-3">
     <div class="flex flex-wrap items-center gap-2">
-      <div class="relative">
-        <select
-          class="appearance-none rounded-full border border-slate-200 bg-white py-1.5 pl-3 pr-8 text-sm text-slate-700 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-100"
-          :value="modelValue"
-          @change="emit('update:modelValue', ($event.target as HTMLSelectElement).value)"
-        >
-          <option v-for="round in rounds" :key="round.id" :value="round.id">{{ round.label }}</option>
-        </select>
-        <svg class="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" viewBox="0 0 20 20" fill="none">
-          <path d="M5 7.5 10 12.5 15 7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-        </svg>
+      <div ref="dropdownRef" class="relative">
+        <BaseButton variant="secondary" class="!pr-10" @click="isDropdownOpen = !isDropdownOpen">
+          {{ rounds.find((r) => r.id === modelValue)?.label ?? 'Select round' }}
+          <svg class="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" viewBox="0 0 20 20" fill="none">
+            <path d="M5 7.5 10 12.5 15 7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </BaseButton>
+        
+        <div v-if="isDropdownOpen" class="absolute top-full left-0 z-50 mt-1 w-full rounded border border-slate-200 bg-white py-1 shadow-lg">
+          <button
+            v-for="round in rounds"
+            :key="round.id"
+            type="button"
+            class="w-full px-3 py-1.5 text-left text-sm hover:bg-slate-50"
+            :class="round.id === modelValue ? 'font-semibold text-blue-600' : 'text-slate-700'"
+            @click.prevent="selectRound(round.id)"
+          >
+            {{ round.label }}
+          </button>
+        </div>
       </div>
 
-      <span class="rounded-full border px-3 py-1.5 text-xs font-medium" :class="statusClasses">
+      <BaseButton variant="secondary" disabled>
         {{ statusLabel }}
-      </span>
+      </BaseButton>
     </div>
 
     <div class="flex items-center gap-2">

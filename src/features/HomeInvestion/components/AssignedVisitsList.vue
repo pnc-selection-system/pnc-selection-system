@@ -30,7 +30,7 @@ const statusClasses: Record<VisitStatus, string> = {
         v-for="visit in visits"
         :key="visit.id"
         type="button"
-        class="flex w-full items-center justify-between gap-2 px-4 py-3 text-left hover:bg-slate-50 transition-colors"
+        class="flex w-full items-center justify-between gap-2 px-4 py-3 text-left hover:bg-slate-50 transition-colors rounded"
         :class="{ 'bg-blue-50/50': visit.candidateId === selectedCandidateId }"
         @click="emit('select', visit)"
       >
@@ -38,7 +38,7 @@ const statusClasses: Record<VisitStatus, string> = {
           <span class="block text-sm font-semibold text-slate-800">{{ visit.candidateName }}</span>
           <span class="text-sm text-blue-600">{{ visit.province }}</span>
         </span>
-        <span class="shrink-0 rounded-full border px-2.5 py-1 text-xs font-medium" :class="statusClasses[visit.status]">
+        <span class="shrink-0 rounded-md border px-2.5 py-1 text-xs font-medium" :class="statusClasses[visit.status]">
           {{ visit.status }}
         </span>
       </button>

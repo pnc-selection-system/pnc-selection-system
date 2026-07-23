@@ -1,10 +1,10 @@
 import type { RouteRecordRaw } from 'vue-router'
-import AdminLayout from '@/layouts/AdminLayout.vue'
+import AppLayout from '@/layouts/AppLayout.vue'
 
 const routes: RouteRecordRaw[] = [
   {
     path: '/evaluation/home-investigation',
-    component: AdminLayout,
+    component: AppLayout,
     children: [
       {
         path: '',

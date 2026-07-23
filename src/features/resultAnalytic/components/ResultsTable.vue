@@ -8,9 +8,9 @@ defineProps<{
 </script>
 
 <template>
-  <div class="overflow-hidden rounded-lg border border-slate-200 bg-white">
+  <div class="overflow-hidden rounded border border-slate-200 bg-white">
     <table class="w-full text-sm">
-      <thead>
+      <thead v-once>
         <tr class="border-b border-slate-100 bg-slate-50">
           <th class="px-5 py-2.5 text-left font-mono text-[11px] font-medium uppercase tracking-wider text-slate-400">Rank</th>
           <th class="px-5 py-2.5 text-left font-mono text-[11px] font-medium uppercase tracking-wider text-slate-400">Candidate</th>
@@ -31,16 +31,16 @@ defineProps<{
         </tr>
       </thead>
       <tbody>
-        <tr v-for="row in rows" :key="row.rank" class="border-b border-slate-50 last:border-0 hover:bg-slate-50">
+        <tr v-for="row in rows" :key="row.rank" class="border-b border-slate-50 last:border-0 hover:bg-blue-50">
           <td class="px-5 py-3 text-slate-500">#{{ row.rank }}</td>
-          <td class="px-5 py-3" :class="row.rank <= 2 ? 'font-semibold text-slate-800' : 'text-blue-600'">
+          <td class="px-5 py-3 text-slate-800 hover:text-blue-600">
             {{ row.candidate }}
           </td>
           <td class="px-5 py-3 text-slate-700">{{ row.scores.math }}</td>
           <td class="px-5 py-3 text-slate-700">{{ row.scores.khmer }}</td>
           <td class="px-5 py-3 text-slate-700">{{ row.scores.eng }}</td>
           <td class="px-5 py-3 text-slate-700">{{ row.scores.logic }}</td>
-          <td class="px-5 py-3 font-semibold text-slate-800">{{ row.total.toFixed(1) }}</td>
+          <td class="px-5 py-3 text-slate-800">{{ row.total.toFixed(1) }}</td>
           <td class="px-5 py-3">
             <span
               class="rounded px-2 py-0.5 text-xs font-medium"

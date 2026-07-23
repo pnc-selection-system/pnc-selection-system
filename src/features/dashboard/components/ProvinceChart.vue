@@ -10,8 +10,8 @@ const maxRate = computed(() => Math.max(...props.data.map((d) => d.rate), 1))
 </script>
 
 <template>
-  <div class="rounded-lg border border-slate-200 bg-white p-5">
-    <p class="font-mono text-[11px] font-medium uppercase tracking-wider text-slate-400">
+  <div class="rounded border border-slate-200 bg-white p-5">
+    <p class="text-[11px] font-medium uppercase tracking-wider text-slate-400">
       Pass rate by province
     </p>
 

@@ -37,8 +37,7 @@ const currentRoundLabel = computed(
   () => rounds.value.find((r) => r.id === store.currentRoundId)?.label ?? '',
 )
 
-async function loadRoundData() {
-  loading.value = true
+async function loadAllData() {
   const [summaryData, distributionData, tableData] = await Promise.all([
     fetchSummary(store.currentRoundId),
     fetchScoreDistribution(store.currentRoundId, selectedProvince.value),
@@ -47,7 +46,10 @@ async function loadRoundData() {
   summary.value = summaryData
   distribution.value = distributionData
   rows.value = tableData
-  loading.value = false
+}
+
+async function loadDistributionData() {
+  distribution.value = await fetchScoreDistribution(store.currentRoundId, selectedProvince.value)
 }
 
 async function handleExport() {
@@ -63,15 +65,22 @@ onMounted(async () => {
   meta.value = await fetchPageMeta()
   rounds.value = await fetchRounds()
   provinces.value = await fetchProvinces()
-  await loadRoundData()
+  loading.value = false
+  await loadAllData()
 })
 
-watch([() => store.currentRoundId, selectedProvince], loadRoundData)
+watch(() => store.currentRoundId, async () => {
+  await loadAllData()
+})
+
+watch(selectedProvince, async () => {
+  await loadDistributionData()
+})
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-50">
-    <div class="mx-auto max-w-6xl space-y-4">
+  <div class="min-h-screen px-6 py-6">
+    <div class="mx-auto max-w-[1200px] space-y-4">
       <ResultsAnalyticsSkeleton v-if="loading" />
 
       <template v-else>

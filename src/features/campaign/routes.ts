@@ -1,15 +1,21 @@
 import type { RouteRecordRaw } from 'vue-router'
-import AdminLayout from '@/layouts/AdminLayout.vue'
 
 const routes: RouteRecordRaw[] = [
   {
     path: '/campaigns',
-    component: AdminLayout,
+    component: () => import('@/layouts/AppLayout.vue'),
     children: [
       {
         path: '',
         name: 'campaigns',
-        component: () => import('./pages/CampaignListPage.vue'),
+        meta: { requiresAuth: true },
+        component: () => import('./view/CampaignListPage.vue'),
+      },
+      {
+        path: ':id',
+        name: 'campaign-detail',
+        meta: { requiresAuth: true },
+        component: () => import('./view/CampaignDetailPage.vue'),
       },
     ],
   },

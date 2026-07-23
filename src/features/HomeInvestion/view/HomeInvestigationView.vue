@@ -88,8 +88,8 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-50 p-6">
-    <div class="mx-auto max-w-6xl space-y-4">
+  <div class="min-h-screen p-6">
+    <div class="mx-auto max-w-[1200px] space-y-4">
       <PageHeader v-if="meta" :meta="meta" />
 
       <HomeInvestigationSkeleton v-if="loading" />

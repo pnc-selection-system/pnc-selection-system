@@ -11,7 +11,7 @@ defineProps<{
     <p class="font-mono text-[11px] font-medium uppercase tracking-wider text-slate-400">
       {{ meta.breadcrumb.join(' / ') }}
     </p>
-    <h1 class="mt-1 text-2xl font-bold text-slate-800">
+    <h1 class="mt-1 text-[24px] font-semibold tracking-tight text-slate-900">
       {{ meta.title }}
     </h1>
 
