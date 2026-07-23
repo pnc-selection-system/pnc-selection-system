@@ -44,26 +44,25 @@ function startNewSession() {
 
 function handleEdit(session: Session) {
   const dateOnly = session.session_date?.split('T')[0] ?? ''
-  let timeValue = session.session_time ?? ''
-  if (timeValue) {
-    timeValue = timeValue.split(':').slice(0, 2).join(':')
-    const [hours, minutes] = timeValue.split(':')
-    timeValue = `${hours.padStart(2, '0')}:${minutes}`
-  }
   form.value = {
     id: session.id,
     date: dateOnly,
-    time: timeValue,
     province_id: session.province_id ?? null,
     district_id: session.district_id ?? null,
     commune_id: session.commune_id ?? null,
-    village_id: session.village_id,
+    village_id: session.village_id ?? null,
     school: session.school_name,
+    venue: session.venue ?? '',
     attendanceCount: session.attendance_count ?? 0,
     expectedAttendance: session.expected_attendance,
-    partnerType: (session.partner_type as 'NGO' | 'Officer' | '') ?? '',
-    ngoName: session.ngo_name ?? '',
-    hostBy: session.hosts?.[0]?.host_name ?? '',
+    partnerType: (session.partner_type as 'School' | 'Alumni' | 'NGO' | 'Officer' | '') ?? '',
+    partnerName: session.partner_name ?? '',
+    location: session.location ?? '',
+    department: session.department ?? '',
+    generation: session.generation ?? '',
+    hosts: (session.hosts || []).map(h => ({ name: h.host_name })),
+    createdBy: [],
+    createByInput: '',
     campaign_id: session.campaign_id,
   }
   isFormOpen.value = true

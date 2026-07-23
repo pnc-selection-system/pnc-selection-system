@@ -54,9 +54,9 @@ export async function fetchVillages(commune_id: number): Promise<LocationOption[
 export function fetchFilterOptions(): SessionFilterOptions {
   return {
     provinces: [],
-    dateRanges: ['All', 'Last 7 days', 'Last 30 days', 'This campaign'],
     campaignYears: [],
-    partnerTypes: ['NGO', 'Officer'],
+    campaignDates: [],
+    partnerTypes: ['School', 'Alumni', 'NGO', 'Officer'],
   }
 }
 
@@ -70,13 +70,6 @@ export interface PaginatedResult<T> {
 
 /** Flatten nested location objects into flat string labels for display */
 export function flattenLocationLabels(session: Session): Session {
-  if (session.village && typeof session.village !== 'string') {
-    const v = session.village as any
-    session.province = v?.commune?.district?.province?.name ?? session.province
-    session.district = v?.commune?.district?.name ?? session.district
-    session.commune  = v?.commune?.name ?? session.commune
-    session.village  = v?.name ?? session.village
-  }
   return session
 }
 
@@ -94,6 +87,18 @@ export async function fetchSessions(
     if (campaign_id) params.campaign_id = campaign_id
     if (filters.province) params.province = filters.province
     if (filters.partnerType) params.partner_type = filters.partnerType
+    // When we have a precise date range (start_date + end_date), use that exclusively.
+    // Avoid sending campaign_year alongside the date range, because the backend may
+    // prioritize campaign_year and return all sessions from that year instead of the
+    // specific date window.
+    if (filters.startDate && filters.endDate) {
+      params.start_date = filters.startDate
+      params.end_date = filters.endDate
+    } else {
+      if (filters.campaignYear) params.campaign_year = filters.campaignYear
+      if (filters.startDate) params.start_date = filters.startDate
+      if (filters.endDate) params.end_date = filters.endDate
+    }
 
     const response = await api.get('/info-sessions', { params })
     // Laravel returns paginated: { success, data: { current_page, data: [sessions], total, last_page, per_page, ... } }
@@ -114,33 +119,25 @@ export async function fetchSessions(
 
 export async function saveSession(form: SessionFormData): Promise<Session> {
   try {
-    const formatTimeForBackend = (time: string): string => {
-      if (!time) return ''
-      const parts = time.split(':')
-      if (parts.length < 2) return time
-      const hours = String(parseInt(parts[0], 10))
-      const minutes = parts[1]
-      return `${hours}:${minutes}`
-    }
-
     const payload: Record<string, unknown> = {
       campaign_id: form.campaign_id,
+      province_id: form.province_id,
+      district_id: form.district_id,
+      commune_id: form.commune_id,
       village_id: form.village_id,
-      school_name: form.school,
+      school_name: form.partnerType === 'School' || form.partnerType === 'NGO' || form.partnerType === 'Officer' ? '' : form.school,
       session_date: form.date,
-      session_time: formatTimeForBackend(form.time),
+      venue: form.venue || null,
       expected_attendance: form.expectedAttendance || 1,
       attendance_count: form.attendanceCount || 0,
       partner_type: form.partnerType || null,
-      ngo_name: form.ngoName || null,
-    }
-
-    // Always send hosts array — backend requires the key to be present
-    const hostName = form.hostBy?.trim()
-    if (hostName) {
-      payload.hosts = [{ host_name: hostName }]
-    } else {
-      payload.hosts = []
+      partner_name: form.partnerName || null,
+      location: form.location || null,
+      department: form.department || null,
+      generation: form.generation || null,
+      hosts: form.hosts
+        .filter(h => h.name.trim() !== '')
+        .map(h => ({ host_name: h.name.trim() })),
     }
 
     if (form.id) {

@@ -65,19 +65,11 @@ onMounted(async () => {
               <p class="mt-1 text-sm text-slate-700">{{ formatDateShort(session.session_date) }}</p>
             </div>
             <div>
-              <p class="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-400">Time</p>
-              <p class="mt-1 text-sm text-slate-700">{{ session.session_time || '—' }}</p>
-            </div>
-            <div>
               <p class="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-400">Attendance</p>
               <p class="mt-1 text-sm text-slate-700">
                 {{ (session.attendance_count ?? 0).toLocaleString() }}
                 <span class="text-slate-400">/ {{ session.expected_attendance.toLocaleString() }} expected</span>
               </p>
-            </div>
-            <div>
-              <p class="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-400">Host</p>
-              <p class="mt-1 text-sm text-slate-700">{{ session.hosts?.[0]?.host_name || '—' }}</p>
             </div>
             <div>
               <p class="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-400">Partner Type</p>
@@ -88,9 +80,9 @@ onMounted(async () => {
                 <span v-else class="text-sm text-slate-400">—</span>
               </div>
             </div>
-            <div v-if="session.ngo_name">
-              <p class="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-400">NGO Name</p>
-              <p class="mt-1 text-sm text-slate-700">{{ session.ngo_name }}</p>
+            <div v-if="session.partner_name">
+              <p class="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-400">{{ session.partner_type }} Name</p>
+              <p class="mt-1 text-sm text-slate-700">{{ session.partner_name }}</p>
             </div>
           </div>
 
@@ -105,13 +97,10 @@ onMounted(async () => {
               <p class="mt-1 text-sm text-slate-700">{{ session.district || '—' }}</p>
             </div>
             <div>
-              <p class="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-400">Commune</p>
-              <p class="mt-1 text-sm text-slate-700">{{ session.commune || '—' }}</p>
+              <p class="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-400">Venue</p>
+              <p class="mt-1 text-sm text-slate-700">{{ session.venue || '—' }}</p>
             </div>
-            <div>
-              <p class="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-400">Village</p>
-              <p class="mt-1 text-sm text-slate-700">{{ session.village || '—' }}</p>
-            </div>
+
           </div>
 
         </div>

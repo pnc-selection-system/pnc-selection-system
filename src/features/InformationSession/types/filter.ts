@@ -5,19 +5,29 @@ export interface LocationOption {
 
 export interface SessionFilters {
   province: string
-  dateRange: string
+  campaignYear: string
+  startDate: string
+  endDate: string
   partnerType?: string
+}
+
+export interface CampaignDateInfo {
+  year: number
+  start_date: string
+  end_date: string
 }
 
 export interface SessionFilterOptions {
   provinces: LocationOption[]
-  dateRanges: string[]
   campaignYears: string[]
+  campaignDates: CampaignDateInfo[]
   partnerTypes: string[]
 }
 
 export const DEFAULT_SESSION_FILTERS: SessionFilters = {
   province: '',
-  dateRange: '',
+  campaignYear: '',
+  startDate: '',
+  endDate: '',
   partnerType: '',
 }
