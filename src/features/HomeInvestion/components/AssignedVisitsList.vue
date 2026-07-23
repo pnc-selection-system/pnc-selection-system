@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import type { AssignedVisit, VisitStatus } from '../types/visit'
+import type { Candidate, HStatus } from '../types/visit'
 
 defineProps<{
-  visits: AssignedVisit[]
+  visits: Candidate[]
   selectedCandidateId?: string | null
 }>()
 
 const emit = defineEmits<{
-  select: [visit: AssignedVisit]
+  select: [visit: Candidate]
 }>()
 
-const statusClasses: Record<VisitStatus, string> = {
+const statusClasses: Record<HStatus, string> = {
   Assigned: 'bg-amber-50 text-amber-700 border-amber-200',
-  'In progress': 'bg-blue-50 text-blue-700 border-blue-200',
+  'In Progress': 'bg-blue-50 text-blue-700 border-blue-200',
   Submitted: 'bg-green-50 text-green-700 border-green-200',
 }
 </script>
@@ -28,7 +28,7 @@ const statusClasses: Record<VisitStatus, string> = {
     <div class="divide-y divide-slate-50">
       <button
         v-for="visit in visits"
-        :key="visit.id"
+        :key="visit.candidateId"
         type="button"
         class="flex w-full items-center justify-between gap-2 px-4 py-3 text-left hover:bg-slate-50 transition-colors rounded"
         :class="{ 'bg-blue-50/50': visit.candidateId === selectedCandidateId }"
@@ -36,7 +36,7 @@ const statusClasses: Record<VisitStatus, string> = {
       >
         <span>
           <span class="block text-sm font-semibold text-slate-800">{{ visit.candidateName }}</span>
-          <span class="text-sm text-blue-600">{{ visit.province }}</span>
+          <span class="text-sm text-blue-600">{{ visit.campaign }}</span>
         </span>
         <span class="shrink-0 rounded-md border px-2.5 py-1 text-xs font-medium" :class="statusClasses[visit.status]">
           {{ visit.status }}

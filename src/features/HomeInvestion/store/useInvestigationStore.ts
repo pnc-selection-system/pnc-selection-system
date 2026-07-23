@@ -1,9 +1,9 @@
 import { defineStore } from 'pinia'
-import { fetchAssignedVisits } from '../service/service'
-import type { VisitStatus } from '../types/visit'
+import { fetchCandidates } from '../service/service'
+import type { HStatus } from '../types/visit'
 
 interface State {
-  statusByCandidate: Record<string, VisitStatus>
+  statusByCandidate: Record<string, HStatus>
   loaded: boolean
 }
 
@@ -14,18 +14,18 @@ export const useInvestigationStore = defineStore('investigation', {
   }),
 
   getters: {
-    statusOf: (state) => (candidateId: string): VisitStatus | undefined => state.statusByCandidate[candidateId],
+    statusOf: (state) => (candidateId: string): HStatus | undefined => state.statusByCandidate[candidateId],
   },
 
   actions: {
     async load() {
       if (this.loaded) return
-      const visits = await fetchAssignedVisits()
-      this.statusByCandidate = Object.fromEntries(visits.map((v) => [v.candidateId, v.status]))
+      const candidates = await fetchCandidates({ search: '', campaign: '', investigator: '', status: '', dateFrom: '', dateTo: '' })
+      this.statusByCandidate = Object.fromEntries(candidates.map((c) => [c.candidateId, c.status]))
       this.loaded = true
     },
 
-    setStatus(candidateId: string, status: VisitStatus) {
+    setStatus(candidateId: string, status: HStatus) {
       this.statusByCandidate[candidateId] = status
     },
   },

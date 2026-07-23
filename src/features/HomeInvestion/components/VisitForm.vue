@@ -3,26 +3,26 @@ import { computed } from 'vue'
 import BaseButton from '@/components/base/BaseButton.vue'
 import PhotoDocumentGrid from './PhotoDocumentGrid.vue'
 import type { Attachment } from '../types/attachment'
-import type { VisitDetail } from '../types/visit'
+import type { InvestigationFormData } from '../types/visit'
 
 const props = defineProps<{
-  modelValue: VisitDetail
-  attachments: Attachment[]
+  modelValue: InvestigationFormData
+  attachments: AttachmentFile[]
   saving?: boolean
   submitting?: boolean
 }>()
 
 const emit = defineEmits<{
-  'update:modelValue': [value: VisitDetail]
+  'update:modelValue': [value: InvestigationFormData]
   addAttachment: [file: File]
-  removeAttachment: [attachment: Attachment]
+  removeAttachment: [attachment: AttachmentFile]
   saveDraft: []
   submit: []
 }>()
 
-const isSubmitted = computed(() => props.modelValue.status === 'Submitted')
+const isSubmitted = computed(() => props.modelValue.currentStatus === 'Submitted')
 
-function update<K extends keyof VisitDetail>(key: K, value: VisitDetail[K]) {
+function update<K extends keyof InvestigationFormData>(key: K, value: InvestigationFormData[K]) {
   emit('update:modelValue', { ...props.modelValue, [key]: value })
 }
 </script>
