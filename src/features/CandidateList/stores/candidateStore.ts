@@ -16,7 +16,7 @@ export const useCandidateStore = defineStore('candidate', {
     candidates: shallowRef<Candidate[]>([]),
     total: 0,
     page: 1,
-    perPage: 50,
+    perPage: Number(localStorage.getItem('candidate_perPage') || '10'),
     search: '',
     province_id: null as number | null,
     ngo_id: null as number | null,
@@ -82,6 +82,7 @@ export const useCandidateStore = defineStore('candidate', {
       this.loading = true
       this.error = null
       try {
+        // Name caches may already be populated by route pre-fetch — skip if so
         await Promise.all([
           this.loadCampaignNames(),
           this.loadProvinceNames(),
@@ -98,8 +99,19 @@ export const useCandidateStore = defineStore('candidate', {
           exam_result: this.examResult || undefined,
         })
 
-        this.candidates = apiCandidates.map(apiCandidateToFrontend)
-        this.total = meta?.total ?? apiCandidates.length
+        const mapped = apiCandidates.map(apiCandidateToFrontend)
+
+        // Detect if the backend is NOT paginating (returns all records).
+        // If so, fall back to client-side pagination by slicing the data set.
+        if (mapped.length > this.perPage) {
+          const start = (this.page - 1) * this.perPage
+          this.candidates = mapped.slice(start, start + this.perPage)
+          this.total = mapped.length
+        } else {
+          // Backend is paginating — use the server response directly
+          this.candidates = mapped
+          this.total = meta?.total ?? mapped.length
+        }
       } catch (err) {
         this.error = getErrorMessage(err, 'Failed to load candidates')
       } finally {
@@ -109,6 +121,13 @@ export const useCandidateStore = defineStore('candidate', {
 
     setPage(page: number) {
       this.page = page
+      this.fetchCandidates()
+    },
+
+    setPerPage(perPage: number) {
+      localStorage.setItem('candidate_perPage', String(perPage))
+      this.perPage = perPage
+      this.page = 1
       this.fetchCandidates()
     },
 
@@ -129,11 +148,27 @@ export const useCandidateStore = defineStore('candidate', {
       this.saving = true
       this.error = null
       try {
+        // Check for duplicate by phone + full name
+        if (payload.phone) {
+          const existing = await candidateService.checkDuplicateCandidate(payload.phone)
+          const fullName = `${payload.firstName} ${payload.lastName}`.toLowerCase().trim()
+          const isDuplicate = existing.some((c) => {
+            const existingName = `${c.first_name} ${c.last_name}`.toLowerCase().trim()
+            return existingName === fullName
+          })
+          if (isDuplicate) {
+            this.error = 'A candidate with this name and phone number already exists.'
+            throw new Error('Duplicate candidate')
+          }
+        }
+
         const apiPayload = frontendFormToApiPayload(payload)
         await candidateService.createCandidate(apiPayload)
         await this.fetchCandidates()
       } catch (err) {
-        this.error = getErrorMessage(err, 'Failed to create candidate')
+        if (!this.error) {
+          this.error = getErrorMessage(err, 'Failed to create candidate')
+        }
         throw err
       } finally {
         this.saving = false

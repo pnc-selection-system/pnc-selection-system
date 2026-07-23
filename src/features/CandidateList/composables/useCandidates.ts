@@ -35,5 +35,6 @@ export function useCandidates() {
     perPage,
     fetch: store.fetchCandidates,
     setPage: store.setPage,
+    setPerPage: store.setPerPage,
   }
 }

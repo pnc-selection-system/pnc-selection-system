@@ -9,19 +9,22 @@ export const QUESTION_TYPE_LABELS: Record<QuestionType, string> = {
 
 export interface Question {
   id: string
+  key?: string
   order: number
   title: string
   type: QuestionType
   weight: number
-  options?: string[] // for single_choice / multi_choice
+  options?: string[]
+  pointMap?: Record<string, number>
 }
 
 export interface AssessmentForm {
   id: string
+  campaignId?: number
   name: string
   campaign: string
   questions: Question[]
-  passThreshold: number // percentage, e.g. 60
+  passThreshold: number
 }
 
 export interface RoleAction {

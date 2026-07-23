@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { VisitStatus } from '../types/visit'
+import type { HStatus } from '../types/visit'
 
 const props = defineProps<{
   candidateName: string
-  status: VisitStatus
+  status: HStatus
 }>()
 
-const statusClasses: Record<VisitStatus, string> = {
+const statusClasses: Record<HStatus, string> = {
   Assigned: 'bg-amber-50 text-amber-700 border-amber-200',
-  'In progress': 'bg-blue-50 text-blue-700 border-blue-200',
+  'In Progress': 'bg-blue-50 text-blue-700 border-blue-200',
   Submitted: 'bg-green-50 text-green-700 border-green-200',
 }
 </script>

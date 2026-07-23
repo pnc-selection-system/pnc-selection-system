@@ -1,101 +1,157 @@
-import type { AssignedVisit, PageMeta, VisitDetail, VisitStatus } from '../types/visit'
-import type { Attachment } from '../types/attachment'
+import api from '@/plugins/axios'
+import type { Candidate, InvestigationFormData, HStatus, AttachmentFile, CandidateFilters, PageMeta } from '../types/visit'
 
-const DELAY = 400
+// ── In-memory cache for static dropdown data ───────────────────────────
+let cachedCampaigns: string[] | null = null
+let cachedInvestigators: string[] | null = null
+let cachedStatuses: string[] | null = null
+let cachedMeta: PageMeta | null = null
 
-function wait<T>(value: T, ms = DELAY): Promise<T> {
-  return new Promise((resolve) => setTimeout(() => resolve(value), ms))
-}
-
-const assignedVisits: AssignedVisit[] = [
-  { id: 'v1', candidateId: 'c1', candidateName: 'Sokha N.', province: 'Battambang', status: 'In progress' },
-  { id: 'v2', candidateId: 'c2', candidateName: 'Dara K.', province: 'Siem Reap', status: 'Assigned' },
-  { id: 'v3', candidateId: 'c3', candidateName: 'Vibol S.', province: 'Kampong Cham', status: 'Submitted' },
-]
-
-const visitDetails: Record<string, VisitDetail> = {
-  c1: {
-    candidateId: 'c1',
-    candidateName: 'Sokha N.',
-    status: 'In progress',
-    visitDate: '2026-03-17',
-    location: '',
-    peopleMet: 'Mother, younger sibling',
-    observations: '',
-    findings: '',
-  },
-}
-
-const attachmentsByCandidate: Record<string, Attachment[]> = {
-  c1: [
-    { id: 'a1', name: 'IMG_0142.jpg', type: 'image' },
-    { id: 'a2', name: 'IMG_0143.jpg', type: 'image' },
-  ],
-}
-
-export async function fetchPageMeta(): Promise<PageMeta> {
-  return wait({
-    breadcrumb: ['Evaluation', 'Home Investigation'],
-    title: 'Home investigation',
-    roles: [
-      { role: 'Investigator', scope: 'own only' },
-      { role: 'Manager', scope: 'all' },
-    ],
-    reqRange: ['FR-HI-1', 'FR-HI-6'],
-  })
-}
-
-export async function fetchAssignedVisits(): Promise<AssignedVisit[]> {
-  return wait(assignedVisits)
-}
-
-export async function fetchVisitDetail(candidateId: string): Promise<VisitDetail> {
-  const visit = assignedVisits.find((v) => v.candidateId === candidateId)
-  return wait(
-    visitDetails[candidateId] ?? {
-      candidateId,
-      candidateName: visit?.candidateName ?? '',
-      status: visit?.status ?? 'Assigned',
-      visitDate: '',
-      location: '',
-      peopleMet: '',
-      observations: '',
-      findings: '',
-    },
-  )
-}
-
-export async function fetchAttachments(candidateId: string): Promise<Attachment[]> {
-  return wait(attachmentsByCandidate[candidateId] ?? [])
-}
-
-export async function saveDraft(detail: VisitDetail): Promise<VisitDetail> {
-  const updated: VisitDetail = { ...detail, status: 'In progress' }
-  visitDetails[detail.candidateId] = updated
-  return wait(updated)
-}
-
-export async function submitForReview(detail: VisitDetail): Promise<VisitDetail> {
-  const updated: VisitDetail = { ...detail, status: 'Submitted' }
-  visitDetails[detail.candidateId] = updated
-  return wait(updated)
-}
-
-export async function addAttachment(candidateId: string, file: File): Promise<Attachment> {
-  const created: Attachment = {
-    id: `a${Date.now()}`,
-    name: file.name,
-    type: file.type.startsWith('image/') ? 'image' : 'document',
-    url: file.type.startsWith('image/') ? URL.createObjectURL(file) : undefined,
+/** Convert backend camelCase candidate to frontend type */
+function mapCandidate(raw: any): Candidate {
+  return {
+    candidateId: raw.candidateId,
+    candidateName: raw.candidateName,
+    campaign: raw.campaign,
+    assignedInvestigator: raw.assignedInvestigator,
+    visitDate: raw.visitDate || '',
+    status: (raw.status as HStatus) ?? 'Assigned',
+    gender: raw.gender,
+    phoneNumber: raw.phoneNumber,
+    currentAddress: raw.currentAddress,
   }
-  attachmentsByCandidate[candidateId] = [...(attachmentsByCandidate[candidateId] ?? []), created]
-  return wait(created)
+}
+
+/** Convert backend investigation detail to frontend InvestigationFormData */
+function mapFormData(raw: any): InvestigationFormData {
+  return {
+    candidateId: raw.candidateId,
+    candidateName: raw.candidateName,
+    campaign: raw.campaign,
+    gender: raw.gender || '',
+    phoneNumber: raw.phoneNumber || '',
+    currentAddress: raw.currentAddress || '',
+    assignedInvestigator: raw.assignedInvestigator || '',
+    currentStatus: (raw.currentStatus as HStatus) ?? 'Assigned',
+    visitDate: raw.visitDate || '',
+    location: raw.location || '',
+    gpsCoordinates: raw.gpsCoordinates || '',
+    peopleMet: raw.peopleMet || '',
+    observations: raw.observations || '',
+    findings: raw.findings || '',
+    recommendation: raw.recommendation || '',
+    reason: raw.reason || '',
+  }
+}
+
+/** Convert backend attachment to frontend type */
+function mapAttachment(raw: any): AttachmentFile {
+  return {
+    id: raw.id,
+    name: raw.name,
+    type: raw.type as AttachmentFile['type'],
+    size: raw.size,
+    uploadDate: raw.uploadDate,
+    url: raw.url,
+  }
+}
+
+export async function fetchPageMeta(): Promise<
+  PageMeta
+> {
+  if (cachedMeta) return cachedMeta
+  const { data } = await api.get('/home-investigation/meta')
+  cachedMeta = data
+  return data
+}
+
+export async function fetchCandidates(filters: CandidateFilters): Promise<Candidate[]> {
+  const params: Record<string, string> = {}
+  if (filters.search) params.search = filters.search
+  if (filters.campaign) params.campaign = filters.campaign
+  if (filters.investigator) params.investigator = filters.investigator
+  if (filters.status) params.status = filters.status
+  if (filters.dateFrom) params.dateFrom = filters.dateFrom
+  if (filters.dateTo) params.dateTo = filters.dateTo
+
+  const { data: response } = await api.get('/home-investigation/candidates', { params })
+  const candidatesRaw = response.data ?? response ?? []
+  return Array.isArray(candidatesRaw) ? candidatesRaw.map(mapCandidate) : []
+}
+
+export async function fetchFormData(candidateId: string): Promise<InvestigationFormData | null> {
+  try {
+    const { data } = await api.get(`/home-investigation/candidates/${candidateId}`)
+    return mapFormData(data)
+  } catch {
+    return null
+  }
+}
+
+export async function saveDraft(data: InvestigationFormData): Promise<InvestigationFormData> {
+  const payload = {
+    visitDate: data.visitDate,
+    location: data.location,
+    gpsCoordinates: data.gpsCoordinates,
+    peopleMet: data.peopleMet,
+    observations: data.observations,
+    findings: data.findings,
+    recommendation: data.recommendation,
+    reason: data.reason,
+  }
+  const { data: response } = await api.put(`/home-investigation/candidates/${data.candidateId}/draft`, payload)
+  return mapFormData(response)
+}
+
+export async function submitInvestigation(data: InvestigationFormData): Promise<InvestigationFormData> {
+  const payload = {
+    visitDate: data.visitDate,
+    location: data.location,
+    gpsCoordinates: data.gpsCoordinates,
+    peopleMet: data.peopleMet,
+    observations: data.observations,
+    findings: data.findings,
+    recommendation: data.recommendation,
+    reason: data.reason,
+  }
+  const { data: response } = await api.put(`/home-investigation/candidates/${data.candidateId}/submit`, payload)
+  return mapFormData(response)
+}
+
+export async function fetchAttachments(candidateId: string): Promise<AttachmentFile[]> {
+  const { data: response } = await api.get(`/home-investigation/candidates/${candidateId}/attachments`)
+  const attachmentsRaw = response.data ?? response ?? []
+  return Array.isArray(attachmentsRaw) ? attachmentsRaw.map(mapAttachment) : []
+}
+
+export async function addAttachment(candidateId: string, file: File): Promise<AttachmentFile> {
+  const formData = new FormData()
+  formData.append('file', file, file.name)
+  const { data: response } = await api.post(`/home-investigation/candidates/${candidateId}/attachments`, formData)
+  return mapAttachment(response)
 }
 
 export async function removeAttachment(candidateId: string, attachmentId: string): Promise<void> {
-  const old = attachmentsByCandidate[candidateId] ?? []
-  const removed = old.find((a) => a.id === attachmentId)
-  if (removed?.url) URL.revokeObjectURL(removed.url)
-  attachmentsByCandidate[candidateId] = old.filter((a) => a.id !== attachmentId)
-  await wait(undefined)
+  await api.delete(`/home-investigation/candidates/${candidateId}/attachments/${attachmentId}`)
+}
+
+export async function fetchCampaigns(): Promise<string[]> {
+  if (cachedCampaigns) return cachedCampaigns
+  const { data: response } = await api.get('/home-investigation/campaigns')
+  cachedCampaigns = response.data ?? response ?? []
+  return cachedCampaigns
+}
+
+export async function fetchInvestigators(): Promise<string[]> {
+  if (cachedInvestigators) return cachedInvestigators
+  const { data: response } = await api.get('/home-investigation/investigators')
+  cachedInvestigators = response.data ?? response ?? []
+  return cachedInvestigators
+}
+
+export async function fetchStatuses(): Promise<string[]> {
+  if (cachedStatuses) return cachedStatuses
+  const { data: response } = await api.get('/home-investigation/statuses')
+  cachedStatuses = response.data ?? response ?? []
+  return cachedStatuses
 }

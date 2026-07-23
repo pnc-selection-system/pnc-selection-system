@@ -13,6 +13,7 @@ const editData = reactive({
   phone: '',
   province: '',
   address: '',
+  organization: '',
 })
 
 watch(
@@ -24,6 +25,7 @@ watch(
       editData.phone = c.phone
       editData.province = c.province
       editData.address = c.address
+      editData.organization = c.organization
     }
   },
   { immediate: true }
@@ -60,11 +62,18 @@ watch(
       />
     </div>
 
-    <!-- Address -->
-    <BaseInput
-      v-model="editData.address"
-      label="ADDRESS"
-      placeholder="Village, commune, district..."
-    />
+    <!-- NGO & Address -->
+    <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+      <BaseInput
+        v-model="editData.organization"
+        label="NGO"
+        placeholder="NGO name"
+      />
+      <BaseInput
+        v-model="editData.address"
+        label="ADDRESS"
+        placeholder="Village, commune, district..."
+      />
+    </div>
   </div>
 </template>

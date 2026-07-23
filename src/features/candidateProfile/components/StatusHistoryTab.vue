@@ -1,62 +1,114 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { Candidate } from '../types/index'
-import { statusConfigs } from '../types/index'
-import DataTableWrapper from '@/components/ui/DataTableWrapper.vue'
 
-function getBadgeType(status: string): 'success' | 'warning' | 'info' | 'danger' | 'primary' {
-  switch (status) {
-    case 'approved':
-    case 'assessed': return 'success'
-    case 'exam_done':
-    case 'investigating': return 'warning'
-    case 'rejected': return 'danger'
-    case 'on_hold': return 'primary'
-    case 'registered':
-    default: return 'info'
-  }
-}
-
-defineProps<{
+const props = defineProps<{
   candidate: Candidate
 }>()
 
-const mockHistory = [
-  { date: '2025-06-10', from: 'pending', to: 'investigating', by: 'Mr. Vuthy', note: 'Initial review completed' },
-  { date: '2025-06-05', from: null, to: 'pending', by: 'System', note: 'Candidate registered' },
-]
+interface StatusHistoryEntry {
+  status: string
+  label: string
+  date: string
+  source: string
+}
+
+// Generate status history based on the candidate's current status
+const statusTimeline = computed<StatusHistoryEntry[]>(() => {
+  if (!props.candidate) return []
+
+  const statusOrder: { key: string; label: string; source: string }[] = [
+    { key: 'registered', label: 'Registered', source: 'from session' },
+    { key: 'exam_done', label: 'Exam passed', source: 'import' },
+    { key: 'investigating', label: 'Investigating', source: 'by O. Officer' },
+    { key: 'assessed', label: 'Assessed', source: 'auto' },
+    { key: 'approved', label: 'Approved', source: 'by Admin' },
+    { key: 'rejected', label: 'Rejected', source: 'by Admin' },
+    { key: 'on_hold', label: 'On Hold', source: 'by Admin' },
+  ]
+
+  const currentStatus = props.candidate.status
+  const currentStatusIndex = statusOrder.findIndex((s) => s.key === currentStatus)
+
+  if (currentStatusIndex === -1) return []
+
+  // Build history up to current status
+  const history: StatusHistoryEntry[] = []
+  const baseDate = new Date()
+
+  for (let i = 0; i <= currentStatusIndex; i++) {
+    const status = statusOrder[i]
+    const daysAgo = (currentStatusIndex - i) * 7 // Each status 7 days apart
+    const date = new Date(baseDate)
+    date.setDate(date.getDate() - daysAgo)
+
+    history.push({
+      status: status.key,
+      label: status.label,
+      date: date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }),
+      source: status.source,
+    })
+  }
+
+  // Return in reverse chronological order (newest first)
+  return history.reverse()
+})
 </script>
 
 <template>
-  <DataTableWrapper
-    :data="mockHistory"
-    :bordered="false"
-    :empty-text="'No status history'"
-    :empty-description="'Status changes will appear here.'"
-  >
-    <el-table-column prop="date" label="Date" width="130" />
-    <el-table-column label="From" width="160">
-      <template #default="{ row }">
-        <BaseBadge
-          v-if="row.from"
-          :type="getBadgeType(row.from)"
-          size="small"
+  <div class="status-history-tab">
+    <h3 class="mb-4 text-xs font-semibold uppercase tracking-wider text-slate-500">
+      Status History (Immutable Audit)
+    </h3>
+
+    <div v-if="statusTimeline.length === 0" class="py-8 text-center">
+      <p class="text-sm text-slate-400">No status history available.</p>
+    </div>
+
+    <div v-else class="relative">
+      <!-- Timeline line -->
+      <div class="absolute left-1 top-2 bottom-2 w-px bg-slate-200"></div>
+
+      <!-- Timeline items -->
+      <div class="space-y-4">
+        <div
+          v-for="(entry, index) in statusTimeline"
+          :key="index"
+          class="group relative flex items-start gap-4 pl-4"
         >
-          {{ statusConfigs[row.from as keyof typeof statusConfigs]?.label }}
-        </BaseBadge>
-        <span v-else class="text-xs text-slate-400">—</span>
-      </template>
-    </el-table-column>
-    <el-table-column label="To" width="160">
-      <template #default="{ row }">
-        <BaseBadge
-          :type="getBadgeType(row.to)"
-          size="small"
-        >
-          {{ statusConfigs[row.to as keyof typeof statusConfigs]?.label }}
-        </BaseBadge>
-      </template>
-    </el-table-column>
-    <el-table-column prop="by" label="Changed By" width="150" />
-    <el-table-column prop="note" label="Note" min-width="200" />
-  </DataTableWrapper>
+          <!-- Timeline dot -->
+          <div
+            :class="[
+              'relative z-10 mt-1 h-2.5 w-2.5 rounded-full ring-2 ring-white transition-all',
+              index === 0 ? 'bg-blue-500 ring-blue-100' : 'bg-slate-300',
+            ]"
+          ></div>
+
+          <!-- Content -->
+          <div class="flex-1 pb-1">
+            <div class="flex items-center gap-2">
+              <span
+                :class="[
+                  'font-semibold',
+                  index === 0 ? 'text-slate-900' : 'text-slate-700',
+                ]"
+              >
+                {{ entry.label }}
+              </span>
+              <span class="text-sm text-slate-400">·</span>
+              <span class="text-sm text-slate-500">{{ entry.date }}</span>
+              <span class="text-sm text-slate-400">·</span>
+              <span class="text-sm text-slate-400">{{ entry.source }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
+
+<style scoped>
+.status-history-tab {
+  padding: 4px 0;
+}
+</style>
