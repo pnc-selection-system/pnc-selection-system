@@ -10,6 +10,7 @@ import AddPartnerModel from '../components/AddPartnerModel.vue'
 import AddContactModel from '../components/AddContactModel.vue'
 import AddLogEntryModel from '../components/AddLogEntryModel.vue'
 import { getErrorMessage, isAxiosError } from '@/utils/error'
+import { getCachedPartners } from '@/composables/useRoutePrefetch'
 import {
   fetchPartners,
   addPartner,
@@ -41,7 +42,14 @@ onMounted(async () => {
   try {
     loading.value = true
     error.value = null
-    partners.value = await fetchPartners()
+
+    // Use pre-fetched data from route beforeEnter guard if available
+    const cached = getCachedPartners()
+    if (cached) {
+      partners.value = cached
+    } else {
+      partners.value = await fetchPartners()
+    }
 
     // Auto-select the first partner if available.
     // The watch on selectedPartner will handle loading contacts and logs.

@@ -4,11 +4,11 @@ import AppLayout from '@/layouts/AppLayout.vue'
 const routes: RouteRecordRaw[] = [
   {
     path: '/evaluation/interest',
-    name: 'interest-assessment',
     component: AppLayout,
     children: [
       {
         path: '',
+        name: 'interest-assessment',
         component: () => import('./view/InterestAssessmentView.vue'),
       },
     ],

@@ -82,6 +82,7 @@ export const useCandidateStore = defineStore('candidate', {
       this.loading = true
       this.error = null
       try {
+        // Name caches may already be populated by route pre-fetch — skip if so
         await Promise.all([
           this.loadCampaignNames(),
           this.loadProvinceNames(),

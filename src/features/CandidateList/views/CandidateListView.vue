@@ -17,7 +17,7 @@
 
       <CandidateTable
         :candidates="candidates"
-        :loading="loading"
+        :loading="showLoading"
         @update-status="handleStatusUpdate"
         @row-click="handleRowClick"
       />
@@ -81,11 +81,30 @@ import type { Candidate } from '../types/candidate'
 
 
 const router = useRouter()
-const { candidates, loading, page, total, totalPages, search, province_id, ngo_id, status, examResult, perPage, fetch, setPage, setPerPage } = useCandidates()
+const { candidates, loading, page, total, totalPages, search, province_id, ngo_id, status, examResult, perPage } = useCandidates()
 const store = useCandidateStore()
 
 const showFormModal = ref(false)
 const showImportModal = ref(false)
+
+// Skip loading spinner on initial page load — show table immediately
+// Data loads in background and appears when ready
+const initialPageLoad = ref(true)
+const showLoading = computed(() => !initialPageLoad.value && loading.value)
+
+// End initial page load when the first fetch completes (data arrives or empty)
+watch(loading, (newVal, oldVal) => {
+  if (oldVal === true && newVal === false && initialPageLoad.value) {
+    initialPageLoad.value = false
+  }
+})
+
+// Also end initial page load on error
+watch(() => store.error, (newVal) => {
+  if (newVal && initialPageLoad.value) {
+    initialPageLoad.value = false
+  }
+})
 
 // Clear any stale error when opening the create form modal
 watch(showFormModal, (val) => {

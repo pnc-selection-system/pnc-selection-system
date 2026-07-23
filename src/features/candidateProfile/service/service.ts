@@ -9,7 +9,7 @@ import type { Candidate, CandidateStatus } from '../types/index'
 let provinceNameCache: Record<number, string> = {}
 let provinceCacheLoaded = false
 
-async function ensureProvinceCache(): Promise<void> {
+export async function ensureProvinceCache(): Promise<void> {
   if (provinceCacheLoaded) return
   try {
     const provinces = await fetchProvinces()
@@ -24,8 +24,9 @@ async function ensureProvinceCache(): Promise<void> {
 
 /**
  * Map API candidate data to the profile Candidate type
+ * Must be exported so the route pre-fetch can cache mapped data, not raw API data
  */
-function apiCandidateToProfileCandidate(api: CandidateApiData): Candidate {
+export function apiCandidateToProfileCandidate(api: CandidateApiData): Candidate {
   const statusMap: Record<string, CandidateStatus> = {
     'Registered': 'registered',
     'Exam Done': 'exam_done',

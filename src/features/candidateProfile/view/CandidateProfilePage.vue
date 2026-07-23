@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router'
 import type { Candidate, CandidateStatus } from '../types/index'
 import { statusConfigs } from '../types/index'
 import { useCandidateProfile } from '../service/service'
+import { getCachedCandidateProfile } from '@/composables/useRoutePrefetch'
 import ProfileSidebar from '../components/ProfileSidebar.vue'
 import PersonalTab from '../components/PersonalTab.vue'
 import EducationTab from '../components/EducationTab.vue'
@@ -30,6 +31,16 @@ const tabs = [
 const candidateId = computed(() => route.params.id as string)
 
 async function loadCandidate() {
+  // Route's beforeEnter already pre-fetched and cached the data (or null on error)
+  // No loading state needed — we render immediately
+  const cached = getCachedCandidateProfile(candidateId.value)
+  if (cached !== undefined) {
+    candidate.value = cached
+    loading.value = false
+    return
+  }
+
+  // Fallback for direct URL navigation (cache miss)
   loading.value = true
   candidate.value = await getCandidateById(candidateId.value)
   loading.value = false
