@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
-import PageHeader from '../components/PageHeader.vue'
+import { ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import WizardSteps from '../components/WizadSteps.vue'
 import SubjectStep from '../components/SubjectStep.vue'
 import UploadStep from '../components/UploadStep.vue'
@@ -10,7 +10,6 @@ import CommitStep from '../components/CommitStep.vue'
 import {
   SYSTEM_FIELDS,
   commitImport,
-  fetchPageMeta,
   parseUploadedFile,
   runValidation,
 } from '../service/service'
@@ -18,44 +17,69 @@ import { fetchCampaigns } from '@/features/campaign/services/campaign'
 import { useCacheFetch } from '@/composables/useCacheFetch'
 import type { Campaign } from '@/features/campaign/types'
 import { CampaignStatus } from '@/enums'
-import type { PageMeta, WizardStepKey } from '../types/wizard'
-import type { ColumnMapping, CommitSummary, UploadedFile, ValidationResult } from '../types/mapping'
+import type { WizardStepKey } from '../types/wizard'
+import type { ColumnMapping, CommitSummary, UploadedFile, ValidationResult, SubjectRule } from '../types/mapping'
 
-const meta = ref<PageMeta | null>(null)
-const currentStep = ref<WizardStepKey>('subject')
+const router = useRouter()
 
-const selectedSubjectId = ref<number | null>(null)
-const selectedSubjectName = ref('')
-const selectedCampaignId = ref<number | null>(null)
+const CACHE_KEY = 'pnc_import_wizard_data'
 
-// Auto-select campaign
+interface WizardCache {
+  currentStep: WizardStepKey
+  selectedSubjectId: number | null
+  selectedSubjectName: string
+  selectedCampaignId: number | null
+}
+
+function loadCache(): WizardCache | null {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY)
+    return raw ? (JSON.parse(raw) as WizardCache) : null
+  } catch {
+    return null
+  }
+}
+
+function saveCache(data: WizardCache) {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify(data))
+  } catch {
+    // silently ignore
+  }
+}
+
+const cached = loadCache()
+
+const currentStep = ref<WizardStepKey>(cached?.currentStep ?? 'subject')
+const selectedSubjectId = ref<number | null>(cached?.selectedSubjectId ?? null)
+const selectedSubjectName = ref(cached?.selectedSubjectName ?? '')
+const selectedCampaignId = ref<number | null>(cached?.selectedCampaignId ?? null)
+
+// Auto-select campaign from cache or fetch fresh list
 const { data: campaigns } = useCacheFetch<Campaign[]>(
   'campaigns',
   () => fetchCampaigns(),
   { ttl: 60_000 },
 )
 
-watch(campaigns, (list) => {
-  if (!list || list.length === 0) return
-  const activeCampaign = list.find(c => c.status === CampaignStatus.Active)
-  if (activeCampaign) {
-    selectedCampaignId.value = activeCampaign.id
-  } else {
-    const first = list[0]
-    if (first) {
-      selectedCampaignId.value = first.id
+if (!cached) {
+  watch(campaigns, (list) => {
+    if (!list || list.length === 0) return
+    const activeCampaign = list.find(c => c.status === CampaignStatus.Active)
+    if (activeCampaign) {
+      selectedCampaignId.value = activeCampaign.id
+    } else {
+      const first = list[0]
+      if (first) {
+        selectedCampaignId.value = first.id
+      }
     }
-  }
-}, { immediate: true })
+  }, { immediate: true })
+}
 
-watch(currentStep, async (newStep) => {
-  if (newStep === 'validate' && !validation.value) {
-    try {
-      validation.value = await runValidation(mappings.value)
-    } catch (error) {
-      console.error('Failed to load validation:', error)
-    }
-  }
+// Persist wizard state whenever the step changes
+watch(currentStep, () => {
+  persistWizardState()
 })
 
 const uploadedFile = ref<UploadedFile | null>(null)
@@ -63,11 +87,22 @@ const mappings = ref<ColumnMapping[]>([])
 const validation = ref<ValidationResult | null>(null)
 const commitSummary = ref<CommitSummary | null>(null)
 const importFileId = ref<number | null>(null)
+const subjectRules = ref<SubjectRule[]>([])
+
+function persistWizardState() {
+  saveCache({
+    currentStep: currentStep.value,
+    selectedSubjectId: selectedSubjectId.value,
+    selectedSubjectName: selectedSubjectName.value,
+    selectedCampaignId: selectedCampaignId.value,
+  })
+}
 
 function handleSubjectProceed(subjectId: number, subjectName: string) {
   selectedSubjectId.value = subjectId
   selectedSubjectName.value = subjectName
   currentStep.value = 'upload'
+  persistWizardState()
 }
 
 async function handleUpload(file: File) {
@@ -76,17 +111,12 @@ async function handleUpload(file: File) {
     return
   }
 
-  console.log('Uploading file with:', {
-    campaignId: selectedCampaignId.value,
-    subjectId: selectedSubjectId.value,
-    fileName: file.name
-  })
-
   try {
     const result = await parseUploadedFile(file, selectedCampaignId.value, selectedSubjectId.value)
     uploadedFile.value = result.file
     mappings.value = result.mappings
     importFileId.value = result.importFileId
+    subjectRules.value = result.subjectRules
     currentStep.value = 'map'
   } catch (error: any) {
     console.error('Upload failed:', error)
@@ -95,9 +125,23 @@ async function handleUpload(file: File) {
 }
 
 async function handleRunValidation() {
+  if (!importFileId.value || !selectedSubjectId.value) {
+    alert('Import file ID and subject ID are required')
+    return
+  }
+
   currentStep.value = 'validate'
   validation.value = null
-  validation.value = await runValidation(mappings.value)
+  try {
+    validation.value = await runValidation(mappings.value, importFileId.value, selectedSubjectId.value)
+    // Merge subject rules from validation response if available
+    if (validation.value.subjectRules && validation.value.subjectRules.length > 0) {
+      subjectRules.value = validation.value.subjectRules
+    }
+  } catch (error: any) {
+    console.error('Validation failed:', error)
+    alert(`Validation failed: ${error.message}`)
+  }
 }
 
 async function handleCommit() {
@@ -108,32 +152,19 @@ async function handleCommit() {
 
   currentStep.value = 'commit'
   commitSummary.value = null
-  
-  // Convert mappings to column mapping format
-  const columnMapping: Record<string, string> = {}
-  mappings.value.forEach(m => {
-    if (m.mappedTo !== 'Ignore') {
-      columnMapping[m.fileColumn] = m.mappedTo
-    }
-  })
 
-  commitSummary.value = await commitImport(importFileId.value, columnMapping, selectedSubjectId.value)
+  commitSummary.value = await commitImport(importFileId.value, mappings.value, selectedSubjectId.value)
 }
 
-function resetWizard() {
-  currentStep.value = 'subject'
-  selectedSubjectId.value = null
-  selectedSubjectName.value = ''
-  uploadedFile.value = null
-  mappings.value = []
-  validation.value = null
-  commitSummary.value = null
-  importFileId.value = null
+function goToResults() {
+  // Clear wizard cache so it starts fresh next time
+  try {
+    localStorage.removeItem(CACHE_KEY)
+  } catch {
+    // silently ignore
+  }
+  router.push('/exam/results')
 }
-
-onMounted(async () => {
-  meta.value = await fetchPageMeta()
-})
 </script>
 
 <template>
@@ -177,11 +208,12 @@ onMounted(async () => {
       <ValidateStep
         v-else-if="currentStep === 'validate'"
         :result="validation"
+        :subject-rules="subjectRules"
         @back="currentStep = 'map'"
         @commit="handleCommit"
       />
 
-      <CommitStep v-else-if="currentStep === 'commit'" :summary="commitSummary" @done="resetWizard" />
+      <CommitStep v-else-if="currentStep === 'commit'" :summary="commitSummary" @done="goToResults" />
     </div>
   </div>
 </template>

@@ -1,5 +1,6 @@
 import type { RouteRecordRaw } from 'vue-router'
 import AppLayout from '@/layouts/AppLayout.vue'
+import ResultsAnalyticsView from './view/ResultsAnalyticsView.vue'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -9,7 +10,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: '',
         name: 'results-analytics',
-        component: () => import('./view/ResultsAnalyticsView.vue'),
+        component: ResultsAnalyticsView,
       },
     ],
   },

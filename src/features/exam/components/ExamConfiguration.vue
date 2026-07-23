@@ -72,16 +72,7 @@ async function saveConfig() {
 
   if (!validate()) return
 
-  // Check if subject weights are valid
-  console.log('Campaign ID:', props.campaignId)
-  console.log('Total weight:', totalWeight.value, 'Is valid:', isValidWeight.value)
-  
-  // Skip weight validation for now since subjects might not be loaded in this component
-  // The weight validation is handled in the SubjectsTable component
-  // if (!isValidWeight.value) {
-  //   saveError.value = `Subject weights must total 100% before saving configuration (Current: ${totalWeight.value}%)`
-  //   return
-  // }
+  // Weight validation is handled in the SubjectsTable component
 
   const result = await saveConfiguration({
     overallPassMark: overallPassMark.value,

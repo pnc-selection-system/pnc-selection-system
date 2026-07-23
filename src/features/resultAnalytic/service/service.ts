@@ -1,14 +1,9 @@
+import api from '@/plugins/axios'
 import type { CandidateResultRow } from '../types/candidate'
 import type { ExamRound, PageMeta, ScoreDistribution, SummaryStats } from '../types/results'
 
-const DELAY = 400
-
-function wait<T>(value: T, ms = DELAY): Promise<T> {
-  return new Promise((resolve) => setTimeout(() => resolve(value), ms))
-}
-
 export async function fetchPageMeta(): Promise<PageMeta> {
-  return wait({
+  return {
     breadcrumb: ['Exam', 'Results & Analytics'],
     title: 'Results & analytics',
     roles: [
@@ -16,85 +11,142 @@ export async function fetchPageMeta(): Promise<PageMeta> {
       { role: 'Manager', action: 'publish' },
     ],
     reqRange: ['FR-EX-7', 'FR-EX-11'],
-  })
+  }
 }
 
+/**
+ * Fetch exam rounds (campaigns) that have results.
+ */
 export async function fetchRounds(): Promise<ExamRound[]> {
-  return wait([
-    { id: 'r1', label: 'Round 1' },
-    { id: 'r2', label: 'Round 2' },
-  ])
+  try {
+    const response = await api.get('/exam-results/rounds')
+    return response.data.data || []
+  } catch (error: any) {
+    console.error('Failed to fetch rounds:', error.response?.data || error.message)
+    return []
+  }
 }
 
-export async function fetchProvinces(): Promise<string[]> {
-  return wait(['All provinces', 'Phnom Penh', 'Battambang', 'Siem Reap', 'Kampong Cham'])
+/**
+ * Fetch provinces with candidates who have results.
+ */
+export async function fetchProvinces(campaignId: number): Promise<string[]> {
+  try {
+    const response = await api.get('/exam-results/provinces', {
+      params: { campaign_id: campaignId },
+    })
+    return response.data.data || ['All provinces']
+  } catch (error: any) {
+    console.error('Failed to fetch provinces:', error.response?.data || error.message)
+    return ['All provinces']
+  }
 }
 
-export async function fetchSummary(roundId: string): Promise<SummaryStats> {
-  return wait({ satExam: 1201, passed: 762, failed: 439, passRate: 63 })
+/**
+ * Fetch summary statistics for a campaign.
+ */
+export async function fetchSummary(campaignId: number): Promise<SummaryStats> {
+  try {
+    const response = await api.get('/exam-results/summary', {
+      params: { campaign_id: campaignId },
+    })
+    const data = response.data.data
+    return data || { satExam: 0, passed: 0, failed: 0, passRate: 0 }
+  } catch (error: any) {
+    console.error('Failed to fetch summary:', error.response?.data || error.message)
+    return { satExam: 0, passed: 0, failed: 0, passRate: 0 }
+  }
 }
 
-export async function fetchScoreDistribution(roundId: string, province: string): Promise<ScoreDistribution> {
-  return wait({
-    buckets: [
-      { rangeLabel: '0-20', count: 18, isModal: false },
-      { rangeLabel: '20-35', count: 34, isModal: false },
-      { rangeLabel: '35-50', count: 58, isModal: false },
-      { rangeLabel: '50-65', count: 96, isModal: true },
-      { rangeLabel: '65-75', count: 82, isModal: false },
-      { rangeLabel: '75-90', count: 47, isModal: false },
-      { rangeLabel: '90-100', count: 22, isModal: false },
-    ],
-    avg: 64,
-    median: 66,
-    passLine: 60,
-  })
+/**
+ * Fetch score distribution for a campaign, optionally filtered by province.
+ */
+export async function fetchScoreDistribution(
+  campaignId: number,
+  province: string,
+): Promise<ScoreDistribution> {
+  try {
+    const response = await api.get('/exam-results/distribution', {
+      params: {
+        campaign_id: campaignId,
+        province: province,
+      },
+    })
+    const data = response.data.data
+    return (
+      data || {
+        buckets: [],
+        avg: 0,
+        median: 0,
+        passLine: 0,
+      }
+    )
+  } catch (error: any) {
+    console.error('Failed to fetch distribution:', error.response?.data || error.message)
+    return { buckets: [], avg: 0, median: 0, passLine: 0 }
+  }
 }
 
-export async function fetchResultsTable(roundId: string): Promise<CandidateResultRow[]> {
-  return wait([
-    { rank: 1, candidate: 'Pisey L.', scores: { math: 96, khmer: 91, eng: 88, logic: 47 }, total: 92.1, result: 'Pass' },
-    { rank: 2, candidate: 'Rithy S.', scores: { math: 92, khmer: 89, eng: 90, logic: 44 }, total: 89.4, result: 'Pass' },
-    { rank: 142, candidate: 'Sokha N.', scores: { math: 78, khmer: 71, eng: 80, logic: 30 }, total: 71.5, result: 'Pass' },
-    { rank: 910, candidate: 'Mealea P.', scores: { math: 44, khmer: 52, eng: 40, logic: 18 }, total: 43.0, result: 'Fail' },
-  ])
+/**
+ * Fetch candidate results table for a campaign.
+ */
+export async function fetchResultsTable(campaignId: number): Promise<CandidateResultRow[]> {
+  try {
+    const response = await api.get('/exam-results/table', {
+      params: { campaign_id: campaignId },
+    })
+    return response.data.data || []
+  } catch (error: any) {
+    console.error('Failed to fetch results table:', error.response?.data || error.message)
+    return []
+  }
 }
 
-export async function exportResults(roundId: string, rows: CandidateResultRow[]): Promise<void> {
-  await wait(undefined)
+export async function exportResults(
+  roundId: string,
+  rows: CandidateResultRow[],
+): Promise<void> {
   // Generate CSV content from results
   const csvContent = generateCSV(rows)
-  
+
   // Create blob and download
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
   const link = document.createElement('a')
   const url = URL.createObjectURL(blob)
-  
+
   link.setAttribute('href', url)
-  link.setAttribute('download', `results-round-${roundId}-${new Date().toISOString().split('T')[0]}.csv`)
+  link.setAttribute(
+    'download',
+    `results-round-${roundId}-${new Date().toISOString().split('T')[0]}.csv`,
+  )
   link.style.visibility = 'hidden'
-  
+
   document.body.appendChild(link)
   link.click()
   document.body.removeChild(link)
 }
 
 function generateCSV(data: CandidateResultRow[]): string {
-  // CSV Header
-  const headers = ['Rank', 'Candidate', 'Mathematics', 'Khmer', 'English', 'Logic', 'Total', 'Result']
-  
+  if (data.length === 0) return ''
+
+  // Build dynamic headers from scores keys
+  const firstRow = data[0]
+  const subjectKeys = Object.keys(firstRow.scores)
+  const headers = ['Rank', 'Candidate', ...subjectKeys, 'Total', 'Result']
+
   const csvRows = [headers.join(',')]
-  
-  data.forEach(row => {
+
+  data.forEach((row) => {
     const values = [
       row.rank,
       `"${row.candidate}"`,
-      row.scores.math,
-      row.scores.khmer,
-      row.scores.eng,
-      row.scores.logic,
-      row.total,
-      row.result
+      ...subjectKeys.map((key) =>
+        row.scores[key] !== null && row.scores[key] !== undefined
+          ? (row.scores[key] as number).toFixed(1)
+          : '',
+      ),
+      row.total.toFixed(1),
+      row.result,
     ]
     csvRows.push(values.join(','))
   })
@@ -103,5 +155,6 @@ function generateCSV(data: CandidateResultRow[]): string {
 }
 
 export async function publishAndLockRound(roundId: string): Promise<void> {
-  await wait(undefined)
+  // Intentionally left as no-op for now
+  // Publishing/locking will be implemented when the workflow is ready
 }

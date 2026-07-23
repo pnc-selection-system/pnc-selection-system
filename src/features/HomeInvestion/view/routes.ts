@@ -1,5 +1,6 @@
 import type { RouteRecordRaw } from 'vue-router'
 import AppLayout from '@/layouts/AppLayout.vue'
+import HomeInvestigationView from './HomeInvestigationView.vue'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -9,7 +10,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: '',
         name: 'home-investigation',
-        component: () => import('./HomeInvestigationView.vue'),
+        component: HomeInvestigationView,
       },
     ],
   },

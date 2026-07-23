@@ -4,7 +4,6 @@ import PageHeader from '../components/PageHeader.vue'
 import AssignedVisitsList from '../components/AssignedVisitsList.vue'
 import VisitDetailHeader from '../components/VisitDetailHeader.vue'
 import VisitForm from '../components/VisitForm.vue'
-import HomeInvestigationSkeleton from '../components/HomeInvestigationSkeleton.vue'
 import { useInvestigationStore } from '../store/useInvestigationStore'
 import {
   addAttachment,
@@ -19,54 +18,110 @@ import {
 import type { Attachment } from '../types/attachment'
 import type { AssignedVisit, PageMeta, VisitDetail } from '../types/visit'
 
+const CACHE_KEY = 'pnc_home_investigation_data'
+
+interface InvestigationCache {
+  meta: PageMeta
+  visits: AssignedVisit[]
+  selectedCandidateId: string | null
+  detail: VisitDetail
+  attachments: Attachment[]
+}
+
+function loadCache(): InvestigationCache | null {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY)
+    return raw ? (JSON.parse(raw) as InvestigationCache) : null
+  } catch {
+    return null
+  }
+}
+
+function saveCache(data: InvestigationCache) {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify(data))
+  } catch {
+    // silently ignore
+  }
+}
+
+const cached = loadCache()
+
 const store = useInvestigationStore()
 
-const loading = ref(true)
-const meta = ref<PageMeta | null>(null)
-const visits = ref<AssignedVisit[]>([])
-const selectedCandidateId = ref<string | null>(null)
-const detail = ref<VisitDetail | null>(null)
-const attachments = ref<Attachment[]>([])
+const meta = ref<PageMeta>(
+  cached?.meta ?? { breadcrumb: [], title: 'Home Investigation', roles: [], reqRange: ['', ''] },
+)
+const visits = ref<AssignedVisit[]>(cached?.visits ?? [])
+const selectedCandidateId = ref<string | null>(cached?.selectedCandidateId ?? null)
+const detail = ref<VisitDetail>(
+  cached?.detail ?? {
+    candidateId: '',
+    candidateName: '',
+    status: 'Assigned',
+    visitDate: '',
+    location: '',
+    peopleMet: '',
+    observations: '',
+    findings: '',
+  },
+)
+const attachments = ref<Attachment[]>(cached?.attachments ?? [])
 const saving = ref(false)
 const submitting = ref(false)
+
+async function saveToCache() {
+  saveCache({
+    meta: meta.value,
+    visits: visits.value,
+    selectedCandidateId: selectedCandidateId.value,
+    detail: detail.value,
+    attachments: attachments.value,
+  })
+}
 
 async function selectVisit(visit: AssignedVisit) {
   selectedCandidateId.value = visit.candidateId
   detail.value = await fetchVisitDetail(visit.candidateId)
   attachments.value = await fetchAttachments(visit.candidateId)
+  await saveToCache()
 }
 
 async function handleAddAttachment(file: File) {
-  if (!detail.value) return
-  const created = await addAttachment(detail.value.candidateId, file)
+  if (!selectedCandidateId.value) return
+  const created = await addAttachment(selectedCandidateId.value, file)
   attachments.value = [...attachments.value, created]
+  await saveToCache()
 }
 
 async function handleRemoveAttachment(attachment: Attachment) {
-  if (!detail.value) return
-  await removeAttachment(detail.value.candidateId, attachment.id)
+  if (!selectedCandidateId.value) return
+  await removeAttachment(selectedCandidateId.value, attachment.id)
   attachments.value = attachments.value.filter((a) => a.id !== attachment.id)
+  await saveToCache()
 }
 
 async function handleSaveDraft() {
-  if (!detail.value) return
+  if (!selectedCandidateId.value) return
   saving.value = true
   try {
     detail.value = await saveDraft(detail.value)
     store.setStatus(detail.value.candidateId, detail.value.status)
-    visits.value = visits.value.map((v) => (v.candidateId === detail.value!.candidateId ? { ...v, status: detail.value!.status } : v))
+    visits.value = visits.value.map((v) => (v.candidateId === detail.value.candidateId ? { ...v, status: detail.value.status } : v))
+    await saveToCache()
   } finally {
     saving.value = false
   }
 }
 
 async function handleSubmit() {
-  if (!detail.value) return
+  if (!selectedCandidateId.value) return
   submitting.value = true
   try {
     detail.value = await submitForReview(detail.value)
     store.setStatus(detail.value.candidateId, detail.value.status)
-    visits.value = visits.value.map((v) => (v.candidateId === detail.value!.candidateId ? { ...v, status: detail.value!.status } : v))
+    visits.value = visits.value.map((v) => (v.candidateId === detail.value.candidateId ? { ...v, status: detail.value.status } : v))
+    await saveToCache()
   } finally {
     submitting.value = false
   }
@@ -74,15 +129,27 @@ async function handleSubmit() {
 
 onMounted(async () => {
   try {
-    meta.value = await fetchPageMeta()
-    visits.value = await fetchAssignedVisits()
+    const [metaData, visitsData] = await Promise.all([
+      fetchPageMeta(),
+      fetchAssignedVisits(),
+    ])
+    meta.value = metaData
+    visits.value = visitsData
+
+    if (visitsData.length > 0) {
+      const [detailData, attachmentData] = await Promise.all([
+        fetchVisitDetail(visitsData[0].candidateId),
+        fetchAttachments(visitsData[0].candidateId),
+      ])
+      selectedCandidateId.value = visitsData[0].candidateId
+      detail.value = detailData
+      attachments.value = attachmentData
+    }
+
     await store.load()
-    const first = visits.value[0]
-    if (first) await selectVisit(first)
+    await saveToCache()
   } catch (err) {
     console.error('Failed to load home investigation data:', err)
-  } finally {
-    loading.value = false
   }
 })
 </script>
@@ -90,16 +157,14 @@ onMounted(async () => {
 <template>
   <div class="min-h-screen p-6">
     <div class="mx-auto max-w-[1200px] space-y-4">
-      <PageHeader v-if="meta" :meta="meta" />
+      <PageHeader :meta="meta" />
 
-      <HomeInvestigationSkeleton v-if="loading" />
-
-      <div v-else class="grid grid-cols-1 gap-4 lg:grid-cols-[300px_1fr]">
+      <div class="grid grid-cols-1 gap-4 lg:grid-cols-[300px_1fr]">
         <div>
           <AssignedVisitsList :visits="visits" :selected-candidate-id="selectedCandidateId" @select="selectVisit" />
         </div>
 
-        <div v-if="detail" class="rounded-lg border border-slate-200 bg-white">
+        <div class="rounded-lg border border-slate-200 bg-white">
           <VisitDetailHeader :candidate-name="detail.candidateName" :status="detail.status" />
           <VisitForm
             v-model="detail"

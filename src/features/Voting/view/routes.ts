@@ -1,5 +1,6 @@
 import type { RouteRecordRaw } from 'vue-router'
 import AppLayout from '@/layouts/AppLayout.vue'
+import VotingSelectionView from './VotingSelectionView.vue'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -9,7 +10,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: '',
         name: 'voting-selection',
-        component: () => import('./VotingSelectionView.vue'),
+        component: VotingSelectionView,
       },
     ],
   },

@@ -9,8 +9,8 @@ interface State {
 
 export const useResultsStore = defineStore('results', {
   state: (): State => ({
-    currentRoundId: 'r1',
-    statusByRound: { r1: 'draft', r2: 'draft' },
+    currentRoundId: '',
+    statusByRound: {},
   }),
 
   getters: {

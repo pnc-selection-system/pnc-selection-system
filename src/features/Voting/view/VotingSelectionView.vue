@@ -7,21 +7,65 @@ import CandidateStoryNotes from '../components/CandidateStoryNotes.vue'
 import VoteActions from '../components/VoteActions.vue'
 import TallyPanel from '../components/TallyPanel.vue'
 import LockRoundDialog from '../components/LockRoundDialog.vue'
-import VotingSkeleton from '../components/VotingSkeleton.vue'
 import { useVotingStore } from '../store/useVotingStore'
 import { fetchConsolidatedProfile, fetchPageMeta, fetchShortlist } from '../service/service'
 import type { ConsolidatedProfile, PageMeta, ShortlistCandidate } from '../types/candidate'
 import type { VoteChoice } from '../types/vote'
 
+const CACHE_KEY = 'pnc_voting_data'
+
+interface VotingCache {
+  meta: PageMeta
+  shortlist: ShortlistCandidate[]
+  selectedId: string | null
+  profile: ConsolidatedProfile
+}
+
+function loadCache(): VotingCache | null {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY)
+    return raw ? (JSON.parse(raw) as VotingCache) : null
+  } catch {
+    return null
+  }
+}
+
+function saveCache(data: VotingCache) {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify(data))
+  } catch {
+    // silently ignore
+  }
+}
+
+const cached = loadCache()
+
 const store = useVotingStore()
 
-const loading = ref(true)
-const meta = ref<PageMeta | null>(null)
-const shortlist = ref<ShortlistCandidate[]>([])
-const selectedId = ref<string | null>(null)
-const profile = ref<ConsolidatedProfile | null>(null)
+const meta = ref<PageMeta>(
+  cached?.meta ?? { breadcrumb: [], title: 'Voting', roles: [], reqRange: ['', ''] },
+)
+const shortlist = ref<ShortlistCandidate[]>(cached?.shortlist ?? [])
+const selectedId = ref<string | null>(cached?.selectedId ?? null)
+const profile = ref<ConsolidatedProfile>(
+  cached?.profile ?? {
+    candidateId: '',
+    candidateName: '',
+    examScore: 0,
+    examRank: 0,
+    assessmentPercent: 0,
+    investigationRecommendation: 'Recommended',
+    needIndex: 'Low',
+    storyNotes: '',
+  },
+)
 const comment = ref('')
 const isLockDialogOpen = ref(false)
+
+// Kick off store data loading early from cache
+if (cached?.selectedId) {
+  store.loadCandidate(cached.selectedId)
+}
 
 const votedIds = computed(() => new Set(Object.keys(store.myVoteByCandidate)))
 const currentTally = computed(() => (selectedId.value ? store.tallyOf(selectedId.value) : { approve: 0, reject: 0, abstain: 0 }))
@@ -33,6 +77,12 @@ async function selectCandidate(candidate: ShortlistCandidate) {
   comment.value = ''
   profile.value = await fetchConsolidatedProfile(candidate.id)
   await store.loadCandidate(candidate.id)
+  saveCache({
+    meta: meta.value,
+    shortlist: shortlist.value,
+    selectedId: selectedId.value,
+    profile: profile.value,
+  })
 }
 
 async function handleVote(choice: VoteChoice) {
@@ -47,26 +97,40 @@ async function handleConfirmLock() {
 
 function handleViewFinalList() {
   // Hook up to router navigation, e.g. router.push({ name: 'final-list-waitlist' })
-  console.log('view final list & waitlist')
 }
 
 onMounted(async () => {
-  meta.value = await fetchPageMeta('Round 1')
-  shortlist.value = await fetchShortlist()
-  loading.value = false
-  if (shortlist.value.length > 0) await selectCandidate(shortlist.value[0]!)
+  const [metaData, shortlistData] = await Promise.all([
+    fetchPageMeta('Round 1'),
+    fetchShortlist(),
+  ])
+  meta.value = metaData
+  shortlist.value = shortlistData
+
+  if (shortlistData.length > 0) {
+    const [profileData] = await Promise.all([
+      fetchConsolidatedProfile(shortlistData[0].id),
+      store.loadCandidate(shortlistData[0].id),
+    ])
+    selectedId.value = shortlistData[0].id
+    profile.value = profileData
+  }
+
+  saveCache({
+    meta: meta.value,
+    shortlist: shortlist.value,
+    selectedId: selectedId.value,
+    profile: profile.value,
+  })
 })
 </script>
 
 <template>
   <div class="min-h-screen p-6">
     <div class="mx-auto max-w-7xl space-y-4">
-      <PageHeader v-if="meta" :meta="meta" />
+      <PageHeader :meta="meta" />
 
-      <VotingSkeleton v-if="loading" />
-
-      <template v-else>
-        <div class="grid grid-cols-1 gap-4 lg:grid-cols-[240px_1fr_240px]">
+      <div class="grid grid-cols-1 gap-4 lg:grid-cols-[240px_1fr_240px]">
           <ShortlistPanel
             :candidates="shortlist"
             :selected-id="selectedId"
@@ -74,7 +138,7 @@ onMounted(async () => {
             @select="selectCandidate"
           />
 
-          <div v-if="profile" class="rounded border border-slate-200 bg-white">
+          <div class="rounded border border-slate-200 bg-white">
             <ConsolidatedProfileCard :profile="profile" :req-tag="meta?.reqRange[0]" />
             <CandidateStoryNotes :notes="profile.storyNotes" />
             <VoteActions
@@ -92,9 +156,7 @@ onMounted(async () => {
             @lock-round="isLockDialogOpen = true"
             @view-final-list="handleViewFinalList"
           />
-        </div>
-
-      </template>
+      </div>
     </div>
 
     <LockRoundDialog v-model:open="isLockDialogOpen" round-label="Round 1" @confirm="handleConfirmLock" />

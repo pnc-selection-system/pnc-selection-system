@@ -6,7 +6,6 @@ import AssessmentTabs from '../Components/AssessmentTabs.vue'
 import QuestionPalette from '../Components/QuestionPalette.vue'
 import FormCanvas from '../Components/FormCanvas.vue'
 import RecordResponseForm from '../Components/RecordResponseForm.vue'
-import InterestAssessmentSkeleton from '../Components/InterestAssessmentSkeleton.vue'
 import ResponseResultsTable from '../Components/ResponseResultsTable.vue'
 import { useAssessmentFormStore } from '../store/useAssessmentFormStore'
 import { cloneFormFromYear, fetchAllResponses, fetchCandidatesPendingResponse, fetchPageMeta, submitResponse } from '../service/service'
@@ -17,8 +16,12 @@ type AssessmentTab = 'builder' | 'record' | 'results'
 
 const store = useAssessmentFormStore()
 
-const loading = ref(true)
-const meta = ref<PageMeta | null>(null)
+const meta = ref<PageMeta>({
+  breadcrumb: [],
+  title: 'Interest Assessment',
+  roles: [],
+  reqRange: ['', ''],
+})
 const activeTab = ref<AssessmentTab>('builder')
 const candidates = ref<CandidateOption[]>([])
 const results = ref<CandidateResult[]>([])
@@ -64,12 +67,8 @@ function handleScaleSelect(questionId: string, value: number) {
 }
 
 function handleOptionSelect(questionId: string, option: string) {
-  console.log('Parent: handleOptionSelect called', { questionId, option })
   const question = draftQuestions.value.find(q => q.id === questionId)
-  if (!question) {
-    console.log('Parent: Question not found')
-    return
-  }
+  if (!question) return
   
   if (question.type === 'multi_choice') {
     const current = selectedOptions.value[questionId]?.split(',') || []
@@ -77,12 +76,9 @@ function handleOptionSelect(questionId: string, option: string) {
       ? current.filter((o) => o !== option)
       : [...current, option]
     selectedOptions.value[questionId] = updated.join(',')
-    console.log('Parent: Multi-choice updated', selectedOptions.value[questionId])
   } else {
     selectedOptions.value[questionId] = option
-    console.log('Parent: Single choice updated', selectedOptions.value[questionId])
   }
-  console.log('Parent: All selectedOptions', selectedOptions.value)
 }
 
 async function handleSave() {
@@ -115,8 +111,6 @@ async function handleSubmitResponse(response: AssessmentResponse) {
 }
 
 onMounted(async () => {
-  console.log('InterestAssessment: Starting to load...')
-  
   // Load saved data from localStorage
   try {
     const savedOptions = localStorage.getItem('pnc_selected_options')
@@ -133,24 +127,22 @@ onMounted(async () => {
   }
   
   try {
-    meta.value = await fetchPageMeta()
-    console.log('InterestAssessment: Page meta loaded', meta.value)
-    
-    await store.load()
-    console.log('InterestAssessment: Store loaded', store.activeForm)
-    
+    const [metaData, , candidatesData, resultsData] = await Promise.all([
+      fetchPageMeta(),
+      store.load(),
+      fetchCandidatesPendingResponse(),
+      fetchAllResponses(),
+    ])
+    meta.value = metaData
+    candidates.value = candidatesData
+    results.value = resultsData
+
     if (store.activeForm) {
       draftQuestions.value = store.activeForm.questions
       draftThreshold.value = store.activeForm.passThreshold
     }
-    candidates.value = await fetchCandidatesPendingResponse()
-    results.value = await fetchAllResponses()
-    console.log('InterestAssessment: All data loaded, setting loading to false')
   } catch (error) {
     console.error('InterestAssessment: Failed to load:', error)
-  } finally {
-    loading.value = false
-    console.log('InterestAssessment: Loading set to false')
   }
 })
 </script>
@@ -158,15 +150,11 @@ onMounted(async () => {
 <template>
   <div class="min-h-screen p-6" style="pointer-events: auto;">
     <div class="mx-auto max-w-[1200px] space-y-4" style="pointer-events: auto;">
-      <PageHeader v-if="meta" :meta="meta" />
+      <PageHeader :meta="meta" />
 
       <AssessmentTabs v-model="activeTab" />
 
-      <div v-if="loading" class="text-center py-10">
-        <p class="text-slate-500">Loading...</p>
-      </div>
-
-      <template v-else-if="activeTab === 'builder'">
+      <template v-if="activeTab === 'builder'">
         <div class="grid grid-cols-1 gap-4 lg:grid-cols-[280px_1fr]">
           <QuestionPalette @add-question="addQuestion" @clone-from-year="handleCloneFromYear" />
           <FormCanvas
