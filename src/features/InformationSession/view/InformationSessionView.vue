@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, onMounted } from 'vue'
+import PageHeader from '../components/PageHeader.vue'
 import SessionFilters from '../components/SessionFilters.vue'
 import SessionTable from '../components/SessionTable.vue'
 import SessionFormPanel from '../components/SessionFormPanel.vue'
@@ -60,7 +61,7 @@ function handleEdit(session: Session) {
     location: session.location ?? '',
     department: session.department ?? '',
     generation: session.generation ?? '',
-    hosts: (session.hosts || []).map(h => ({ name: h.host_name })),
+    hosts: (session.hosts || []).map(h => ({ name: h.host_by })),
     createdBy: [],
     createByInput: '',
     campaign_id: session.campaign_id,

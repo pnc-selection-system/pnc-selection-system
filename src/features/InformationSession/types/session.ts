@@ -1,6 +1,6 @@
 export interface SessionHost {
   id: number
-  host_name: string
+  host_by: string
 }
 
 export interface Session {

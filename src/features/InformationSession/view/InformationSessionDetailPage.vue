@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import PageHeader from '../components/PageHeader.vue'
 import { useInfoSessions } from '../composables/useInfoSessions'
 import { formatDateShort } from '@/utils/date'
 import type { Session } from '../types/session'

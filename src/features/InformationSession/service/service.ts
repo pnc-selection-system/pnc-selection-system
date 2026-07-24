@@ -137,7 +137,7 @@ export async function saveSession(form: SessionFormData): Promise<Session> {
       generation: form.generation || null,
       hosts: form.hosts
         .filter(h => h.name.trim() !== '')
-        .map(h => ({ host_name: h.name.trim() })),
+        .map(h => ({ host_by: h.name.trim() })),
     }
 
     if (form.id) {

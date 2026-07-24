@@ -69,9 +69,9 @@ function viewDetail(session: Session) {
         <span class="text-xs text-slate-700">{{ row.venue || '—' }}</span>
       </template>
     </el-table-column>
-    <el-table-column label="Host Name" min-width="160">
+    <el-table-column label="Host By" min-width="160">
       <template #default="{ row }">
-        <span class="text-xs text-slate-700">{{ row.hosts?.[0]?.host_name || '-' }}</span>
+        <span class="text-xs text-slate-700">{{ row.hosts?.[0]?.host_by || '-' }}</span>
       </template>
     </el-table-column>
     <el-table-column label="Attendance" width="130">

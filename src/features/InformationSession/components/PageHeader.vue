@@ -1,19 +1,30 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { PageMeta } from '../types/session'
 
-defineProps<{
-  meta: PageMeta | null
+const props = defineProps<{
+  meta?: PageMeta | null
+  breadcrumb?: string
+  title?: string
 }>()
+
+const breadcrumbText = computed(() =>
+  props.breadcrumb ?? props.meta?.breadcrumb.join(' / ') ?? 'Outreach'
+)
+
+const titleText = computed(() =>
+  props.title ?? props.meta?.title ?? 'Information sessions'
+)
 </script>
 
 <template>
   <div>
     <p class="text-[10px] font-semibold uppercase text-slate-500">
-      {{ meta?.breadcrumb.join(' / ') || 'Outreach' }}
+      {{ breadcrumbText }}
     </p>
     <div class="mt-1 flex items-center justify-between">
       <h1 class="text-[24px] font-semibold tracking-tight text-slate-900">
-        {{ meta?.title || 'Information sessions' }}
+        {{ titleText }}
       </h1>
       <slot />
     </div>
