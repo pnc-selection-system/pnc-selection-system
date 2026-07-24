@@ -43,6 +43,7 @@ const formData = ref<InvestigationFormData | null>(null)
 const attachments = ref<AttachmentFile[]>([])
 const saving = ref(false)
 const submitting = ref(false)
+const syncError = ref<string | null>(null)
 let pendingIdCounter = 0
 
 /** Count attachments that are still uploading or errored */
@@ -180,6 +181,7 @@ async function handleRemoveAttachment(attachmentId: string) {
 async function handleSaveDraft() {
   if (!formData.value) return
   saving.value = true
+  syncError.value = null
   try {
     const result = await offlineSaveDraft(formData.value)
     if (result) {
@@ -188,6 +190,9 @@ async function handleSaveDraft() {
         c.candidateId === result.candidateId ? { ...c, status: result.currentStatus } : c,
       )
     }
+  } catch (e: any) {
+    const msg = e?.response?.data?.error || e?.message || 'Failed to save draft'
+    syncError.value = msg
   } finally {
     saving.value = false
   }
@@ -196,6 +201,7 @@ async function handleSaveDraft() {
 async function handleSubmit() {
   if (!formData.value) return
   submitting.value = true
+  syncError.value = null
   try {
     const result = await offlineSubmit(formData.value)
     if (result) {
@@ -204,8 +210,20 @@ async function handleSubmit() {
         c.candidateId === result.candidateId ? { ...c, status: result.currentStatus } : c,
       )
     }
+  } catch (e: any) {
+    const msg = e?.response?.data?.error || e?.message || 'Failed to submit investigation'
+    syncError.value = msg
   } finally {
     submitting.value = false
+  }
+}
+
+async function handleRetrySync() {
+  syncError.value = null
+  await syncPendingActions()
+  // If still pending after retry, show remaining count as sync status
+  if (pendingActions.value.length > 0) {
+    syncError.value = `${pendingActions.value.length} action${pendingActions.value.length !== 1 ? 's' : ''} still pending after retry. Will keep trying.`
   }
 }
 
@@ -262,8 +280,8 @@ onMounted(async () => {
           <span class="text-amber-600">Changes will be saved locally and synced when you reconnect.</span>
         </div>
       </div>
-      <!-- Pending sync status bar -->
-      <div v-if="!loading && isOnline && (pendingActions.length > 0 || pendingUploadCount > 0)" class="mb-3">
+      <!-- Pending sync status bar (spinner while actively syncing) -->
+      <div v-if="!loading && isOnline && syncing" class="mb-3">
         <div class="flex items-center gap-2.5 rounded-xl border border-blue-200 bg-blue-50 px-4 py-2.5 text-sm text-blue-700 shadow-sm">
           <svg class="h-4 w-4 flex-shrink-0 animate-spin" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
@@ -276,6 +294,46 @@ onMounted(async () => {
               &middot; {{ pendingUploadCount }} pending upload{{ pendingUploadCount !== 1 ? 's' : '' }}
             </template>
           </span>
+        </div>
+      </div>
+      <!-- Pending queue status bar (not actively syncing, items waiting) -->
+      <div v-if="!loading && isOnline && !syncing && (pendingActions.length > 0 || pendingUploadCount > 0)" class="mb-3">
+        <div class="flex items-center gap-2.5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-2.5 text-sm text-amber-700 shadow-sm">
+          <svg class="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span class="font-medium">Pending changes</span>
+          <span class="text-amber-600">
+            {{ pendingActions.length }} pending save{{ pendingActions.length !== 1 ? 's' : '' }}
+            <template v-if="pendingUploadCount > 0">
+              &middot; {{ pendingUploadCount }} pending upload{{ pendingUploadCount !== 1 ? 's' : '' }}
+            </template>
+            — will retry automatically
+          </span>
+          <button
+            class="ml-auto flex items-center gap-1.5 rounded-lg border border-amber-300 bg-white px-3 py-1.5 text-xs font-semibold text-amber-700 shadow-sm transition-all hover:bg-amber-100 hover:shadow"
+            @click="handleRetrySync"
+          >
+            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Retry Now
+          </button>
+        </div>
+      </div>
+      <!-- Error message bar -->
+      <div v-if="!loading && syncError" class="mb-3">
+        <div class="flex items-center gap-2.5 rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-700 shadow-sm">
+          <svg class="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span class="font-medium">{{ syncError }}</span>
+          <button
+            class="ml-auto flex items-center rounded-lg border border-red-300 bg-white px-3 py-1.5 text-xs font-semibold text-red-700 shadow-sm transition-all hover:bg-red-100"
+            @click="syncError = null"
+          >
+            Dismiss
+          </button>
         </div>
       </div>
 

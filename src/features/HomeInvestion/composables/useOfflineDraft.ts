@@ -131,7 +131,11 @@ export function useOfflineDraft() {
       // API succeeded — clear local draft
       clearDraft(data.candidateId)
       return response
-    } catch {
+    } catch (e: any) {
+      if (e?.response) {
+        // Server responded with an error — re-throw so the UI can surface it
+        throw e
+      }
       // Network error — queue for later sync
       pendingActions.value.push({
         type: 'saveDraft',
@@ -140,6 +144,8 @@ export function useOfflineDraft() {
         timestamp: Date.now(),
       })
       savePendingActions(pendingActions.value)
+      // Try to sync immediately in case it was a transient error
+      syncPendingActions()
       return data // Return local data
     }
   }
@@ -180,7 +186,12 @@ export function useOfflineDraft() {
       )
       clearDraft(data.candidateId)
       return response
-    } catch {
+    } catch (e: any) {
+      if (e?.response) {
+        // Server responded with an error — re-throw so the UI can surface it
+        throw e
+      }
+      // Network error — queue for later sync
       pendingActions.value.push({
         type: 'submit',
         candidateId: data.candidateId,
@@ -188,6 +199,8 @@ export function useOfflineDraft() {
         timestamp: Date.now(),
       })
       savePendingActions(pendingActions.value)
+      // Try to sync immediately in case it was a transient error
+      syncPendingActions()
       return submittedData
     }
   }
